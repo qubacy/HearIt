@@ -1,14 +1,14 @@
-package com.qubacy.hearit
+package com.qubacy.hearit.application.ui.visual.controller.activity.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
-import com.qubacy.hearit.ui.theme.HearItTheme
+import com.qubacy.hearit.application.ui.visual.controller.compose.HearItApp
+import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -16,9 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HearItTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
-                }
+                HearItApp()
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.qubacy.hearit.ui.theme
+package com.qubacy.hearit.application.ui.visual.resource.theme
 
 import android.app.Activity
 import android.os.Build
