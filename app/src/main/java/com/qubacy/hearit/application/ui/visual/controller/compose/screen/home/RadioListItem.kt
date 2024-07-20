@@ -2,6 +2,7 @@ package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.content.ContentResolver
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
@@ -48,51 +49,101 @@ fun RadioListItem(
   ) {
     val (coverRef, titleRef, descRef) = createRefs()
 
-    AsyncImage(
-      model = ImageRequest.Builder(LocalContext.current)
-        .data(radioPresentation.cover)
-        .crossfade(true)
-        .build(),
-      placeholder = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
-      colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-      contentDescription = stringResource(R.string.home_radio_list_item_cover_content_description),
-      contentScale = ContentScale.Fit,
-      modifier = Modifier.constrainAs(coverRef) {
-        top.linkTo(parent.top)
-        start.linkTo(parent.start)
-        bottom.linkTo(parent.bottom)
-      }.clip(AbsoluteRoundedCornerShape(4.dp))
-    )
+    val coverModifier = Modifier.constrainAs(coverRef) {
+      top.linkTo(parent.top)
+      start.linkTo(parent.start)
+      bottom.linkTo(parent.bottom)
+
+      height = Dimension.fillToConstraints
+    }.clip(AbsoluteRoundedCornerShape(4.dp))
+
+    if (radioPresentation.cover != null)
+      RadioListItemCover(uri = radioPresentation.cover, coverModifier)
+    else
+      RadioListItemCoverPlaceholder(coverModifier)
 
     val gapSize = dimensionResource(id = R.dimen.gap_normal)
 
-    Text(
-      text = radioPresentation.title,
-      textAlign = TextAlign.Start,
-      style = MaterialTheme.typography.bodyLarge,
+    RadioListItemTitle(
+      radioPresentation.title,
       modifier = Modifier.constrainAs(titleRef) {
         top.linkTo(parent.top)
         start.linkTo(coverRef.end, margin = gapSize)
 
         width = Dimension.fillToConstraints
-      },
-      overflow = TextOverflow.Ellipsis
+      }
     )
 
-    Text(
-      text = radioPresentation.description ?: String(),
-      textAlign = TextAlign.Start,
-      style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
+    RadioListItemDescription(
+      radioPresentation.description,
       modifier = Modifier.constrainAs(descRef) {
         top.linkTo(titleRef.bottom)
         start.linkTo(titleRef.start)
 
         width = Dimension.fillToConstraints
-      },
-      overflow = TextOverflow.Ellipsis
+      }
     )
   }
+}
+
+@Composable
+fun RadioListItemCover(
+  uri: Uri?,
+  modifier: Modifier = Modifier
+) {
+  AsyncImage(
+    model = ImageRequest.Builder(LocalContext.current)
+      .data(uri)
+      .crossfade(true)
+      .build(),
+    placeholder = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
+    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+    contentDescription = stringResource(R.string.home_radio_list_item_cover_content_description),
+    contentScale = ContentScale.Fit,
+    modifier = modifier
+  )
+}
+
+@Composable
+fun RadioListItemCoverPlaceholder(
+  modifier: Modifier = Modifier
+) {
+  Image(
+    painter = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
+    contentDescription = stringResource(R.string.home_radio_list_item_cover_content_description),
+    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+    contentScale = ContentScale.Fit,
+    modifier = modifier
+  )
+}
+
+@Composable
+fun RadioListItemTitle(
+  title: String,
+  modifier: Modifier = Modifier
+) {
+  Text(
+    text = title,
+    textAlign = TextAlign.Start,
+    style = MaterialTheme.typography.bodyLarge,
+    modifier = modifier,
+    overflow = TextOverflow.Ellipsis
+  )
+}
+
+@Composable
+fun RadioListItemDescription(
+  description: String?,
+  modifier: Modifier = Modifier
+) {
+  Text(
+    text = description ?: String(),
+    textAlign = TextAlign.Start,
+    style = MaterialTheme.typography.bodyMedium,
+    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    modifier = modifier,
+    overflow = TextOverflow.Ellipsis
+  )
 }
 
 @Preview
@@ -100,7 +151,7 @@ fun RadioListItem(
 fun RadioListItem() {
   val resources = LocalContext.current.resources
   val resourceId = R.drawable.ic_launcher_background
-  val coverUri =  Uri.Builder()
+  val coverUri = Uri.Builder()
     .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
     .authority(resources.getResourcePackageName(resourceId))
     .appendPath(resources.getResourceTypeName(resourceId))

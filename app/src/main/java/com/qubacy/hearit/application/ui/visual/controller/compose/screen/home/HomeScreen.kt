@@ -1,25 +1,24 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -28,6 +27,7 @@ import com.qubacy.hearit.R
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.home.HomeViewModel
 import com.qubacy.hearit.application.ui.state.state.HomeState
+import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 
 @Composable
 fun HomeScreen(
@@ -70,20 +70,21 @@ fun HomeScreen(
       }
     }
   ) { contentPadding ->
-    LazyColumn (
-      contentPadding =  PaddingValues(
-        horizontal = dimensionResource(id = R.dimen.gap_normal)
-      ),
-      modifier = Modifier.fillMaxSize()
-    ) {
-      if (state !is HomeState.Success) return@LazyColumn
+    // todo: think twice. got to do this dirt cause of the edge effect problems:
+    Box(modifier = Modifier.padding(contentPadding)) {
+      LazyColumn(
+        modifier = Modifier
+          .fillMaxSize()
+      ) {
+        if (state !is HomeState.Success) return@LazyColumn
 
-      itemsIndexed(state.radioList, key = { _: Int, item: RadioPresentation ->
-        item.id
-      }) { index, item ->
-        RadioListItem(item, {onRadioClicked(item.id)})
+        itemsIndexed(state.radioList, key = { _: Int, item: RadioPresentation ->
+          item.id
+        }) { index, item ->
+          RadioListItem(item, { onRadioClicked(item.id) })
 
-        if (index != state.radioList.size - 1) VerticalDivider()
+          if (index != state.radioList.size - 1) HorizontalDivider()
+        }
       }
     }
   }
@@ -108,17 +109,17 @@ fun HomeAppBar(
 @Preview
 @Composable
 fun HomeScreen() {
-  val radioList = listOf(
-    RadioPresentation(0, "test 1", "test description"),
-    RadioPresentation(1, "test 2", "test description"),
-    RadioPresentation(2, "test 3", "test description")
-  )
+  val radioList = IntRange(0, 20).map { index ->
+    RadioPresentation(index.toLong(), "test $index", "test description")
+  }
 
-  HomeScreen(
-    state = HomeState.Success(radioList),
-    onRadioClicked = {  },
-    onAddRadioClicked = { /*TODO*/ }
-  )
+  HearItTheme {
+    HomeScreen(
+      state = HomeState.Success(radioList),
+      onRadioClicked = {  },
+      onAddRadioClicked = { /*TODO*/ }
+    )
+  }
 }
 
 @Deprecated("Can't be used in @PreviewParameter for some reason")
