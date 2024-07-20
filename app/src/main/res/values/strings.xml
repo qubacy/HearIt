@@ -2,4 +2,5 @@
     <string name="app_name">Hear It</string>
 
     <string name="home_top_app_bar_title">Your radios</string>
+    <string name="home_radio_list_item_cover_content_description">A radio cover picture</string>
 </resources>

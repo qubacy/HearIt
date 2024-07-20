@@ -59,6 +59,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
@@ -66,6 +67,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.runtime.livedata)
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     testImplementation(libs.junit)
 
