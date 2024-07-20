@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.home.HomeScreen
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio.EditRadioScreen
 
 @Composable
 fun HearItNavHost(navController: NavHostController) {
@@ -18,8 +19,11 @@ fun HearItNavHost(navController: NavHostController) {
     composable(route = Screen.AddRadio.route) {
       // todo: implement..
     }
-    composable(route = Screen.EditRadio.route) {
-      // todo: implement..
+    composable(route = Screen.EditRadio.route, arguments = Screen.EditRadio.navArgs) {
+      EditRadioScreen(
+        onBackClicked = { navController.navigateUp() },
+        onSaveClicked = { navController.navigateUp() } // todo: think of passing a createdRadioId arg!
+      )
     }
   }
 }
