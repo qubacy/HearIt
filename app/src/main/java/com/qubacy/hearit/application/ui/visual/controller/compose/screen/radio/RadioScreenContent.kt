@@ -2,18 +2,24 @@ package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
@@ -32,19 +38,30 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -166,6 +183,7 @@ fun RadioScreenContent(
                     bottom.linkTo(saveButtonRef.top, normalGap)
 
                     width = Dimension.matchParent
+                    height = Dimension.fillToConstraints
                 }
             )
 
@@ -266,22 +284,76 @@ fun RadioScreenImageButton(
     }
 }
 
+fun Modifier.scrollableContent(offset: IntOffset) =
+    this then OffsetModifierElement(offset)
+
+private class OffsetModifierElement(
+    val offset: IntOffset
+) : ModifierNodeElement<OffsetModifierNode>() {
+    override fun create(): OffsetModifierNode {
+        return OffsetModifierNode(offset)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        val otherModifierElement = other as? OffsetModifierElement ?: return false
+
+        return offset == otherModifierElement.offset
+    }
+
+    override fun hashCode(): Int {
+        return offset.hashCode()
+    }
+
+    override fun update(node: OffsetModifierNode) {
+        Log.d("OffsetModifierElement", "update(): $offset;")
+
+        node.offset = offset
+    }
+}
+
+private class OffsetModifierNode(
+    var offset: IntOffset
+) : LayoutModifierNode, Modifier.Node() {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+
+        return layout(placeable.width, placeable.height) {
+            val heightDelta = placeable.height -
+            val yWithOffset =
+                if (heightDelta <= 0 || offset.y <= 0) 0
+                else if (heightDelta - offset.y >= 0) offset.y
+                else 0
+
+            Log.d("OffsetModifierNode", "measure(): heightDelta = $heightDelta; width = ${placeable.width}; height = ${placeable.height}; yWithOffset = $yWithOffset;")
+
+            placeable.placeRelative(0, yWithOffset)
+        }
+    }
+}
+
 @Composable
 fun RadioScreenImagePreview(
     imageUri: Uri?,
     onCloseClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
+    var offset by remember { mutableFloatStateOf(0f) }
 
     AnimatedVisibility(
         visible = imageUri != null,
         modifier = modifier.then(
-            Modifier.scrollable(scrollState, Orientation.Vertical)
+            Modifier.scrollable(state = rememberScrollableState { distance ->
+                offset += distance
+
+                distance
+            }, Orientation.Vertical).clipToBounds()
         )
     ) {
         Box(
-            modifier = Modifier.wrapContentHeight()
+            modifier = Modifier.wrapContentHeight(align = Alignment.Top, unbounded = true)
         ) {
             AsyncImage(
                 model = ImageRequest
@@ -291,8 +363,10 @@ fun RadioScreenImagePreview(
                 contentDescription = stringResource(
                     id = R.string.radio_screen_content_image_input_preview_image_description
                 ),
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.clip(AbsoluteRoundedCornerShape(12.dp))
+                contentScale = ContentScale.None,
+                modifier = Modifier
+                    .scrollableContent(IntOffset(0, offset.toInt()))
+                    .clip(AbsoluteRoundedCornerShape(12.dp))
             )
 
             val buttonMargin = dimensionResource(id = R.dimen.gap_small_less)
@@ -319,7 +393,7 @@ fun RadioScreenImagePreview(
 @Composable
 fun RadioScreenContent() {
     val resources = LocalContext.current.resources
-    val resourceId = R.drawable.ic_launcher_background
+    val resourceId = R.drawable.space
     val coverUri = Uri.Builder()
         .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
         .authority(resources.getResourcePackageName(resourceId))
