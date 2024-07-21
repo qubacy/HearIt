@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="icon_size_normal">24dp</dimen>
+    <dimen name="icon_padding_normal">12dp</dimen>
+
     <dimen name="gap_normal">16dp</dimen>
+    <dimen name="gap_normal_less">12dp</dimen>
     <dimen name="gep_small">8dp</dimen>
+    <dimen name="gap_small_less">4dp</dimen>
 </resources>

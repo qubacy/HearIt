@@ -99,7 +99,7 @@ fun HomeAppBar(
     modifier = modifier,
     title = {
       Text(
-        text = stringResource(id = R.string.home_top_app_bar_title),
+        text = stringResource(id = R.string.home_screen_top_app_bar_title),
         style = MaterialTheme.typography.titleLarge
       )
     }

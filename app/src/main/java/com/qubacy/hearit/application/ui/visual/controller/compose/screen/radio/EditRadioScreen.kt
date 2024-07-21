@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState

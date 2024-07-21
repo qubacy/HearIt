@@ -98,7 +98,7 @@ fun RadioListItemCover(
       .build(),
     placeholder = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-    contentDescription = stringResource(R.string.home_radio_list_item_cover_content_description),
+    contentDescription = stringResource(R.string.home_screen_radio_list_item_cover_content_description),
     contentScale = ContentScale.Fit,
     modifier = modifier
   )
@@ -110,7 +110,7 @@ fun RadioListItemCoverPlaceholder(
 ) {
   Image(
     painter = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
-    contentDescription = stringResource(R.string.home_radio_list_item_cover_content_description),
+    contentDescription = stringResource(R.string.home_screen_radio_list_item_cover_content_description),
     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
     contentScale = ContentScale.Fit,
     modifier = modifier

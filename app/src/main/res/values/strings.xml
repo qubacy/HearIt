@@ -1,6 +1,26 @@
 <resources>
     <string name="app_name">Hear It</string>
 
-    <string name="home_top_app_bar_title">Your radios</string>
-    <string name="home_radio_list_item_cover_content_description">A radio cover picture</string>
+    <string name="home_screen_top_app_bar_title">Your radios</string>
+    <string name="home_screen_radio_list_item_cover_content_description">A radio cover picture</string>
+
+    <string name="radio_screen_content_title_input_label">Title</string>
+    <string name="radio_screen_content_title_input_icon_description">A title input icon</string>
+    <string name="radio_screen_content_description_input_label">Description</string>
+    <string name="radio_screen_content_description_input_icon_description">A description input icon</string>
+    <string name="radio_screen_content_image_input_icon_description">An image input icon</string>
+    <string name="radio_screen_content_image_input_hint">
+        If you want it’s possible to set a custom cover for your radio station.
+    </string>
+    <string name="radio_screen_content_image_input_choose_button_icon_description">
+        An image input choose button icon
+    </string>
+    <string name="radio_screen_content_image_input_preview_image_description">
+        An image preview
+    </string>
+    <string name="radio_screen_content_image_input_preview_close_button_description">
+        An image preview close button
+    </string>
+    <string name="radio_screen_content_save_button_text">Save</string>
+    <string name="radio_screen_content_cancel_button_text">Cancel</string>
 </resources>
