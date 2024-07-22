@@ -2,27 +2,18 @@ package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
 import android.content.ContentResolver
 import android.net.Uri
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
@@ -38,30 +29,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -138,13 +118,18 @@ fun RadioScreenContent(
                 }
             )
 
+            val normalIconPadding = dimensionResource(id = R.dimen.icon_padding_normal)
+
             RadioScreenIcon(
                 drawableRes = R.drawable.image,
                 contentDescriptionRes = R.string.radio_screen_content_image_input_icon_description,
-                modifier = Modifier.constrainAs(imageIconRef) {
-                    top.linkTo(descriptionRef.bottom, normalGap)
-                    start.linkTo(parent.start)
-                }
+                modifier = Modifier
+                    .constrainAs(imageIconRef) {
+                        top.linkTo(descriptionRef.bottom, normalGap)
+                        start.linkTo(parent.start)
+                    }
+                    .padding(start = normalIconPadding, top = normalIconPadding, end = normalIconPadding)
+                    .size(dimensionResource(id = R.dimen.icon_size_normal))
             )
 
             Text(
@@ -152,7 +137,7 @@ fun RadioScreenContent(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.constrainAs(imageHintRef) {
                     top.linkTo(imageIconRef.top)
-                    start.linkTo(imageIconRef.end, normalGap)
+                    start.linkTo(imageIconRef.end)
                     end.linkTo(imageButtonRef.start)
 
                     width = Dimension.fillToConstraints
@@ -178,7 +163,7 @@ fun RadioScreenContent(
                     imageUri = null
                 },
                 modifier = Modifier.constrainAs(imagePreviewRef) {
-                    top.linkTo(imageButtonRef.bottom)
+                    top.linkTo(imageHintRef.bottom, normalGap)
                     start.linkTo(parent.start)
                     bottom.linkTo(saveButtonRef.top, normalGap)
 
@@ -252,15 +237,11 @@ fun RadioScreenIcon(
     @StringRes contentDescriptionRes: Int,
     modifier: Modifier = Modifier
 ) {
-    Image(
+    Icon(
         painter = painterResource(id = drawableRes),
         contentDescription = stringResource(id = contentDescriptionRes),
-        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-        modifier = modifier.then(
-            Modifier
-                .size(dimensionResource(id = R.dimen.icon_size_normal))
-                .padding(dimensionResource(id = R.dimen.icon_padding_normal))
-        )
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
     )
 }
 
@@ -273,64 +254,10 @@ fun RadioScreenImageButton(
         onClick = onClick,
         modifier = modifier
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.more),
-            contentDescription = stringResource(
-                id = R.string.radio_screen_content_image_input_choose_button_icon_description
-            ),
-            modifier = Modifier
-                .size(dimensionResource(id = R.dimen.icon_size_normal))
+        RadioScreenIcon(
+            drawableRes = R.drawable.more,
+            contentDescriptionRes = R.string.radio_screen_content_image_input_choose_button_icon_description
         )
-    }
-}
-
-fun Modifier.scrollableContent(offset: IntOffset) =
-    this then OffsetModifierElement(offset)
-
-private class OffsetModifierElement(
-    val offset: IntOffset
-) : ModifierNodeElement<OffsetModifierNode>() {
-    override fun create(): OffsetModifierNode {
-        return OffsetModifierNode(offset)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        val otherModifierElement = other as? OffsetModifierElement ?: return false
-
-        return offset == otherModifierElement.offset
-    }
-
-    override fun hashCode(): Int {
-        return offset.hashCode()
-    }
-
-    override fun update(node: OffsetModifierNode) {
-        Log.d("OffsetModifierElement", "update(): $offset;")
-
-        node.offset = offset
-    }
-}
-
-private class OffsetModifierNode(
-    var offset: IntOffset
-) : LayoutModifierNode, Modifier.Node() {
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult {
-        val placeable = measurable.measure(constraints)
-
-        return layout(placeable.width, placeable.height) {
-            val heightDelta = placeable.height -
-            val yWithOffset =
-                if (heightDelta <= 0 || offset.y <= 0) 0
-                else if (heightDelta - offset.y >= 0) offset.y
-                else 0
-
-            Log.d("OffsetModifierNode", "measure(): heightDelta = $heightDelta; width = ${placeable.width}; height = ${placeable.height}; yWithOffset = $yWithOffset;")
-
-            placeable.placeRelative(0, yWithOffset)
-        }
     }
 }
 
@@ -340,34 +267,30 @@ fun RadioScreenImagePreview(
     onCloseClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var offset by remember { mutableFloatStateOf(0f) }
-
     AnimatedVisibility(
         visible = imageUri != null,
         modifier = modifier.then(
-            Modifier.scrollable(state = rememberScrollableState { distance ->
-                offset += distance
-
-                distance
-            }, Orientation.Vertical).clipToBounds()
+            Modifier.clipToBounds()
         )
     ) {
-        Box(
-            modifier = Modifier.wrapContentHeight(align = Alignment.Top, unbounded = true)
-        ) {
-            AsyncImage(
-                model = ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(imageUri)
-                    .build(),
-                contentDescription = stringResource(
-                    id = R.string.radio_screen_content_image_input_preview_image_description
-                ),
-                contentScale = ContentScale.None,
+        Box {
+            Column(
                 modifier = Modifier
-                    .scrollableContent(IntOffset(0, offset.toInt()))
-                    .clip(AbsoluteRoundedCornerShape(12.dp))
-            )
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                AsyncImage(
+                    model = ImageRequest
+                        .Builder(LocalContext.current)
+                        .data(imageUri)
+                        .build(),
+                    contentDescription = stringResource(
+                        id = R.string.radio_screen_content_image_input_preview_image_description
+                    ),
+                    contentScale = ContentScale.None,
+                    modifier = Modifier.clip(AbsoluteRoundedCornerShape(12.dp))
+                )
+            }
 
             val buttonMargin = dimensionResource(id = R.dimen.gap_small_less)
 
