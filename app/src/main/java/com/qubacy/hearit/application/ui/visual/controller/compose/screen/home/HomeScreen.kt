@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-  retrieveAddedRadioId: () -> Long?,
+  retrieveSavedRadioId: () -> Long?,
   onRadioClicked: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
 
@@ -50,7 +50,7 @@ fun HomeScreen(
   val state by viewModel.state.observeAsState()
 
   HomeScreen(
-    retrieveAddedRadioId = retrieveAddedRadioId,
+    retrieveAddedRadioId = retrieveSavedRadioId,
     onRadioClicked = onRadioClicked,
     onAddRadioClicked = onAddRadioClicked,
     modifier = modifier,

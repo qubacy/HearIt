@@ -3,7 +3,7 @@
 
     <string name="home_screen_top_app_bar_title">Your radios</string>
     <string name="home_screen_radio_list_item_cover_content_description">A radio cover picture</string>
-    <string name="home_screen_radio_added_snackbar_message">A new radio has been added!</string>
+    <string name="home_screen_radio_added_snackbar_message">The radio has been saved!</string>
 
     <string name="radio_screen_content_top_app_bar_back_button_description">A back button</string>
     <string name="radio_screen_content_title_input_label">Title</string>

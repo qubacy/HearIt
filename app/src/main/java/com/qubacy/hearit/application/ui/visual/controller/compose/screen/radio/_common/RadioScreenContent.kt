@@ -1,4 +1,4 @@
-package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
+package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common
 
 import android.net.Uri
 import androidx.annotation.DrawableRes
