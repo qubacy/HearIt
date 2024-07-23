@@ -1,6 +1,5 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
-import android.content.ContentResolver
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -15,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,23 +48,29 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.qubacy.hearit.R
+import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 
+data class RadioScreenTopAppBarData(
+    val title: String,
+    val isLoading: Boolean,
+    val onBackPressed: () -> Unit
+)
+
 @Composable
 fun RadioScreenContent(
-    topAppBar: @Composable (isLoading: Boolean) -> Unit,
-
+    onPickImageClicked: ((Uri?) -> Unit) -> Unit,
     onSaveClicked: (RadioPresentation) -> Unit,
     onCancelClicked: () -> Unit,
 
     modifier: Modifier = Modifier,
 
-    isLoading: Boolean = false,
+    topAppBarData: RadioScreenTopAppBarData? = null,
     radioPresentation: RadioPresentation? = null
     ) {
     Scaffold(
-        topBar = { topAppBar(isLoading) }
+        topBar = { topAppBarData?.let { RadioScreenTopAppBar(it) } }
     ) { paddingValues ->
         val normalGap = dimensionResource(id = R.dimen.gap_normal)
 
@@ -128,7 +134,11 @@ fun RadioScreenContent(
                         top.linkTo(descriptionRef.bottom, normalGap)
                         start.linkTo(parent.start)
                     }
-                    .padding(start = normalIconPadding, top = normalIconPadding, end = normalIconPadding)
+                    .padding(
+                        start = normalIconPadding,
+                        top = normalIconPadding,
+                        end = normalIconPadding
+                    )
                     .size(dimensionResource(id = R.dimen.icon_size_normal))
             )
 
@@ -146,9 +156,9 @@ fun RadioScreenContent(
 
             RadioScreenImageButton(
                 onClick = {
-                    // todo: call for an image picker..
-
-
+                    onPickImageClicked { uri ->
+                        imageUri = uri
+                    }
                 },
                 modifier = Modifier.constrainAs(imageButtonRef) {
                     top.linkTo(imageIconRef.top)
@@ -206,6 +216,33 @@ fun RadioScreenContent(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RadioScreenTopAppBar(
+    topAppBarData: RadioScreenTopAppBarData
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = topAppBarData.title,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = topAppBarData.onBackPressed
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = stringResource(
+                        id = R.string.radio_screen_content_top_app_bar_back_button_description
+                    )
+                )
+            }
+        }
+    )
 }
 
 @Composable
@@ -311,26 +348,17 @@ fun RadioScreenImagePreview(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun RadioScreenContent() {
     val resources = LocalContext.current.resources
     val resourceId = R.drawable.space
-    val coverUri = Uri.Builder()
-        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-        .authority(resources.getResourcePackageName(resourceId))
-        .appendPath(resources.getResourceTypeName(resourceId))
-        .appendPath(resources.getResourceEntryName(resourceId))
-        .build()
+    val coverUri = resources.getUriFromResource(resourceId)
 
     HearItTheme {
         RadioScreenContent(
-            topAppBar = {
-                TopAppBar(
-                    title = { Text(text = "Test bar") }
-                )
-            },
+            topAppBarData = RadioScreenTopAppBarData("Test bar", false, {}),
+            onPickImageClicked = {  },
             onSaveClicked = { /*TODO*/ },
             onCancelClicked = { /*TODO*/ },
             radioPresentation = RadioPresentation(

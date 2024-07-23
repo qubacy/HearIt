@@ -1,6 +1,5 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
-import android.content.ContentResolver
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +28,7 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.qubacy.hearit.R
+import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 
 @Composable
@@ -88,7 +89,7 @@ fun RadioListItem(
 
 @Composable
 fun RadioListItemCover(
-  uri: Uri?,
+  uri: Uri,
   modifier: Modifier = Modifier
 ) {
   AsyncImage(
@@ -96,8 +97,8 @@ fun RadioListItemCover(
       .data(uri)
       .crossfade(true)
       .build(),
+    // todo: come up with an idea how to tint this correctly:
     placeholder = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
-    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
     contentDescription = stringResource(R.string.home_screen_radio_list_item_cover_content_description),
     contentScale = ContentScale.Fit,
     modifier = modifier
@@ -108,11 +109,10 @@ fun RadioListItemCover(
 fun RadioListItemCoverPlaceholder(
   modifier: Modifier = Modifier
 ) {
-  Image(
+  Icon(
     painter = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
     contentDescription = stringResource(R.string.home_screen_radio_list_item_cover_content_description),
-    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-    contentScale = ContentScale.Fit,
+    tint = MaterialTheme.colorScheme.onSurfaceVariant,
     modifier = modifier
   )
 }
@@ -151,12 +151,7 @@ fun RadioListItemDescription(
 fun RadioListItem() {
   val resources = LocalContext.current.resources
   val resourceId = R.drawable.ic_launcher_background
-  val coverUri = Uri.Builder()
-    .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-    .authority(resources.getResourcePackageName(resourceId))
-    .appendPath(resources.getResourceTypeName(resourceId))
-    .appendPath(resources.getResourceEntryName(resourceId))
-    .build()
+  val coverUri = resources.getUriFromResource(resourceId)
   val radioPresentation = RadioPresentation(0, "title", "desc", coverUri)
 
   RadioListItem(radioPresentation, { id ->
