@@ -41,6 +41,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -68,7 +70,7 @@ fun RadioScreenContent(
 
     topAppBarData: RadioScreenTopAppBarData? = null,
     radioPresentation: RadioPresentation? = null
-    ) {
+) {
     Scaffold(
         topBar = { topAppBarData?.let { RadioScreenTopAppBar(it) } }
     ) { paddingValues ->
@@ -84,6 +86,13 @@ fun RadioScreenContent(
             var title by remember { mutableStateOf(radioPresentation?.title ?: "") }
             var description by remember { mutableStateOf(radioPresentation?.description ?: "") }
             var imageUri: Uri? by remember { mutableStateOf(radioPresentation?.cover) }
+
+            val titleInputDescription = stringResource(
+                id = R.string.radio_screen_content_title_input_description
+            )
+            val descriptionInputDescription = stringResource(
+                id = R.string.radio_screen_content_description_input_description
+            )
 
             val (
                 titleRef,
@@ -102,12 +111,16 @@ fun RadioScreenContent(
                 R.drawable.letter_t,
                 R.string.radio_screen_content_title_input_icon_description,
                 R.string.radio_screen_content_title_input_label,
-                modifier = Modifier.constrainAs(titleRef) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
+                modifier = Modifier
+                    .constrainAs(titleRef) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
 
-                    width = Dimension.matchParent
-                }
+                        width = Dimension.matchParent
+                    }
+                    .semantics {
+                        contentDescription = titleInputDescription
+                    }
             )
 
             RadioScreenTextInput(
@@ -116,12 +129,16 @@ fun RadioScreenContent(
                 R.drawable.paragraph,
                 R.string.radio_screen_content_description_input_icon_description,
                 R.string.radio_screen_content_description_input_label,
-                modifier = Modifier.constrainAs(descriptionRef) {
-                    top.linkTo(titleRef.bottom)
-                    start.linkTo(parent.start)
+                modifier = Modifier
+                    .constrainAs(descriptionRef) {
+                        top.linkTo(titleRef.bottom)
+                        start.linkTo(parent.start)
 
-                    width = Dimension.matchParent
-                }
+                        width = Dimension.matchParent
+                    }
+                    .semantics {
+                        contentDescription = descriptionInputDescription
+                    }
             )
 
             val normalIconPadding = dimensionResource(id = R.dimen.icon_padding_normal)
@@ -223,6 +240,10 @@ fun RadioScreenContent(
 fun RadioScreenTopAppBar(
     topAppBarData: RadioScreenTopAppBarData
 ) {
+    val topAppBarDescription = stringResource(
+        id = R.string.radio_screen_content_top_app_bar_description
+    )
+
     TopAppBar(
         title = {
             Text(
@@ -241,6 +262,9 @@ fun RadioScreenTopAppBar(
                     )
                 )
             }
+        },
+        modifier = Modifier.semantics {
+            contentDescription = topAppBarDescription
         }
     )
 }
@@ -287,9 +311,15 @@ fun RadioScreenImageButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val iconButtonDescription = stringResource(
+        id = R.string.radio_screen_content_image_input_choose_button_description
+    )
+
     IconButton(
         onClick = onClick,
-        modifier = modifier
+        modifier = modifier.then(Modifier.semantics {
+            contentDescription = iconButtonDescription
+        })
     ) {
         RadioScreenIcon(
             drawableRes = R.drawable.more,

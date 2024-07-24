@@ -13,14 +13,20 @@
     <string name="home_screen_fab_description">Add a new radio button</string>
     <string name="home_screen_radio_added_snackbar_message">The radio has been saved!</string>
 
+    <string name="radio_screen_content_top_app_bar_description">A radio screen top app bar</string>
     <string name="radio_screen_content_top_app_bar_back_button_description">A back button</string>
+    <string name="radio_screen_content_title_input_description">A radio title input</string>
     <string name="radio_screen_content_title_input_label">Title</string>
     <string name="radio_screen_content_title_input_icon_description">A title input icon</string>
+    <string name="radio_screen_content_description_input_description">A radio description input</string>
     <string name="radio_screen_content_description_input_label">Description</string>
     <string name="radio_screen_content_description_input_icon_description">A description input icon</string>
     <string name="radio_screen_content_image_input_icon_description">An image input icon</string>
     <string name="radio_screen_content_image_input_hint">
         If you want it’s possible to set a custom cover for your radio station.
+    </string>
+    <string name="radio_screen_content_image_input_choose_button_description">
+        An image input choose button
     </string>
     <string name="radio_screen_content_image_input_choose_button_icon_description">
         An image input choose button icon
