@@ -34,6 +34,7 @@ import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.home.HomeViewModel
 import com.qubacy.hearit.application.ui.state.state.HomeState
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.ErrorWidget
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -110,6 +111,12 @@ fun HomeScreen(
 
   retrieveAddedRadioId()?.let {
     showSavedRadioSnackbar(snackbarHostState, LocalContext.current, coroutineScope)
+  }
+  error?.let {
+    ErrorWidget(
+      it,
+      snackbarHostState, LocalContext.current, coroutineScope
+    )
   }
 }
 

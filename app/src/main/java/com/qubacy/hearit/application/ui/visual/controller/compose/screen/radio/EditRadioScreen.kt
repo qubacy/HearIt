@@ -1,8 +1,11 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -15,6 +18,7 @@ import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.EditRadioViewModel
 import com.qubacy.hearit.application.ui.state.state.EditRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.aspect.ImagePickerScreen
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.ErrorWidget
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData
 
@@ -55,6 +59,9 @@ fun EditRadioScreen(
 ) {
   if (savedRadio != null) return onSaved(savedRadio.id) // todo: is it ok?
 
+  val coroutineScope = rememberCoroutineScope()
+  val snackbarHostState = remember { SnackbarHostState() }
+
   val context = LocalContext.current
 
   RadioScreenContent(
@@ -69,6 +76,13 @@ fun EditRadioScreen(
     modifier = modifier,
     radioPresentation = radioToEdit
   )
+
+  error?.let {
+    ErrorWidget(
+      it,
+      snackbarHostState, context, coroutineScope
+    )
+  }
 }
 
 @Preview

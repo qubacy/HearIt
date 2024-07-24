@@ -8,13 +8,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.CloseableActivity
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.ImagePickerActivity
 import com.qubacy.hearit.application.ui.visual.controller.compose.HearItApp
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity(), ImagePickerActivity {
+class MainActivity : ComponentActivity(), ImagePickerActivity, CloseableActivity {
     private lateinit var _pickImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
     private var _pickImageCallback: ((Uri?) -> Unit)? = null
 
@@ -43,5 +44,9 @@ class MainActivity : ComponentActivity(), ImagePickerActivity {
 
         _pickImageLauncher.launch(PickVisualMediaRequest(
             ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+
+    override fun close() {
+        finishAndRemoveTask()
     }
 }

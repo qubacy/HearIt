@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Hear It</string>
 
+    <string name="error_dialog_title">Error</string>
+    <string name="error_dialog_confirmation_button_text">OK</string>
+
     <string name="home_screen_top_app_bar_title">Your radios</string>
     <string name="home_screen_radio_list_item_cover_content_description">A radio cover picture</string>
     <string name="home_screen_radio_added_snackbar_message">The radio has been saved!</string>
