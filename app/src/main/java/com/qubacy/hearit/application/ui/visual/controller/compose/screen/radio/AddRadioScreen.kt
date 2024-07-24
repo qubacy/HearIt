@@ -1,6 +1,5 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
-import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 fun AddRadioScreen(
   onBackClicked: () -> Unit,
   onCreated: (Long) -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   modifier: Modifier = Modifier,
   viewModel: AddRadioViewModel = hiltViewModel()
@@ -50,7 +49,7 @@ fun AddRadioScreen(
   onBackClicked: () -> Unit,
   onCreateClicked: (RadioPresentation) -> Unit,
   onCreated: (Long) -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
@@ -78,7 +77,7 @@ fun AddRadioScreen(
   )
 
   error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope, context)
+    errorWidget(it, snackbarHostState, coroutineScope)
   }
 }
 
@@ -89,6 +88,6 @@ fun AddRadioScreen() {
     {},
     {},
     {},
-    {_, _, _, _ ->}
+    {_, _, _ ->}
   )
 }

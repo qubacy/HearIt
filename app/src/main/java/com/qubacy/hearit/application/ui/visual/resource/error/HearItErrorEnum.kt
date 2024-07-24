@@ -8,7 +8,9 @@ enum class HearItErrorEnum(
     ;
 
     companion object {
-        fun fromReference(reference: ErrorReference): HearItErrorEnum {
+        fun fromReference(
+            reference: ErrorReference
+        ): HearItErrorEnum {
             return entries.firstOrNull {
                 it.error.id == reference.id
             } ?: throw IllegalArgumentException()

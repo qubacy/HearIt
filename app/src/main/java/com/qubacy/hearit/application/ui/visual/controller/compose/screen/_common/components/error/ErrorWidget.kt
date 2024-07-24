@@ -1,8 +1,7 @@
-package com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components
+package com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -19,46 +18,37 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
-import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.CloseableActivity
-import com.qubacy.hearit.application.ui.visual.controller.activity._common.util.findActivity
-import com.qubacy.hearit.application.ui.visual.resource.error.HearItError
 import com.qubacy.hearit.application.ui.visual.resource.error.HearItErrorEnum
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun ErrorWidget(
     error: ErrorReference,
-    snackbarHostState: SnackbarHostState,
-    context: Context,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onDismissRequest: () -> Unit = {}
 ) {
-    val resolvedError = HearItErrorEnum.fromReference(error).error
+    val context = LocalContext.current
 
-    ErrorWidget(resolvedError, snackbarHostState, context, coroutineScope)
+    val resolvedError = HearItErrorEnum.fromReference(error).error
+    val errorPresentation = ErrorPresentation.fromHearItError(resolvedError, context)
+
+    ErrorWidget(errorPresentation, coroutineScope, snackbarHostState, onDismissRequest)
 }
 
 @Composable
 fun ErrorWidget(
-    error: HearItError,
-    snackbarHostState: SnackbarHostState,
-    context: Context,
-    coroutineScope: CoroutineScope
+    error: ErrorPresentation,
+    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onDismissRequest: () -> Unit = { }
 ) {
-    val message = context.getString(error.messageResId)
-
     if (error.isCritical) {
-        val onDismissRequest = {
-            Log.d("Error", "dismissed a critical error;")
-
-            val activity = context.findActivity()
-
-            if (activity is CloseableActivity) activity.close()
-        }
-
         AlertDialog(
             title = { Text(text = stringResource(id = R.string.error_dialog_title)) },
-            text = { Text(text = message) },
+            text = { Text(text = error.message) },
             onDismissRequest = onDismissRequest,
             confirmButton = {
                 TextButton(onClick = onDismissRequest) {
@@ -73,7 +63,7 @@ fun ErrorWidget(
         LaunchedEffect(key1 = error) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
-                    message = message,
+                    message = error.message,
                     withDismissAction = true,
                     duration = SnackbarDuration.Long
                 )
@@ -89,18 +79,11 @@ fun ErrorWidget() {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    val context = LocalContext.current
-
-    val error = HearItError(0, R.string.app_name, true)
+    val error = ErrorPresentation(0, "test error", true)
     
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) {
-        
-    }
+    ) {}
 
-    ErrorWidget(
-        error,
-        snackbarHostState, context, coroutineScope
-    )
+    ErrorWidget(error, coroutineScope, snackbarHostState)
 }

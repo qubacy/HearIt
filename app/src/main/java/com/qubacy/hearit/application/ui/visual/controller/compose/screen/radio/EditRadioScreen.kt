@@ -1,6 +1,5 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
-import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,7 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 fun EditRadioScreen(
   onBackClicked: () -> Unit,
   onSaved: (Long) -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   modifier: Modifier = Modifier,
   viewModel: EditRadioViewModel = hiltViewModel()
@@ -51,7 +50,7 @@ fun EditRadioScreen(
 fun EditRadioScreen(
   onBackClicked: () -> Unit,
   onSaveClicked: (RadioPresentation) -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   onSaved: (Long) -> Unit,
 
@@ -82,7 +81,7 @@ fun EditRadioScreen(
   )
 
   error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope, context)
+    errorWidget(it, snackbarHostState, coroutineScope)
   }
 }
 
@@ -104,7 +103,7 @@ fun EditRadioScreen() {
   EditRadioScreen(
     onBackClicked = { /*TODO*/ },
     onSaveClicked = { },
-    errorWidget = {_, _, _, _ -> },
+    errorWidget = {_, _, _ -> },
     onSaved = { },
     radioToEdit = state.radio
   )

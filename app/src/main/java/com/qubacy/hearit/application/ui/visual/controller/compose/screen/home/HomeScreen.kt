@@ -48,7 +48,7 @@ fun HomeScreen(
   retrieveSavedRadioId: () -> Long?,
   onRadioClicked: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   modifier: Modifier = Modifier,
   viewModel: HomeViewModel = hiltViewModel()
@@ -72,7 +72,7 @@ fun HomeScreen(
   retrieveAddedRadioId: () -> Long?,
   onRadioClicked: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
@@ -137,7 +137,7 @@ fun HomeScreen(
     showSavedRadioSnackbar(snackbarHostState, LocalContext.current, coroutineScope)
   }
   error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope, LocalContext.current)
+    errorWidget(it, snackbarHostState, coroutineScope)
   }
 }
 
@@ -199,7 +199,7 @@ fun HomeScreen() {
       retrieveAddedRadioId = { 0 },
       onRadioClicked = {  },
       onAddRadioClicked = {  },
-      errorWidget = { _, _, _, _ -> Unit },
+      errorWidget = { _, _, _ -> },
       radioList = radioList
     )
   }

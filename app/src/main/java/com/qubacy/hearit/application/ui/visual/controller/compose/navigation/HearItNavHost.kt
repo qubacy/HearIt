@@ -1,6 +1,5 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.navigation
 
-import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -18,7 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun HearItNavHost(
   navController: NavHostController,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit
 ) {
   NavHost(navController = navController, startDestination = Screen.Home.route) {
     composable(route = Screen.Home.route) {

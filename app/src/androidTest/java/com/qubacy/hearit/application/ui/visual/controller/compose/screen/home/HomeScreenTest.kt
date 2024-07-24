@@ -56,7 +56,7 @@ class HomeScreenTest {
           { null },
           {},
           {},
-          { _, _, _, _ -> },
+          { _, _, _ -> },
           isLoading = true
         )
       }
@@ -78,7 +78,7 @@ class HomeScreenTest {
           { null },
           {},
           {},
-          { _, _, _, _ -> },
+          { _, _, _ -> },
           radioList = radioList
         )
       }
@@ -105,7 +105,7 @@ class HomeScreenTest {
           { null },
           {},
           {},
-          { _, _, _, _ -> Text(text = expectedErrorText)},
+          { _, _, _ -> Text(text = expectedErrorText)},
           error = error
         )
       }
@@ -124,7 +124,7 @@ class HomeScreenTest {
           { null },
           {},
           onAddRadioClicked = { callFlag = true },
-          { _, _, _, _ -> },
+          { _, _, _ -> },
           isLoading = false
         )
       }
@@ -154,7 +154,7 @@ class HomeScreenTest {
           { null },
           onRadioClicked = { callFlag = true },
           { },
-          { _, _, _, _ -> },
+          { _, _, _ -> },
           radioList = radioList
         )
       }
