@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
+import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,14 +19,15 @@ import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.EditRadioViewModel
 import com.qubacy.hearit.application.ui.state.state.EditRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.aspect.ImagePickerScreen
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.ErrorWidget
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun EditRadioScreen(
   onBackClicked: () -> Unit,
   onSaved: (Long) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
 
   modifier: Modifier = Modifier,
   viewModel: EditRadioViewModel = hiltViewModel()
@@ -35,6 +37,7 @@ fun EditRadioScreen(
   EditRadioScreen(
     onBackClicked = onBackClicked,
     onSaveClicked = { radioToSave: RadioPresentation -> viewModel.saveRadio(radioToSave) },
+    errorWidget = errorWidget,
     onSaved = onSaved,
     modifier = modifier,
     radioToEdit = (state as? EditRadioState.Loaded)?.radio,
@@ -48,6 +51,7 @@ fun EditRadioScreen(
 fun EditRadioScreen(
   onBackClicked: () -> Unit,
   onSaveClicked: (RadioPresentation) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
 
   onSaved: (Long) -> Unit,
 
@@ -78,10 +82,7 @@ fun EditRadioScreen(
   )
 
   error?.let {
-    ErrorWidget(
-      it,
-      snackbarHostState, context, coroutineScope
-    )
+    errorWidget(it, snackbarHostState, coroutineScope, context)
   }
 }
 
@@ -103,6 +104,7 @@ fun EditRadioScreen() {
   EditRadioScreen(
     onBackClicked = { /*TODO*/ },
     onSaveClicked = { },
+    errorWidget = {_, _, _, _ -> },
     onSaved = { },
     radioToEdit = state.radio
   )

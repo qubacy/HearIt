@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
+import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,14 +18,15 @@ import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.AddRadioViewModel
 import com.qubacy.hearit.application.ui.state.state.AddRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.aspect.ImagePickerScreen
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.ErrorWidget
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AddRadioScreen(
   onBackClicked: () -> Unit,
   onCreated: (Long) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
 
   modifier: Modifier = Modifier,
   viewModel: AddRadioViewModel = hiltViewModel()
@@ -35,6 +37,7 @@ fun AddRadioScreen(
     onBackClicked = onBackClicked,
     onCreateClicked = { viewModel.addRadio(it) },
     onCreated = onCreated,
+    errorWidget = errorWidget,
     modifier = modifier,
     isLoading = state is AddRadioState.Loading,
     savedRadio = (state as? AddRadioState.Success)?.radio,
@@ -47,6 +50,7 @@ fun AddRadioScreen(
   onBackClicked: () -> Unit,
   onCreateClicked: (RadioPresentation) -> Unit,
   onCreated: (Long) -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
@@ -74,10 +78,7 @@ fun AddRadioScreen(
   )
 
   error?.let {
-    ErrorWidget(
-      it,
-      snackbarHostState, context, coroutineScope
-    )
+    errorWidget(it, snackbarHostState, coroutineScope, context)
   }
 }
 
@@ -87,6 +88,7 @@ fun AddRadioScreen() {
   AddRadioScreen(
     {},
     {},
-    {}
+    {},
+    {_, _, _, _ ->}
   )
 }

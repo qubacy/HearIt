@@ -39,7 +39,6 @@ import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.home.HomeViewModel
 import com.qubacy.hearit.application.ui.state.state.HomeState
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.ErrorWidget
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -49,6 +48,7 @@ fun HomeScreen(
   retrieveSavedRadioId: () -> Long?,
   onRadioClicked: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
 
   modifier: Modifier = Modifier,
   viewModel: HomeViewModel = hiltViewModel()
@@ -59,6 +59,7 @@ fun HomeScreen(
     retrieveAddedRadioId = retrieveSavedRadioId,
     onRadioClicked = onRadioClicked,
     onAddRadioClicked = onAddRadioClicked,
+    errorWidget = errorWidget,
     modifier = modifier,
     isLoading = state is HomeState.Loading,
     error = (state as? HomeState.Error)?.error,
@@ -71,6 +72,7 @@ fun HomeScreen(
   retrieveAddedRadioId: () -> Long?,
   onRadioClicked: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, Context) -> Unit,
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
@@ -82,6 +84,9 @@ fun HomeScreen(
 
   val fabDescription = stringResource(id = R.string.home_screen_fab_description)
   val radioListDescription = stringResource(id = R.string.home_screen_radio_list_description)
+  val radioListItemDescriptionTemplate = stringResource(
+    id = R.string.home_screen_radio_list_item_description_template
+  )
   
   Scaffold(
     modifier = modifier,
@@ -114,7 +119,13 @@ fun HomeScreen(
         itemsIndexed(radioList, key = { _: Int, item: RadioPresentation ->
           item.id
         }) { index, item ->
-          RadioListItem(item, { onRadioClicked(item.id) })
+          RadioListItem(
+            item,
+            { onRadioClicked(item.id) },
+            modifier = Modifier.semantics {
+              contentDescription = radioListItemDescriptionTemplate.format(item.id)
+            }
+          )
 
           if (index != radioList.size - 1) HorizontalDivider()
         }
@@ -126,10 +137,7 @@ fun HomeScreen(
     showSavedRadioSnackbar(snackbarHostState, LocalContext.current, coroutineScope)
   }
   error?.let {
-    ErrorWidget(
-      it,
-      snackbarHostState, LocalContext.current, coroutineScope
-    )
+    errorWidget(it, snackbarHostState, coroutineScope, LocalContext.current)
   }
 }
 
@@ -140,6 +148,7 @@ fun HomeAppBar(
   modifier: Modifier = Modifier
 ) {
   val topAppBarDescription = stringResource(id = R.string.home_screen_top_app_bar_description)
+  val loadingIndicatorDescription = stringResource(id = R.string.home_screen_loading_indicator_description)
 
   Box {
     TopAppBar(
@@ -157,6 +166,9 @@ fun HomeAppBar(
     if (isLoading)
       LinearProgressIndicator(
         modifier = Modifier
+          .semantics {
+            contentDescription = loadingIndicatorDescription
+          }
           .align(Alignment.BottomStart)
           .fillMaxWidth()
       )
@@ -186,7 +198,8 @@ fun HomeScreen() {
     HomeScreen(
       retrieveAddedRadioId = { 0 },
       onRadioClicked = {  },
-      onAddRadioClicked = { /*TODO*/ },
+      onAddRadioClicked = {  },
+      errorWidget = { _, _, _, _ -> Unit },
       radioList = radioList
     )
   }

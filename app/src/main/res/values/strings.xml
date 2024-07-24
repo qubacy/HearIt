@@ -6,7 +6,9 @@
 
     <string name="home_screen_top_app_bar_description">Home screen\'s top app bar</string>
     <string name="home_screen_top_app_bar_title">Your radios</string>
+    <string name="home_screen_loading_indicator_description">Loading indicator</string>
     <string name="home_screen_radio_list_description">Radio list</string>
+    <string name="home_screen_radio_list_item_description_template">Radio list item with id = %d</string>
     <string name="home_screen_radio_list_item_cover_content_description">A radio cover picture</string>
     <string name="home_screen_fab_description">Add a new radio button</string>
     <string name="home_screen_radio_added_snackbar_message">The radio has been saved!</string>

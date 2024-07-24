@@ -1,12 +1,19 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.content.Context
+import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
+import com.qubacy.hearit.application._common.error.ErrorReference
+import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,5 +46,122 @@ class HomeScreenTest {
     composeTestRule.onNode(
       hasContentDescription(_context.getString(R.string.home_screen_fab_description))
     ).assertIsDisplayed()
+  }
+
+  @Test
+  fun loadingIndicatorVisibleOnLoadingStateTest() {
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          {},
+          {},
+          { _, _, _, _ -> },
+          isLoading = true
+        )
+      }
+    }
+
+    composeTestRule.onNode(
+      hasContentDescription(_context.getString(R.string.home_screen_loading_indicator_description))
+    ).assertIsDisplayed()
+  }
+
+  @Test
+  fun radioListItemsDisplayedTest() {
+    val radioPresentation = RadioPresentation(0, "Test radio")
+    val radioList = listOf(radioPresentation)
+
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          {},
+          {},
+          { _, _, _, _ -> },
+          radioList = radioList
+        )
+      }
+    }
+
+    val radioListItemDescriptionTemplate = _context
+      .getString(R.string.home_screen_radio_list_item_description_template)
+
+    for (radioListItem in radioList) {
+      composeTestRule.onNode(
+        hasContentDescription(radioListItemDescriptionTemplate.format(radioListItem.id))
+      ).assertIsDisplayed()
+    }
+  }
+
+  @Test
+  fun errorDisplayedTest() {
+    val error = ErrorReference(0)
+    val expectedErrorText = "Test error ${error.id}"
+
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          {},
+          {},
+          { _, _, _, _ -> Text(text = expectedErrorText)},
+          error = error
+        )
+      }
+    }
+
+    composeTestRule.onNode(hasText(expectedErrorText)).assertIsDisplayed()
+  }
+
+  @Test
+  fun onAddRadioClickedCalledTest() = runTest {
+    var callFlag = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          {},
+          onAddRadioClicked = { callFlag = true },
+          { _, _, _, _ -> },
+          isLoading = false
+        )
+      }
+    }
+
+    composeTestRule.onNode(
+      hasContentDescription(_context.getString(R.string.home_screen_fab_description))
+    ).performClick()
+
+    Assert.assertTrue(callFlag)
+  }
+
+  @Test
+  fun onRadioClickedCalledTest() {
+    val radioPresentation = RadioPresentation(0, "Test radio item")
+    val radioList = listOf(radioPresentation)
+
+    val radioListItemDescription = _context
+      .getString(R.string.home_screen_radio_list_item_description_template)
+      .format(radioPresentation.id)
+
+    var callFlag = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          onRadioClicked = { callFlag = true },
+          { },
+          { _, _, _, _ -> },
+          radioList = radioList
+        )
+      }
+    }
+
+    composeTestRule.onNode(hasContentDescription(radioListItemDescription)).performClick()
+
+    Assert.assertTrue(callFlag)
   }
 }
