@@ -17,7 +17,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.qubacy.hearit.application._test.runner.HearItTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
