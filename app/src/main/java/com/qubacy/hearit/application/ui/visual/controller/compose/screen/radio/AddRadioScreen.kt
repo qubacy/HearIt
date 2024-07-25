@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
+import android.net.Uri
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,10 +33,13 @@ fun AddRadioScreen(
 ) {
   val state by viewModel.state.observeAsState()
 
+  val context = LocalContext.current
+
   AddRadioScreen(
     onBackClicked = onBackClicked,
     onCreateClicked = { viewModel.addRadio(it) },
     onCreated = onCreated,
+    onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
     errorWidget = errorWidget,
     modifier = modifier,
     isLoading = state is AddRadioState.Loading,
@@ -49,6 +53,7 @@ fun AddRadioScreen(
   onBackClicked: () -> Unit,
   onCreateClicked: (RadioPresentation) -> Unit,
   onCreated: (Long) -> Unit,
+  onPickImageClicked: ((Uri?) -> Unit) -> Unit,
   errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   modifier: Modifier = Modifier,
@@ -61,15 +66,13 @@ fun AddRadioScreen(
   val coroutineScope = rememberCoroutineScope()
   val snackbarHostState = remember { SnackbarHostState() }
 
-  val context = LocalContext.current
-
   RadioScreenContent(
     topAppBarData = RadioScreenTopAppBarData(
-      stringResource(id = R.string.edit_radio_screen_label),
+      stringResource(id = R.string.add_radio_screen_label),
       isLoading,
       onBackClicked
     ),
-    onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
+    onPickImageClicked = onPickImageClicked,
     onSaveClicked = onCreateClicked,
     onCancelClicked = onBackClicked,
     modifier = modifier,
@@ -85,6 +88,7 @@ fun AddRadioScreen(
 @Composable
 fun AddRadioScreen() {
   AddRadioScreen(
+    {},
     {},
     {},
     {},

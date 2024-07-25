@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
+import android.net.Uri
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,9 +34,12 @@ fun EditRadioScreen(
 ) {
   val state by viewModel.state.observeAsState()
 
+  val context = LocalContext.current
+
   EditRadioScreen(
     onBackClicked = onBackClicked,
     onSaveClicked = { radioToSave: RadioPresentation -> viewModel.saveRadio(radioToSave) },
+    onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
     errorWidget = errorWidget,
     onSaved = onSaved,
     modifier = modifier,
@@ -50,6 +54,7 @@ fun EditRadioScreen(
 fun EditRadioScreen(
   onBackClicked: () -> Unit,
   onSaveClicked: (RadioPresentation) -> Unit,
+  onPickImageClicked: ((Uri?) -> Unit) -> Unit,
   errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   onSaved: (Long) -> Unit,
@@ -65,15 +70,13 @@ fun EditRadioScreen(
   val coroutineScope = rememberCoroutineScope()
   val snackbarHostState = remember { SnackbarHostState() }
 
-  val context = LocalContext.current
-
   RadioScreenContent(
     topAppBarData = RadioScreenTopAppBarData(
       stringResource(id = R.string.edit_radio_screen_label),
       isLoading,
       onBackClicked
     ),
-    onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
+    onPickImageClicked = onPickImageClicked,
     onSaveClicked = onSaveClicked,
     onCancelClicked = onBackClicked,
     modifier = modifier,
@@ -101,10 +104,11 @@ fun EditRadioScreen() {
   )
 
   EditRadioScreen(
-    onBackClicked = { /*TODO*/ },
-    onSaveClicked = { },
+    onBackClicked = {  },
+    onSaveClicked = {  },
+    onPickImageClicked = {  },
     errorWidget = {_, _, _ -> },
-    onSaved = { },
+    onSaved = {  },
     radioToEdit = state.radio
   )
 }
