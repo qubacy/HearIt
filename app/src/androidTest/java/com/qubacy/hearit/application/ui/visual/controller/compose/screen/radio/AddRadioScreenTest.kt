@@ -28,24 +28,26 @@ class AddRadioScreenTest {
 
   @Test
   fun onCreatedCalledOnSavedRadioTest() {
-    val savedRadio = RadioPresentation(0, "test title")
+    val radio = RadioPresentation(0, "test title")
 
-    var callFlag = false
+    val expectedRadioId = radio.id
+
+    var gottenRadioId: Long? = null
 
     composeTestRule.setContent {
       HearItTheme {
         AddRadioScreen(
           onBackClicked = {  },
           onCreateClicked = {  },
-          onCreated = { callFlag = true },
+          onCreated = { gottenRadioId = it },
           onPickImageClicked = {  },
           errorWidget = {_, _, _ -> },
-          savedRadio = savedRadio
+          savedRadio = radio
         )
       }
     }
 
-    Assert.assertTrue(callFlag)
+    Assert.assertEquals(expectedRadioId, gottenRadioId)
   }
 
   @Test
@@ -88,6 +90,29 @@ class AddRadioScreenTest {
 
     composeTestRule.onNode(hasText(
       _context.getString(R.string.radio_screen_content_save_button_text)
+    )).performClick()
+
+    Assert.assertTrue(callFlag)
+  }
+
+  @Test
+  fun onBackClickedCalledOnBackButtonClickedTest() {
+    var callFlag = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        AddRadioScreen(
+          onBackClicked = { callFlag = true },
+          onCreateClicked = {  },
+          onCreated = {  },
+          onPickImageClicked = {  },
+          errorWidget = {_, _, _ -> }
+        )
+      }
+    }
+
+    composeTestRule.onNode(hasContentDescription(
+      _context.getString(R.string.radio_screen_content_top_app_bar_back_button_description)
     )).performClick()
 
     Assert.assertTrue(callFlag)
