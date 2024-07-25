@@ -1,7 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -18,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.presentation.ErrorPresentation
 import com.qubacy.hearit.application.ui.visual.resource.error.HearItErrorEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,10 +40,10 @@ fun ErrorWidget(
 
 @Composable
 fun ErrorWidget(
-    error: ErrorPresentation,
-    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onDismissRequest: () -> Unit = { }
+  error: ErrorPresentation,
+  coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+  snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+  onDismissRequest: () -> Unit = { }
 ) {
     if (error.isCritical) {
         AlertDialog(

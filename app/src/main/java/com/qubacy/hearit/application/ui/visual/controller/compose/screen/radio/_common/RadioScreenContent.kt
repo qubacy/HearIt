@@ -85,7 +85,7 @@ fun RadioScreenContent(
                     .fillMaxSize())
         ) {
             var title by remember { mutableStateOf(radioPresentation?.title ?: "") }
-            var description by remember { mutableStateOf(radioPresentation?.description ?: "") }
+            var description by remember { mutableStateOf(radioPresentation?.description) }
             var url by remember { mutableStateOf(radioPresentation?.url ?: "") }
             var imageUri: Uri? by remember { mutableStateOf(radioPresentation?.cover) }
 
@@ -130,7 +130,7 @@ fun RadioScreenContent(
             )
 
             RadioScreenTextInput(
-                value = description,
+                value = description ?: "",
                 onValueChanged = { description = it },
                 R.drawable.paragraph,
                 R.string.radio_screen_content_description_input_icon_description,

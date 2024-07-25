@@ -14,7 +14,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.ErrorPresentation
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.presentation.ErrorPresentation
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.ErrorWidget
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import org.junit.Assert

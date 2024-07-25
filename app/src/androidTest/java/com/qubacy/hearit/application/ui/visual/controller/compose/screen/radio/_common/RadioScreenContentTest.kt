@@ -59,6 +59,9 @@ class RadioScreenContentTest {
       _context.getString(R.string.radio_screen_content_description_input_description))
     ).assertIsDisplayed()
     composeTestRule.onNode(hasContentDescription(
+      _context.getString(R.string.radio_screen_content_url_input_description)
+    )).assertIsDisplayed()
+    composeTestRule.onNode(hasContentDescription(
       _context.getString(R.string.radio_screen_content_image_input_icon_description))
     ).assertIsDisplayed()
     composeTestRule.onNode(hasText(

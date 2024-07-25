@@ -1,4 +1,4 @@
-package com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error
+package com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.presentation
 
 import android.content.Context
 import com.qubacy.hearit.application.ui.visual.resource.error.HearItError
