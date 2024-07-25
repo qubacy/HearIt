@@ -21,6 +21,7 @@ import com.qubacy.hearit.application.ui.state.state.EditRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.aspect.ImagePickerScreen
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
@@ -38,7 +39,7 @@ fun EditRadioScreen(
 
   EditRadioScreen(
     onBackClicked = onBackClicked,
-    onSaveClicked = { radioToSave: RadioPresentation -> viewModel.saveRadio(radioToSave) },
+    onSaveClicked = { viewModel.saveRadio(it) },
     onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
     errorWidget = errorWidget,
     onSaved = onSaved,
@@ -53,7 +54,7 @@ fun EditRadioScreen(
 @Composable
 fun EditRadioScreen(
   onBackClicked: () -> Unit,
-  onSaveClicked: (RadioPresentation) -> Unit,
+  onSaveClicked: (RadioInputWrapper) -> Unit,
   onPickImageClicked: ((Uri?) -> Unit) -> Unit,
   errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
@@ -99,7 +100,8 @@ fun EditRadioScreen() {
       0,
       "test title",
       "test description",
-      coverUri
+      coverUri,
+      "http://url.com"
     )
   )
 

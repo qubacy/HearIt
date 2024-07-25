@@ -191,7 +191,12 @@ private fun showSavedRadioSnackbar(
 @Composable
 fun HomeScreen() {
   val radioList = IntRange(0, 20).map { index ->
-    RadioPresentation(index.toLong(), "test $index", "test description")
+    RadioPresentation(
+      index.toLong(),
+      "test $index",
+      "test description",
+      null, "http://url"
+    )
   }
 
   HearItTheme {
@@ -210,9 +215,9 @@ private class RadioListPreviewParamProvider : PreviewParameterProvider<List<Radi
   override val values: Sequence<List<RadioPresentation>> = sequenceOf(
     listOf(),
     listOf(
-      RadioPresentation(0, "test 1", "test description"),
-      RadioPresentation(1, "test 2", "test description"),
-      RadioPresentation(2, "test 3", "test description")
+      RadioPresentation(0, "test 1", "test description", null, "http://url.com/0"),
+      RadioPresentation(1, "test 2", "test description", null, "http://url.com/0"),
+      RadioPresentation(2, "test 3", "test description", null, "http://url.com/0")
     )
   )
 }

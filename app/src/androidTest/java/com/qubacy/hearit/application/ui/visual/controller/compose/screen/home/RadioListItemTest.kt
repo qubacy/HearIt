@@ -28,7 +28,9 @@ class RadioListItemTest {
 
   @Test
   fun allElementsPresentedTest() {
-    val radioPresentation = RadioPresentation(0, "test title", "test description")
+    val radioPresentation = RadioPresentation(
+      0, "test title", "test description", url = "http://url.com"
+    )
 
     composeTestRule.setContent {
       HearItTheme {
@@ -50,7 +52,7 @@ class RadioListItemTest {
 
   @Test
   fun onRadioClickedCalledTest() {
-    val radioPresentation = RadioPresentation(0, "test title")
+    val radioPresentation = RadioPresentation(0, "test title", url = "http://url.com")
 
     var callFlag = false
 

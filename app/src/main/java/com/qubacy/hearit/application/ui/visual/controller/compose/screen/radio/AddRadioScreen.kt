@@ -20,6 +20,7 @@ import com.qubacy.hearit.application.ui.state.state.AddRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.aspect.ImagePickerScreen
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
@@ -51,7 +52,7 @@ fun AddRadioScreen(
 @Composable
 fun AddRadioScreen(
   onBackClicked: () -> Unit,
-  onCreateClicked: (RadioPresentation) -> Unit,
+  onCreateClicked: (RadioInputWrapper) -> Unit,
   onCreated: (Long) -> Unit,
   onPickImageClicked: ((Uri?) -> Unit) -> Unit,
   errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,

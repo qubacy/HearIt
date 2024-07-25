@@ -1,7 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
@@ -13,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -152,7 +150,9 @@ fun RadioListItem() {
   val resources = LocalContext.current.resources
   val resourceId = R.drawable.ic_launcher_background
   val coverUri = resources.getUriFromResource(resourceId)
-  val radioPresentation = RadioPresentation(0, "title", "desc", coverUri)
+  val radioPresentation = RadioPresentation(
+    0, "title", "desc", coverUri, "http://url.com"
+  )
 
   RadioListItem(radioPresentation, { id ->
     println("RadioListItem(): clicked $id;")

@@ -52,6 +52,7 @@ import coil.request.ImageRequest
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 
 data class RadioScreenTopAppBarData(
@@ -63,7 +64,7 @@ data class RadioScreenTopAppBarData(
 @Composable
 fun RadioScreenContent(
     onPickImageClicked: ((Uri?) -> Unit) -> Unit,
-    onSaveClicked: (RadioPresentation) -> Unit,
+    onSaveClicked: (RadioInputWrapper) -> Unit,
     onCancelClicked: () -> Unit,
 
     modifier: Modifier = Modifier,
@@ -85,6 +86,7 @@ fun RadioScreenContent(
         ) {
             var title by remember { mutableStateOf(radioPresentation?.title ?: "") }
             var description by remember { mutableStateOf(radioPresentation?.description ?: "") }
+            var url by remember { mutableStateOf(radioPresentation?.url ?: "") }
             var imageUri: Uri? by remember { mutableStateOf(radioPresentation?.cover) }
 
             val titleInputDescription = stringResource(
@@ -93,10 +95,14 @@ fun RadioScreenContent(
             val descriptionInputDescription = stringResource(
                 id = R.string.radio_screen_content_description_input_description
             )
+            val urlInputDescription = stringResource(
+                id = R.string.radio_screen_content_url_input_description
+            )
 
             val (
                 titleRef,
                 descriptionRef,
+                urlRef,
                 imageIconRef,
                 imageHintRef,
                 imageButtonRef,
@@ -141,6 +147,24 @@ fun RadioScreenContent(
                     }
             )
 
+            RadioScreenTextInput(
+                value = url,
+                onValueChanged = { description = it },
+                R.drawable.link,
+                R.string.radio_screen_content_url_input_icon_description,
+                R.string.radio_screen_content_url_input_label,
+                modifier = Modifier
+                    .constrainAs(urlRef) {
+                        top.linkTo(descriptionRef.bottom)
+                        start.linkTo(parent.start)
+
+                        width = Dimension.matchParent
+                    }
+                    .semantics {
+                        contentDescription = urlInputDescription
+                    }
+            )
+
             val normalIconPadding = dimensionResource(id = R.dimen.icon_padding_normal)
 
             RadioScreenIcon(
@@ -148,7 +172,7 @@ fun RadioScreenContent(
                 contentDescriptionRes = R.string.radio_screen_content_image_input_icon_description,
                 modifier = Modifier
                     .constrainAs(imageIconRef) {
-                        top.linkTo(descriptionRef.bottom, normalGap)
+                        top.linkTo(urlRef.bottom, normalGap)
                         start.linkTo(parent.start)
                     }
                     .padding(
@@ -201,14 +225,7 @@ fun RadioScreenContent(
 
             Button(
                 onClick = {
-                    onSaveClicked(
-                        RadioPresentation(
-                            id = radioPresentation?.id ?: RadioPresentation.UNSPECIFIED_ID,
-                            title = title,
-                            description = description.ifEmpty { null },
-                            cover = imageUri
-                        )
-                    )
+                    onSaveClicked(RadioInputWrapper(title, description, imageUri, url))
                 },
                 modifier = Modifier.constrainAs(saveButtonRef) {
                     bottom.linkTo(parent.bottom)
@@ -278,13 +295,16 @@ fun RadioScreenTextInput(
     @StringRes labelRes: Int,
     modifier: Modifier = Modifier
 ) {
+    val iconSize = dimensionResource(id = R.dimen.icon_size_normal)
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChanged,
         leadingIcon = {
             RadioScreenIcon(
                 drawableRes = iconDrawableRes,
-                contentDescriptionRes = iconContentDescriptionRes
+                contentDescriptionRes = iconContentDescriptionRes,
+                modifier = Modifier.size(iconSize)
             )
         },
         label = { Text(text = stringResource(id = labelRes)) },
@@ -389,13 +409,14 @@ fun RadioScreenContent() {
         RadioScreenContent(
             topAppBarData = RadioScreenTopAppBarData("Test bar", false, {}),
             onPickImageClicked = {  },
-            onSaveClicked = { /*TODO*/ },
-            onCancelClicked = { /*TODO*/ },
+            onSaveClicked = {  },
+            onCancelClicked = {  },
             radioPresentation = RadioPresentation(
                 0,
                 "test title",
                 "test description",
-                coverUri
+                coverUri,
+                "http://url.com/radio"
             )
         )
     }

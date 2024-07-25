@@ -7,6 +7,7 @@ data class RadioPresentation(
   val title: String,
   val description: String? = null,
   val cover: Uri? = null,
+  val url: String
 ) {
   companion object {
     const val UNSPECIFIED_ID = -1L

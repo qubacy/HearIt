@@ -21,6 +21,9 @@
     <string name="radio_screen_content_description_input_description">A radio description input</string>
     <string name="radio_screen_content_description_input_label">Description</string>
     <string name="radio_screen_content_description_input_icon_description">A description input icon</string>
+    <string name="radio_screen_content_url_input_description">A radio url input</string>
+    <string name="radio_screen_content_url_input_label">Url</string>
+    <string name="radio_screen_content_url_input_icon_description">A url input icon</string>
     <string name="radio_screen_content_image_input_icon_description">An image input icon</string>
     <string name="radio_screen_content_image_input_hint">
         If you want it’s possible to set a custom cover for your radio station.

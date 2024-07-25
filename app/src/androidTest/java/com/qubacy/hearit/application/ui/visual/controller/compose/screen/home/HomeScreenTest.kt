@@ -69,7 +69,7 @@ class HomeScreenTest {
 
   @Test
   fun radioListItemsDisplayedTest() {
-    val radioPresentation = RadioPresentation(0, "Test radio")
+    val radioPresentation = RadioPresentation(0, "Test radio", url = "http://url.com")
     val radioList = listOf(radioPresentation)
 
     composeTestRule.setContent {
@@ -139,7 +139,7 @@ class HomeScreenTest {
 
   @Test
   fun onRadioClickedCalledTest() {
-    val radioPresentation = RadioPresentation(0, "Test radio item")
+    val radioPresentation = RadioPresentation(0, "Test radio item", url = "http://url.com")
     val radioList = listOf(radioPresentation)
 
     val radioListItemDescription = _context

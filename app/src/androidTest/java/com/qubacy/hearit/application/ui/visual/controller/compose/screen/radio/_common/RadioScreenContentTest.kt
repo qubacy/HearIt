@@ -10,6 +10,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import org.junit.Assert
 import org.junit.Before
@@ -33,7 +34,7 @@ class RadioScreenContentTest {
 
     val imageUri = _context.resources.getUriFromResource(R.drawable.ic_launcher_background)
     val radioPresentation = RadioPresentation(
-      0, "test title", "test description", imageUri
+      0, "test title", "test description", imageUri, url = "http://url.com"
     )
 
     composeTestRule.setContent {
@@ -78,7 +79,7 @@ class RadioScreenContentTest {
   fun imagePreviewClosedOnCloseButtonClickedTest() {
     val imageUri = _context.resources.getUriFromResource(R.drawable.ic_launcher_background)
     val radioPresentation = RadioPresentation(
-      0, "test title", "test description", imageUri
+      0, "test title", "test description", imageUri, url = "http://url.com"
     )
 
     composeTestRule.setContent {
@@ -135,17 +136,20 @@ class RadioScreenContentTest {
 
   @Test
   fun onSaveClickedCalledOnSaveButtonClickedTest() {
-    val expectedRadioPresentation = RadioPresentation(0, "test title")
+    val radioPresentation = RadioPresentation(title = "test title", url = "http://url.com")
+    val expectedRadioInputWrapper = RadioInputWrapper(
+      radioPresentation.title, url = radioPresentation.url
+    )
 
-    var gottenRadioPresentation: RadioPresentation? = null
+    var gottenRadioInputWrapper: RadioInputWrapper? = null
 
     composeTestRule.setContent {
       HearItTheme {
         RadioScreenContent(
           onPickImageClicked = {  },
-          onSaveClicked = { gottenRadioPresentation = it },
+          onSaveClicked = { gottenRadioInputWrapper = it },
           onCancelClicked = {  },
-          radioPresentation = expectedRadioPresentation
+          radioPresentation = radioPresentation
         )
       }
     }
@@ -154,7 +158,7 @@ class RadioScreenContentTest {
       hasText(_context.getString(R.string.radio_screen_content_save_button_text))
     ).performClick()
 
-    Assert.assertEquals(expectedRadioPresentation, gottenRadioPresentation)
+    Assert.assertEquals(expectedRadioInputWrapper, gottenRadioInputWrapper)
   }
 
   @Test

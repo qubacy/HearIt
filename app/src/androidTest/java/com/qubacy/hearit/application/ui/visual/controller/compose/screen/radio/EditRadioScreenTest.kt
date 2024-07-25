@@ -120,7 +120,7 @@ class EditRadioScreenTest {
 
   @Test
   fun onSavedCalledOnSavedRadioTest() {
-    val radio = RadioPresentation(0, "test title")
+    val radio = RadioPresentation(0, "test title", url = "http://url.com")
 
     val expectedRadioId = radio.id
 
