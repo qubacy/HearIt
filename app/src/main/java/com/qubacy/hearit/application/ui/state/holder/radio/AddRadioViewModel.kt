@@ -11,17 +11,19 @@ import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.Rad
 import com.qubacy.hearit.application.ui.state.state.AddRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AddRadioViewModel @Inject constructor(
+  // todo: injecting a use-case..
   private val _radioInputValidator: RadioInputWrapperValidator
 ) : ViewModel() {
   private var _state: MutableLiveData<AddRadioState> = MutableLiveData(AddRadioState.Idle)
   val state: LiveData<AddRadioState> get() = _state
 
-  private var _addedRadio: LiveData<RadioPresentation>? = null
+  private var _addedRadio: Flow<RadioPresentation>? = null
 
   fun addRadio(radioData: RadioInputWrapper) {
     if (!_radioInputValidator.validate(radioData))

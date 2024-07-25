@@ -6,10 +6,13 @@ import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._
 class RadioInputWrapperValidatorImpl(
   private val _urlValidator: (String) -> Boolean
 ) : RadioInputWrapperValidator {
+  private val _textRegex = Regex("^\\S+.*$")
+
   override fun validate(data: RadioInputWrapper): Boolean {
-    val isDescriptionValid = data.description?.let { data.description.isNotEmpty() } ?: true
+    val isTitleValid = data.title.matches(_textRegex)
+    val isDescriptionValid = data.description?.let { data.description.matches(_textRegex) } ?: true
     val isUrlValid = _urlValidator(data.url)
 
-    return (data.title.isNotEmpty() && isDescriptionValid && isUrlValid)
+    return (isTitleValid && isDescriptionValid && isUrlValid)
   }
 }

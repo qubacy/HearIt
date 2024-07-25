@@ -12,12 +12,14 @@ import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.Rad
 import com.qubacy.hearit.application.ui.state.state.EditRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class EditRadioViewModel @Inject constructor(
   private val _savedStateHandle: SavedStateHandle,
+  // todo: injecting a use-case..
   private val _radioInputValidator: RadioInputWrapperValidator
 ) : ViewModel() {
   companion object {
@@ -29,8 +31,8 @@ class EditRadioViewModel @Inject constructor(
   private var _state: MutableLiveData<EditRadioState> = MutableLiveData(EditRadioState.Idle)
   val state: LiveData<EditRadioState> get() = _state
 
-  //private var _loadingRadio: LiveData<RadioPresentation> // todo: calling a repo's method..
-  private var _savedRadio: LiveData<RadioPresentation>? = null
+  //private var _loadingRadio: Flow<RadioPresentation> // todo: calling a use-case's method..
+  private var _savedRadio: Flow<RadioPresentation>? = null
 
   /**
    * Meant to be called in Loaded state;
