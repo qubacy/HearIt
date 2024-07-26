@@ -39,7 +39,7 @@ class HomeViewModel @Inject constructor(
   fun observeRadioList() {
     if (_getRadioListJob != null) return
 
-    Log.d(TAG, "observeRadioList();")
+    //Log.d(TAG, "observeRadioList();")
 
     _getRadioListJob = startGettingRadioList()
   }
@@ -47,7 +47,7 @@ class HomeViewModel @Inject constructor(
   fun stopObservingRadioList() {
     if (_getRadioListJob == null) return
 
-    Log.d(TAG, "stopObservingRadioList();")
+    //Log.d(TAG, "stopObservingRadioList();")
 
     disposeGetRadioListJob()
   }
