@@ -14,7 +14,8 @@ import com.qubacy.hearit.application.ui._common.presentation.mapper._common.Radi
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
 import com.qubacy.hearit.application.ui.state.state.EditRadioState
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.mapper._common.RadioInputWrapperRadioDomainSketchMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -32,7 +33,8 @@ class EditRadioViewModel @Inject constructor(
   private val _dispatcher: CoroutineDispatcher,
   private val _useCase: EditRadioUseCase,
   private val _radioInputValidator: RadioInputWrapperValidator,
-  private val _radioMapper: RadioDomainModelRadioPresentationMapper
+  private val _radioMapper: RadioDomainModelRadioPresentationMapper,
+  private val _radioInputWrapperDomainSketchMapper: RadioInputWrapperRadioDomainSketchMapper
 ) : ViewModel() {
   companion object {
     const val TAG = "EditRadioViewModel"
@@ -111,7 +113,7 @@ class EditRadioViewModel @Inject constructor(
 
   private fun startSavingRadio(radioId: Long, radioData: RadioInputWrapper): Job {
     return viewModelScope.launch(_dispatcher) {
-      _useCase.saveRadio(radioId, radioData.toRadioDomainSketch()).map {
+      _useCase.saveRadio(radioId, _radioInputWrapperDomainSketchMapper.map(radioData)).map {
         _radioMapper.map(it)
       }.onEach {
         _state.value = EditRadioState.Success(it)

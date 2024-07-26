@@ -1,7 +1,7 @@
 package com.qubacy.hearit.application.ui.state.holder.radio.validator.impl
 
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 
 class RadioInputWrapperValidatorImpl(
   private val _urlValidator: (String) -> Boolean

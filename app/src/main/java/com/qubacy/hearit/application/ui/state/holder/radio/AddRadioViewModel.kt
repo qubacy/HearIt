@@ -12,7 +12,8 @@ import com.qubacy.hearit.application.ui._common.presentation.mapper._common.Radi
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
 import com.qubacy.hearit.application.ui.state.state.AddRadioState
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.mapper._common.RadioInputWrapperRadioDomainSketchMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -29,12 +30,23 @@ class AddRadioViewModel @Inject constructor(
   private val _dispatcher: CoroutineDispatcher,
   private val _useCase: AddRadioUseCase,
   private val _radioInputValidator: RadioInputWrapperValidator,
-  private val _radioMapper: RadioDomainModelRadioPresentationMapper
+  private val _radioDomainModelPresentationMapper: RadioDomainModelRadioPresentationMapper,
+  private val _radioInputWrapperDomainSketchMapper: RadioInputWrapperRadioDomainSketchMapper
 ) : ViewModel() {
   private var _state: MutableLiveData<AddRadioState> = MutableLiveData(AddRadioState.Idle)
   val state: LiveData<AddRadioState> get() = _state
 
   private var _addRadioJob: Job? = null
+
+  override fun onCleared() {
+    _addRadioJob?.apply {
+      cancel()
+
+      _addRadioJob = null
+    }
+
+    super.onCleared()
+  }
 
   fun addRadio(radioData: RadioInputWrapper) {
     if (!_radioInputValidator.validate(radioData))
@@ -46,8 +58,8 @@ class AddRadioViewModel @Inject constructor(
 
   private fun startAddingRadio(radioData: RadioInputWrapper): Job {
     return viewModelScope.launch(_dispatcher) {
-      _useCase.addRadio(radioData.toRadioDomainSketch()).map {
-        _radioMapper.map(it)
+      _useCase.addRadio(_radioInputWrapperDomainSketchMapper.map(radioData)).map {
+        _radioDomainModelPresentationMapper.map(it)
       }.onEach {
         _state.value = AddRadioState.Success(it)
       }.catch { cause ->

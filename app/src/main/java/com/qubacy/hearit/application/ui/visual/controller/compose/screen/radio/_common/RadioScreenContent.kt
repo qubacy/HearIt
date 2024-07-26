@@ -52,7 +52,7 @@ import coil.request.ImageRequest
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 
 data class RadioScreenTopAppBarData(
@@ -63,14 +63,14 @@ data class RadioScreenTopAppBarData(
 
 @Composable
 fun RadioScreenContent(
-    onPickImageClicked: ((Uri?) -> Unit) -> Unit,
-    onSaveClicked: (RadioInputWrapper) -> Unit,
-    onCancelClicked: () -> Unit,
+  onPickImageClicked: ((Uri?) -> Unit) -> Unit,
+  onSaveClicked: (RadioInputWrapper) -> Unit,
+  onCancelClicked: () -> Unit,
 
-    modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier,
 
-    topAppBarData: RadioScreenTopAppBarData? = null,
-    radioPresentation: RadioPresentation? = null
+  topAppBarData: RadioScreenTopAppBarData? = null,
+  radioPresentation: RadioPresentation? = null
 ) {
     Scaffold(
         topBar = { topAppBarData?.let { RadioScreenTopAppBar(it) } }

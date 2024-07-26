@@ -10,7 +10,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import org.junit.Assert
 import org.junit.Before
@@ -139,7 +139,7 @@ class RadioScreenContentTest {
 
   @Test
   fun onSaveClickedCalledOnSaveButtonClickedTest() {
-    val radioPresentation = RadioPresentation(title = "test title", url = "http://url.com")
+    val radioPresentation = RadioPresentation(0, title = "test title", url = "http://url.com")
     val expectedRadioInputWrapper = RadioInputWrapper(
       radioPresentation.title, url = radioPresentation.url
     )

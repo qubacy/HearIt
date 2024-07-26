@@ -26,7 +26,7 @@ import com.qubacy.hearit.application.ui.state.state.EditRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.aspect.ImagePickerScreen
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData
-import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
