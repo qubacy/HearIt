@@ -5,6 +5,7 @@ import com.qubacy.hearit.application.domain.usecase.radio._common.sketch.RadioDo
 import kotlinx.coroutines.flow.Flow
 
 interface EditRadioUseCase {
+    suspend fun getRadio(radioId: Long): Flow<RadioDomainModel>
     // todo: is it alright or it'd be better to pass RadioDomainModel instead?:
     suspend fun saveRadio(radioId: Long, radio: RadioDomainSketch): Flow<RadioDomainModel>
 }
