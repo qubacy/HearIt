@@ -1,6 +1,5 @@
 package com.qubacy.hearit.application.ui.state.holder.radio
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -33,7 +32,7 @@ class EditRadioViewModel @Inject constructor(
   private val _dispatcher: CoroutineDispatcher,
   private val _useCase: EditRadioUseCase,
   private val _radioInputValidator: RadioInputWrapperValidator,
-  private val _radioMapper: RadioDomainModelRadioPresentationMapper,
+  private val _radioDomainModelPresentationMapper: RadioDomainModelRadioPresentationMapper,
   private val _radioInputWrapperDomainSketchMapper: RadioInputWrapperRadioDomainSketchMapper
 ) : ViewModel() {
   companion object {
@@ -51,7 +50,7 @@ class EditRadioViewModel @Inject constructor(
   fun observeRadio() {
     if (_getRadioJob != null) return
 
-    Log.d(TAG, "observeRadio();")
+    //Log.d(TAG, "observeRadio();")
 
     _getRadioJob = startGettingRadio()
   }
@@ -59,7 +58,7 @@ class EditRadioViewModel @Inject constructor(
   fun stopObservingRadio() {
     if (_getRadioJob == null) return
 
-    Log.d(TAG, "stopObservingRadio();")
+    //Log.d(TAG, "stopObservingRadio();")
 
     disposeGetRadioJob()
   }
@@ -84,9 +83,11 @@ class EditRadioViewModel @Inject constructor(
   private fun startGettingRadio(): Job {
     val radioId: Long = _savedStateHandle[RADIO_ID_KEY_NAME]!!
 
+    _state.value = EditRadioState.Loading
+
     return viewModelScope.launch(_dispatcher) {
       _useCase.getRadio(radioId).map {
-        _radioMapper.map(it)
+        _radioDomainModelPresentationMapper.map(it)
       }.onEach {
         _state.value = EditRadioState.Loaded(it)
       }.catch { cause ->
@@ -114,7 +115,7 @@ class EditRadioViewModel @Inject constructor(
   private fun startSavingRadio(radioId: Long, radioData: RadioInputWrapper): Job {
     return viewModelScope.launch(_dispatcher) {
       _useCase.saveRadio(radioId, _radioInputWrapperDomainSketchMapper.map(radioData)).map {
-        _radioMapper.map(it)
+        _radioDomainModelPresentationMapper.map(it)
       }.onEach {
         _state.value = EditRadioState.Success(it)
       }.catch { cause ->
