@@ -1,7 +1,8 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.net.Uri
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,16 +30,21 @@ import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RadioListItem(
   radioPresentation: RadioPresentation,
+  onRadioLongPressed: (Long) -> Unit,
   onRadioClicked: (Long) -> Unit,
   modifier: Modifier = Modifier
 ) {
   ConstraintLayout(
     modifier = modifier.then(
       Modifier
-        .clickable { onRadioClicked(radioPresentation.id) }
+        .combinedClickable(
+          onClick = { onRadioClicked(radioPresentation.id) },
+          onLongClick = { onRadioLongPressed(radioPresentation.id) }
+        )
         .height(IntrinsicSize.Min)
         .padding(
           horizontal = dimensionResource(id = R.dimen.gap_normal),
@@ -154,7 +160,9 @@ fun RadioListItem() {
     0, "title", "desc", coverUri, "http://url.com"
   )
 
-  RadioListItem(radioPresentation, { id ->
-    println("RadioListItem(): clicked $id;")
-  })
+  RadioListItem(
+    radioPresentation,
+    { id -> println("RadioListItem(): clicked $id;") },
+    { id -> println("RadioListItem(): clicked $id;") }
+  )
 }

@@ -152,7 +152,7 @@ class HomeScreenTest {
       HearItTheme {
         HomeScreen(
           { null },
-          onRadioClicked = { callFlag = true },
+          onRadioLongPressed = { callFlag = true },
           { },
           { _, _, _ -> },
           radioList = radioList

@@ -25,7 +25,7 @@ fun HearItNavHost(
         retrieveSavedRadioId = {
           navController.consumeResult<Long>(RadioScreenConst.SAVED_RADIO_ID_RESULT_KEY)
         },
-        onRadioClicked = { id -> navController.navigate(Screen.EditRadio.createRoute(id)) },
+        onRadioLongPressed = { id -> navController.navigate(Screen.EditRadio.createRoute(id)) },
         onAddRadioClicked = { navController.navigate(Screen.AddRadio.route) },
         errorWidget = errorWidget
       )

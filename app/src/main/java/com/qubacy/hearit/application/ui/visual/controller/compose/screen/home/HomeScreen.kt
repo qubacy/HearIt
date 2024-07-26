@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
   retrieveSavedRadioId: () -> Long?,
-  onRadioClicked: (id: Long) -> Unit,
+  onRadioLongPressed: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
   errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
@@ -63,7 +63,7 @@ fun HomeScreen(
 
   HomeScreen(
     retrieveAddedRadioId = retrieveSavedRadioId,
-    onRadioClicked = onRadioClicked,
+    onRadioLongPressed = onRadioLongPressed,
     onAddRadioClicked = onAddRadioClicked,
     errorWidget = errorWidget,
     modifier = modifier,
@@ -94,7 +94,7 @@ fun SetupRadioListObserver(lifecycleOwner: LifecycleOwner, viewModel: HomeViewMo
 @Composable
 fun HomeScreen(
   retrieveAddedRadioId: () -> Long?,
-  onRadioClicked: (id: Long) -> Unit,
+  onRadioLongPressed: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
   errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
@@ -145,7 +145,10 @@ fun HomeScreen(
         }) { index, item ->
           RadioListItem(
             item,
-            { onRadioClicked(item.id) },
+            { onRadioLongPressed(item.id) },
+            {
+              // todo: implement.. should open a player and change a radio station..
+            },
             modifier = Modifier.semantics {
               contentDescription = radioListItemDescriptionTemplate.format(item.id)
             }
@@ -226,7 +229,7 @@ fun HomeScreen() {
   HearItTheme {
     HomeScreen(
       retrieveAddedRadioId = { 0 },
-      onRadioClicked = {  },
+      onRadioLongPressed = {  },
       onAddRadioClicked = {  },
       errorWidget = { _, _, _ -> },
       radioList = radioList
