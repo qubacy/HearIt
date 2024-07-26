@@ -102,7 +102,7 @@ fun RadioListItemCover(
       .crossfade(true)
       .build(),
     // todo: come up with an idea how to tint this correctly:
-    placeholder = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
+    placeholder = painterResource(R.drawable.radio_cover_placeholder),
     contentDescription = stringResource(R.string.home_screen_radio_list_item_cover_content_description),
     contentScale = ContentScale.Fit,
     modifier = modifier
@@ -114,7 +114,7 @@ fun RadioListItemCoverPlaceholder(
   modifier: Modifier = Modifier
 ) {
   Icon(
-    painter = painterResource(R.drawable.home_radio_list_item_cover_placeholder),
+    painter = painterResource(R.drawable.radio_cover_placeholder),
     contentDescription = stringResource(R.string.home_screen_radio_list_item_cover_content_description),
     tint = MaterialTheme.colorScheme.onSurfaceVariant,
     modifier = modifier

@@ -2,9 +2,11 @@ package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.content.Context
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -24,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -101,7 +104,9 @@ fun HomeScreen(
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
   error: ErrorReference? = null,
-  radioList: List<RadioPresentation> = listOf()
+  radioList: List<RadioPresentation> = listOf(),
+  currentRadioPresentation: RadioPresentation? = null,
+  isRadioPlaying: Boolean = false
 ) {
   val snackbarHostState = remember { SnackbarHostState() }
   val coroutineScope = rememberCoroutineScope()
@@ -132,13 +137,14 @@ fun HomeScreen(
       }
     }
   ) { contentPadding ->
-    Box(modifier = Modifier.padding(contentPadding)) {
+    Column(modifier = Modifier.padding(contentPadding)) {
       LazyColumn(
         modifier = Modifier
           .semantics {
             contentDescription = radioListDescription
           }
-          .fillMaxSize()
+          .fillMaxWidth()
+          .fillMaxHeight(1f)
       ) {
         itemsIndexed(radioList, key = { _: Int, item: RadioPresentation ->
           item.id
@@ -148,6 +154,8 @@ fun HomeScreen(
             { onRadioLongPressed(item.id) },
             {
               // todo: implement.. should open a player and change a radio station..
+              //  notes:
+              //  1) a current radio station should be set in the state;
             },
             modifier = Modifier.semantics {
               contentDescription = radioListItemDescriptionTemplate.format(item.id)
@@ -156,6 +164,19 @@ fun HomeScreen(
 
           if (index != radioList.size - 1) HorizontalDivider()
         }
+      }
+
+      if (currentRadioPresentation != null) {
+        RadioPlayer(
+          radioPresentation = currentRadioPresentation,
+          isPlaying = isRadioPlaying,
+          modifier = Modifier
+            .semantics {
+              contentDescription = "" // todo: set an actual value;
+            }
+            .fillMaxWidth()
+            .wrapContentHeight()
+        )
       }
     }
   }

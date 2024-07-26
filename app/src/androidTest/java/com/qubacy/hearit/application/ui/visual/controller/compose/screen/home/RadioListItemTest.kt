@@ -36,6 +36,7 @@ class RadioListItemTest {
       HearItTheme {
         RadioListItem(
           radioPresentation = radioPresentation,
+          { },
           { }
         )
       }
@@ -60,7 +61,8 @@ class RadioListItemTest {
       HearItTheme {
         RadioListItem(
           radioPresentation = radioPresentation,
-          onRadioClicked = { callFlag = true }
+          onRadioClicked = { callFlag = true },
+          onRadioLongPressed = { } // todo: implement a new test;
         )
       }
     }
