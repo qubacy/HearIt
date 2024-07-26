@@ -21,6 +21,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -28,12 +29,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
@@ -51,6 +56,7 @@ fun HomeScreen(
   errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
 
   modifier: Modifier = Modifier,
+  lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
   viewModel: HomeViewModel = hiltViewModel()
 ) {
   val state by viewModel.state.observeAsState()
@@ -65,6 +71,24 @@ fun HomeScreen(
     error = (state as? HomeState.Error)?.error,
     radioList = (state as? HomeState.Success)?.radioList ?: listOf()
   )
+
+  SetupRadioListObserver(lifecycleOwner, viewModel)
+}
+
+@Composable
+fun SetupRadioListObserver(lifecycleOwner: LifecycleOwner, viewModel: HomeViewModel) {
+  DisposableEffect(key1 = lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_START) viewModel.observeRadioList()
+      else if (event == Lifecycle.Event.ON_STOP) viewModel.stopObservingRadioList()
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+    }
+  }
 }
 
 @Composable

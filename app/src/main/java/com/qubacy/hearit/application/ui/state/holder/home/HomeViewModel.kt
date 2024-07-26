@@ -1,12 +1,14 @@
 package com.qubacy.hearit.application.ui.state.holder.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
-import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
+import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.state.HomeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,20 +22,43 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+  @ViewModelDispatcherQualifier
   private val _dispatcher: CoroutineDispatcher,
-  private val _useCase: HomeUseCase
+  private val _useCase: HomeUseCase,
+  private val _radioMapper: RadioDomainModelRadioPresentationMapper
 ) : ViewModel() {
+  companion object {
+    const val TAG = "HomeViewModel"
+  }
+
   private val _state: MutableLiveData<HomeState> = MutableLiveData(HomeState.Idle)
   val state: LiveData<HomeState> get() = _state
 
-  private val _getRadioListJob: Job
+  private var _getRadioListJob: Job? = null
 
-  init {
+  fun observeRadioList() {
+    if (_getRadioListJob != null) return
+
+    Log.d(TAG, "observeRadioList();")
+
     _getRadioListJob = startGettingRadioList()
   }
 
+  fun stopObservingRadioList() {
+    if (_getRadioListJob == null) return
+
+    Log.d(TAG, "stopObservingRadioList();")
+
+    disposeGetRadioListJob()
+  }
+
+  private fun disposeGetRadioListJob() {
+    _getRadioListJob!!.cancel()
+    _getRadioListJob = null
+  }
+
   override fun onCleared() {
-    _getRadioListJob.cancel() // todo: is it safe?
+    stopObservingRadioList()
 
     super.onCleared()
   }
@@ -43,14 +68,14 @@ class HomeViewModel @Inject constructor(
 
     return viewModelScope.launch(_dispatcher) {
       _useCase.getRadioList().map { list ->
-        list.map { RadioPresentation.fromRadioDomainModel(it) }
+        list.map { _radioMapper.map(it) }
       }.onEach {
         _state.postValue(HomeState.Success(it))
       }.catch { cause ->
         if (cause !is HearItException) throw cause
 
         _state.postValue(HomeState.Error(cause.errorReference))
-      } .collect()
+      }.collect()
     }
   }
 }

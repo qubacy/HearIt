@@ -8,7 +8,8 @@ import com.qubacy.hearit.application._common.error.ErrorEnum
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain.usecase.radio.add._common.AddRadioUseCase
-import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
+import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
 import com.qubacy.hearit.application.ui.state.state.AddRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
@@ -24,9 +25,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddRadioViewModel @Inject constructor(
+  @ViewModelDispatcherQualifier
   private val _dispatcher: CoroutineDispatcher,
   private val _useCase: AddRadioUseCase,
-  private val _radioInputValidator: RadioInputWrapperValidator
+  private val _radioInputValidator: RadioInputWrapperValidator,
+  private val _radioMapper: RadioDomainModelRadioPresentationMapper
 ) : ViewModel() {
   private var _state: MutableLiveData<AddRadioState> = MutableLiveData(AddRadioState.Idle)
   val state: LiveData<AddRadioState> get() = _state
@@ -44,7 +47,7 @@ class AddRadioViewModel @Inject constructor(
   private fun startAddingRadio(radioData: RadioInputWrapper): Job {
     return viewModelScope.launch(_dispatcher) {
       _useCase.addRadio(radioData.toRadioDomainSketch()).map {
-        RadioPresentation.fromRadioDomainModel(it)
+        _radioMapper.map(it)
       }.onEach {
         _state.value = AddRadioState.Success(it)
       }.catch { cause ->

@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.ui.state.holder.radio
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -9,7 +10,8 @@ import com.qubacy.hearit.application._common.error.ErrorEnum
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain.usecase.radio.edit._common.EditRadioUseCase
-import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
+import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
 import com.qubacy.hearit.application.ui.state.state.EditRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.wrapper.RadioInputWrapper
@@ -26,27 +28,53 @@ import javax.inject.Inject
 @HiltViewModel
 class EditRadioViewModel @Inject constructor(
   private val _savedStateHandle: SavedStateHandle,
+  @ViewModelDispatcherQualifier
   private val _dispatcher: CoroutineDispatcher,
   private val _useCase: EditRadioUseCase,
-  private val _radioInputValidator: RadioInputWrapperValidator
+  private val _radioInputValidator: RadioInputWrapperValidator,
+  private val _radioMapper: RadioDomainModelRadioPresentationMapper
 ) : ViewModel() {
   companion object {
+    const val TAG = "EditRadioViewModel"
+
     const val RADIO_ID_KEY_NAME = "radioId"
   }
 
   private var _state: MutableLiveData<EditRadioState> = MutableLiveData(EditRadioState.Idle)
   val state: LiveData<EditRadioState> get() = _state
 
-  private val _getRadioJob: Job
+  private var _getRadioJob: Job? = null
   private var _saveRadioJob: Job? = null
 
-  init {
+  fun observeRadio() {
+    if (_getRadioJob != null) return
+
+    Log.d(TAG, "observeRadio();")
+
     _getRadioJob = startGettingRadio()
   }
 
+  fun stopObservingRadio() {
+    if (_getRadioJob == null) return
+
+    Log.d(TAG, "stopObservingRadio();")
+
+    disposeGetRadioJob()
+  }
+
+  private fun disposeGetRadioJob() {
+    _getRadioJob!!.cancel()
+    _getRadioJob = null
+  }
+
   override fun onCleared() {
-    _getRadioJob.cancel()
-    _saveRadioJob?.cancel()
+    stopObservingRadio()
+
+    _saveRadioJob?.apply {
+      cancel()
+
+      _saveRadioJob = null
+    }
 
     super.onCleared()
   }
@@ -56,7 +84,7 @@ class EditRadioViewModel @Inject constructor(
 
     return viewModelScope.launch(_dispatcher) {
       _useCase.getRadio(radioId).map {
-        RadioPresentation.fromRadioDomainModel(it)
+        _radioMapper.map(it)
       }.onEach {
         _state.value = EditRadioState.Loaded(it)
       }.catch { cause ->
@@ -68,7 +96,7 @@ class EditRadioViewModel @Inject constructor(
   }
 
   /**
-   * Meant to be called in Loaded state;
+   * Meant to be called in the Loaded state;
    */
   fun saveRadio(radioData: RadioInputWrapper) {
     val stateSnapshot = _state.value
@@ -84,7 +112,7 @@ class EditRadioViewModel @Inject constructor(
   private fun startSavingRadio(radioId: Long, radioData: RadioInputWrapper): Job {
     return viewModelScope.launch(_dispatcher) {
       _useCase.saveRadio(radioId, radioData.toRadioDomainSketch()).map {
-        RadioPresentation.fromRadioDomainModel(it)
+        _radioMapper.map(it)
       }.onEach {
         _state.value = EditRadioState.Success(it)
       }.catch { cause ->
