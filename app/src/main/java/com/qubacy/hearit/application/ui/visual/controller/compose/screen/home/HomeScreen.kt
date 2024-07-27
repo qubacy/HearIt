@@ -24,9 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -62,7 +62,7 @@ fun HomeScreen(
   lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
   viewModel: HomeViewModel = hiltViewModel()
 ) {
-  val state by viewModel.state.observeAsState()
+  val state: HomeState by (viewModel.state.observeAsState() as State<HomeState>)
 
   HomeScreen(
     retrieveAddedRadioId = retrieveSavedRadioId,
@@ -70,9 +70,9 @@ fun HomeScreen(
     onAddRadioClicked = onAddRadioClicked,
     errorWidget = errorWidget,
     modifier = modifier,
-    isLoading = state is HomeState.Loading,
-    error = (state as? HomeState.Error)?.error,
-    radioList = (state as? HomeState.Success)?.radioList ?: listOf()
+    isLoading = state.isLoading,
+    error = state.error,
+    radioList = state.radioList ?: listOf()
   )
 
   SetupRadioListObserver(lifecycleOwner, viewModel)

@@ -54,7 +54,7 @@ class HomeViewModelTest {
   fun observeRadioListCallLeadsToCallingUseCaseMethodAndLoadingStateTest() = runTest(
     _coroutineDispatcher
   ) {
-    val expectedState = HomeState.Loading
+    val expectedState = HomeState(isLoading = true)
 
     Mockito.`when`(_useCaseMock.getRadioList()).thenReturn(flow {  })
 
@@ -93,7 +93,7 @@ class HomeViewModelTest {
     val radioDomainModel = RadioDomainModel(0, "", url = "")
     val expectedRadioPresentation = RadioPresentation(0, "", url = "")
 
-    val expectedState = HomeState.Success(listOf(expectedRadioPresentation))
+    val expectedState = HomeState(radioList = listOf(expectedRadioPresentation))
 
     Mockito.`when`(_radioMapperMock.map(any())).thenReturn(expectedRadioPresentation)
     Mockito.`when`(_useCaseMock.getRadioList()).thenReturn(
@@ -117,7 +117,7 @@ class HomeViewModelTest {
   ) {
     val errorReference = ErrorReference(0)
 
-    val expectedState = HomeState.Error(errorReference)
+    val expectedState = HomeState(error = errorReference)
 
     Mockito.`when`(_useCaseMock.getRadioList()).thenReturn(
       flow {

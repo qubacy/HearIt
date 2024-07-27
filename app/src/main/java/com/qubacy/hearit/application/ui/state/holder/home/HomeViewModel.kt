@@ -31,7 +31,7 @@ class HomeViewModel @Inject constructor(
     const val TAG = "HomeViewModel"
   }
 
-  private val _state: MutableLiveData<HomeState> = MutableLiveData(HomeState.Idle)
+  private val _state: MutableLiveData<HomeState> = MutableLiveData(HomeState())
   val state: LiveData<HomeState> get() = _state
 
   private var _getRadioListJob: Job? = null
@@ -64,17 +64,19 @@ class HomeViewModel @Inject constructor(
   }
 
   private fun startGettingRadioList(): Job {
-    _state.value = HomeState.Loading
+    _state.value = _state.value!!.copy(isLoading = true)
 
     return viewModelScope.launch(_dispatcher) {
       _useCase.getRadioList().map { list ->
         list.map { _radioMapper.map(it) }
       }.onEach {
-        _state.postValue(HomeState.Success(it))
+        // todo: possible bug:
+        _state.postValue(_state.value!!.copy(radioList = it, isLoading = false))
       }.catch { cause ->
         if (cause !is HearItException) throw cause
 
-        _state.postValue(HomeState.Error(cause.errorReference))
+        // todo: possible bug:
+        _state.postValue(_state.value!!.copy(error = cause.errorReference, isLoading = false))
       }.collect()
     }
   }
