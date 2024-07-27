@@ -21,16 +21,18 @@ fun HearItApp() {
     errorWidget = {
       error: ErrorReference,
       snackbarState: SnackbarHostState,
-      coroutine: CoroutineScope ->
+      coroutine: CoroutineScope,
+      onDismissRequested: () -> Unit ->
         ErrorWidget(
           error = error,
           snackbarHostState = snackbarState,
           coroutineScope = coroutine,
-          onDismissRequest  = {
+          onCriticalDismissRequest  = {
             val activity = context.findActivity()
 
             if (activity is CloseableActivity) activity.close()
-          }
+          },
+          onNotCriticalDismissRequest = onDismissRequested
         )
     }
   )

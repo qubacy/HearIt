@@ -22,7 +22,7 @@ class HearItNavHostTest {
 
       _testNavHostController.navigatorProvider.addNavigator(ComposeNavigator())
 
-      HearItNavHost(navController = _testNavHostController) { _, _, _ -> }
+      HearItNavHost(navController = _testNavHostController) { _, _, _, _ -> }
     }
   }
 

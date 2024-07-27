@@ -126,6 +126,10 @@ class EditRadioViewModel @Inject constructor(
     }
   }
 
+  fun consumeCurrentError() {
+    _state.value = _state.value!!.copy(error = null)
+  }
+
   private fun setErrorState(errorReference: ErrorReference) {
     _state.postValue(_state.value!!.copy(error = errorReference, isLoading = false))
   }

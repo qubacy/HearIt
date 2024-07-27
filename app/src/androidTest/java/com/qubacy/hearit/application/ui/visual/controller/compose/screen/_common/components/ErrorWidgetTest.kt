@@ -81,7 +81,7 @@ class ErrorWidgetTest {
 
     composeTestRule.setContent {
       HearItTheme {
-        ErrorWidget(error = error, onDismissRequest = { callFlag = true })
+        ErrorWidget(error = error, onCriticalDismissRequest = { callFlag = true })
       }
     }
 

@@ -56,7 +56,12 @@ fun HomeScreen(
   retrieveSavedRadioId: () -> Long?,
   onRadioLongPressed: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
+  errorWidget: @Composable (
+    ErrorReference,
+    SnackbarHostState,
+    CoroutineScope,
+    onDismissRequested: () -> Unit
+  ) -> Unit,
 
   modifier: Modifier = Modifier,
   lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
@@ -69,6 +74,7 @@ fun HomeScreen(
     onRadioPicked = { viewModel.setCurrentRadio(it) },
     onRadioLongPressed = onRadioLongPressed,
     onAddRadioClicked = onAddRadioClicked,
+    onErrorDismissed = { viewModel.consumeCurrentError() },
     errorWidget = errorWidget,
     modifier = modifier,
     isLoading = state.isLoading,
@@ -101,7 +107,13 @@ fun HomeScreen(
   onRadioPicked: (id: Long) -> Unit,
   onRadioLongPressed: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
+  onErrorDismissed: () -> Unit,
+  errorWidget: @Composable (
+    ErrorReference,
+    SnackbarHostState,
+    CoroutineScope,
+    () -> Unit
+  ) -> Unit,
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
@@ -183,7 +195,7 @@ fun HomeScreen(
     showSavedRadioSnackbar(snackbarHostState, LocalContext.current, coroutineScope)
   }
   error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope)
+    errorWidget(it, snackbarHostState, coroutineScope, onErrorDismissed)
   }
 }
 
@@ -251,7 +263,8 @@ fun HomeScreen() {
       onRadioPicked = {  },
       onRadioLongPressed = {  },
       onAddRadioClicked = {  },
-      errorWidget = { _, _, _ -> },
+      onErrorDismissed = {  },
+      errorWidget = { _, _, _, _ -> },
       radioList = radioList
     )
   }

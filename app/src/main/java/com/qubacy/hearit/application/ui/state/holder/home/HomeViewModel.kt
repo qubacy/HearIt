@@ -103,4 +103,8 @@ class HomeViewModel @Inject constructor(
 
     // todo: notifying the radio player service..
   }
+
+  fun consumeCurrentError() {
+    _state.value = _state.value!!.copy(error = null)
+  }
 }

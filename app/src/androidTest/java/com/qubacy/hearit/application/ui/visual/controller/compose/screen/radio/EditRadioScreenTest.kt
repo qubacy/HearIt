@@ -1,6 +1,9 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
 import android.content.Context
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -37,7 +40,8 @@ class EditRadioScreenTest {
           onSaveClicked = { callFlag = true },
           onPickImageClicked = {  },
           onSaved = {  },
-          errorWidget = {_, _, _ -> }
+          onErrorDismissed = {  },
+          errorWidget = {_, _, _, _ -> }
         )
       }
     }
@@ -60,7 +64,8 @@ class EditRadioScreenTest {
           onSaveClicked = {  },
           onPickImageClicked = {  },
           onSaved = {  },
-          errorWidget = {_, _, _ -> }
+          onErrorDismissed = {  },
+          errorWidget = {_, _, _, _ -> }
         )
       }
     }
@@ -83,7 +88,8 @@ class EditRadioScreenTest {
           onSaveClicked = {  },
           onPickImageClicked = {  },
           onSaved = {  },
-          errorWidget = {_, _, _ -> }
+          onErrorDismissed = {  },
+          errorWidget = {_, _, _, _ -> }
         )
       }
     }
@@ -106,7 +112,8 @@ class EditRadioScreenTest {
           onSaveClicked = {  },
           onPickImageClicked = { callFlag = true },
           onSaved = {  },
-          errorWidget = {_, _, _ -> }
+          onErrorDismissed = {  },
+          errorWidget = {_, _, _, _ -> }
         )
       }
     }
@@ -133,7 +140,8 @@ class EditRadioScreenTest {
           onSaveClicked = {  },
           onPickImageClicked = {  },
           onSaved = { gottenRadioId = it },
-          errorWidget = {_, _, _ -> },
+          onErrorDismissed = {  },
+          errorWidget = {_, _, _, _ -> },
           savedRadio = radio
         )
       }
@@ -155,12 +163,41 @@ class EditRadioScreenTest {
           onSaveClicked = {  },
           onPickImageClicked = {  },
           onSaved = {  },
-          errorWidget = { errorReference, _, _ -> gottenError = errorReference },
+          onErrorDismissed = {  },
+          errorWidget = { errorReference, _, _, _ -> gottenError = errorReference },
           error = expectedError
         )
       }
     }
 
     Assert.assertEquals(expectedError, gottenError)
+  }
+
+  @Test
+  fun onErrorDismissedCalledTest() {
+    val clickableText = "test text"
+    val errorReference = ErrorReference(0)
+
+    var callFlag = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        EditRadioScreen(
+          onBackClicked = {  },
+          onSaveClicked = {  },
+          onPickImageClicked = {  },
+          onSaved = {  },
+          onErrorDismissed = { callFlag = true },
+          errorWidget = { _, _, _, handler -> Text(
+            text = clickableText, modifier = Modifier.clickable { handler() }
+          )},
+          error = errorReference
+        )
+      }
+    }
+
+    composeTestRule.onNode(hasText(clickableText)).performClick()
+
+    Assert.assertTrue(callFlag)
   }
 }

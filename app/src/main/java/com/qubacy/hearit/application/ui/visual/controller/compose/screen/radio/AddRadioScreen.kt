@@ -28,7 +28,12 @@ import kotlinx.coroutines.CoroutineScope
 fun AddRadioScreen(
   onBackClicked: () -> Unit,
   onCreated: (Long) -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
+  errorWidget: @Composable (
+    ErrorReference,
+    SnackbarHostState,
+    CoroutineScope,
+    onDismissRequested: () -> Unit
+  ) -> Unit,
 
   modifier: Modifier = Modifier,
   viewModel: AddRadioViewModel = hiltViewModel()
@@ -42,6 +47,7 @@ fun AddRadioScreen(
     onCreateClicked = { viewModel.addRadio(it) },
     onCreated = onCreated,
     onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
+    onErrorDismissed = { viewModel.consumeCurrentError() },
     errorWidget = errorWidget,
     modifier = modifier,
     isLoading = state.isLoading,
@@ -56,7 +62,8 @@ fun AddRadioScreen(
   onCreateClicked: (RadioInputWrapper) -> Unit,
   onCreated: (Long) -> Unit,
   onPickImageClicked: ((Uri?) -> Unit) -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
+  onErrorDismissed: () -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, () -> Unit) -> Unit,
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
@@ -82,7 +89,7 @@ fun AddRadioScreen(
   )
 
   error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope)
+    errorWidget(it, snackbarHostState, coroutineScope, onErrorDismissed)
   }
 }
 
@@ -94,6 +101,7 @@ fun AddRadioScreen() {
     {},
     {},
     {},
-    {_, _, _ ->}
+    {},
+    {_, _, _, _ ->}
   )
 }

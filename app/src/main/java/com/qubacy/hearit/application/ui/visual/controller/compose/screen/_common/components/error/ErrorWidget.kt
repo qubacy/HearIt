@@ -28,30 +28,38 @@ fun ErrorWidget(
     error: ErrorReference,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onDismissRequest: () -> Unit = {}
+    onCriticalDismissRequest: () -> Unit = {},
+    onNotCriticalDismissRequest: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
     val resolvedError = HearItErrorEnum.fromReference(error).error
     val errorPresentation = ErrorPresentation.fromHearItError(resolvedError, context)
 
-    ErrorWidget(errorPresentation, coroutineScope, snackbarHostState, onDismissRequest)
+    ErrorWidget(
+        errorPresentation,
+        coroutineScope,
+        snackbarHostState,
+        onCriticalDismissRequest,
+        onNotCriticalDismissRequest
+    )
 }
 
 @Composable
 fun ErrorWidget(
-  error: ErrorPresentation,
-  coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
-  snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-  onDismissRequest: () -> Unit = { }
+    error: ErrorPresentation,
+    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onCriticalDismissRequest: () -> Unit = { },
+    onNotCriticalDismissRequest: () -> Unit = { }
 ) {
     if (error.isCritical) {
         AlertDialog(
             title = { Text(text = stringResource(id = R.string.error_dialog_title)) },
             text = { Text(text = error.message) },
-            onDismissRequest = onDismissRequest,
+            onDismissRequest = onCriticalDismissRequest,
             confirmButton = {
-                TextButton(onClick = onDismissRequest) {
+                TextButton(onClick = onCriticalDismissRequest) {
                     Text(
                         text = stringResource(id = R.string.error_dialog_confirmation_button_text)
                     )
@@ -67,6 +75,8 @@ fun ErrorWidget(
                     withDismissAction = true,
                     duration = SnackbarDuration.Long
                 )
+
+                onNotCriticalDismissRequest()
             }
         }
     }

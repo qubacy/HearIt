@@ -1,7 +1,9 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.content.Context
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
@@ -59,7 +61,8 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _ -> },
+          {},
+          { _, _, _, _ -> },
           isLoading = true
         )
       }
@@ -82,7 +85,8 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _ -> },
+          {},
+          { _, _, _, _ -> },
           radioList = radioList
         )
       }
@@ -110,7 +114,8 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _ -> Text(text = expectedErrorText)},
+          {},
+          { _, _, _, _ -> Text(text = expectedErrorText)},
           error = error
         )
       }
@@ -130,7 +135,8 @@ class HomeScreenTest {
           {},
           {},
           onAddRadioClicked = { callFlag = true },
-          { _, _, _ -> },
+          {},
+          { _, _, _, _ -> },
           isLoading = false
         )
       }
@@ -160,8 +166,9 @@ class HomeScreenTest {
           { null },
           {},
           onRadioLongPressed = { callFlag = true },
-          { },
-          { _, _, _ -> },
+          {},
+          {},
+          { _, _, _, _ -> },
           radioList = radioList
         )
       }
@@ -189,9 +196,10 @@ class HomeScreenTest {
         HomeScreen(
           { null },
           onRadioPicked = { callFlag = true },
-          { },
-          { },
-          { _, _, _ -> },
+          {},
+          {},
+          {},
+          { _, _, _, _ -> },
           radioList = radioList
         )
       }
@@ -199,6 +207,34 @@ class HomeScreenTest {
 
     composeTestRule.onNode(hasContentDescription(radioListItemDescription))
       .performClick()
+
+    Assert.assertTrue(callFlag)
+  }
+
+  @Test
+  fun onErrorDismissedCalledTest() {
+    val clickableText = "test text"
+    val errorReference = ErrorReference(0)
+
+    var callFlag = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          {},
+          {},
+          {},
+          onErrorDismissed = { callFlag = true },
+          { _, _, _, handler -> Text(
+            text = clickableText, modifier = Modifier.clickable { handler() }
+          )},
+          error = errorReference
+        )
+      }
+    }
+
+    composeTestRule.onNode(hasText(clickableText)).performClick()
 
     Assert.assertTrue(callFlag)
   }

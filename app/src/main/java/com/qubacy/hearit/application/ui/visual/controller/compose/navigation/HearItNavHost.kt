@@ -17,7 +17,12 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun HearItNavHost(
   navController: NavHostController,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit
+  errorWidget: @Composable (
+    ErrorReference,
+    SnackbarHostState,
+    CoroutineScope,
+    onDismissRequested: () -> Unit
+  ) -> Unit
 ) {
   NavHost(navController = navController, startDestination = Screen.Home.route) {
     composable(route = Screen.Home.route) {

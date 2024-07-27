@@ -34,7 +34,12 @@ import kotlinx.coroutines.CoroutineScope
 fun EditRadioScreen(
   onBackClicked: () -> Unit,
   onSaved: (Long) -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
+  errorWidget: @Composable (
+    ErrorReference,
+    SnackbarHostState,
+    CoroutineScope,
+    onDismissRequested: () -> Unit
+  ) -> Unit,
 
   modifier: Modifier = Modifier,
   lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
@@ -48,6 +53,7 @@ fun EditRadioScreen(
     onBackClicked = onBackClicked,
     onSaveClicked = { viewModel.saveRadio(it) },
     onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
+    onErrorDismissed = { viewModel.consumeCurrentError() },
     errorWidget = errorWidget,
     onSaved = onSaved,
     modifier = modifier,
@@ -81,7 +87,8 @@ fun EditRadioScreen(
   onBackClicked: () -> Unit,
   onSaveClicked: (RadioInputWrapper) -> Unit,
   onPickImageClicked: ((Uri?) -> Unit) -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
+  onErrorDismissed: () -> Unit,
+  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, () -> Unit) -> Unit,
 
   onSaved: (Long) -> Unit,
 
@@ -110,7 +117,7 @@ fun EditRadioScreen(
   )
 
   error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope)
+    errorWidget(it, snackbarHostState, coroutineScope, onErrorDismissed)
   }
 }
 
@@ -134,7 +141,8 @@ fun EditRadioScreen() {
     onBackClicked = {  },
     onSaveClicked = {  },
     onPickImageClicked = {  },
-    errorWidget = {_, _, _ -> },
+    onErrorDismissed = {  },
+    errorWidget = {_, _, _, _ -> },
     onSaved = {  },
     radioToEdit = state.savedRadio
   )
