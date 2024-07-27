@@ -3,6 +3,7 @@ package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 import android.net.Uri
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -32,7 +33,7 @@ fun AddRadioScreen(
   modifier: Modifier = Modifier,
   viewModel: AddRadioViewModel = hiltViewModel()
 ) {
-  val state by viewModel.state.observeAsState()
+  val state by viewModel.state.observeAsState() as State<AddRadioState>
 
   val context = LocalContext.current
 
@@ -43,9 +44,9 @@ fun AddRadioScreen(
     onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
     errorWidget = errorWidget,
     modifier = modifier,
-    isLoading = state is AddRadioState.Loading,
-    savedRadio = (state as? AddRadioState.Success)?.radio,
-    error = (state as? AddRadioState.Error)?.error
+    isLoading = state.isLoading,
+    savedRadio = state.addedRadio,
+    error = state.error
   )
 }
 

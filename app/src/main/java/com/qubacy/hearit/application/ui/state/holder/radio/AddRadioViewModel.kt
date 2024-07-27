@@ -33,7 +33,7 @@ class AddRadioViewModel @Inject constructor(
   private val _radioDomainModelPresentationMapper: RadioDomainModelRadioPresentationMapper,
   private val _radioInputWrapperDomainSketchMapper: RadioInputWrapperRadioDomainSketchMapper
 ) : ViewModel() {
-  private var _state: MutableLiveData<AddRadioState> = MutableLiveData(AddRadioState.Idle)
+  private var _state: MutableLiveData<AddRadioState> = MutableLiveData(AddRadioState())
   val state: LiveData<AddRadioState> get() = _state
 
   private var _addRadioJob: Job? = null
@@ -52,7 +52,7 @@ class AddRadioViewModel @Inject constructor(
     if (!_radioInputValidator.validate(radioData))
       return setErrorState(ErrorEnum.RADIO_INPUT_VALIDATION_ERROR.reference)
 
-    _state.value = AddRadioState.Loading
+    _state.value = _state.value!!.copy(isLoading = true)
     _addRadioJob = startAddingRadio(radioData)
   }
 
@@ -61,7 +61,7 @@ class AddRadioViewModel @Inject constructor(
       _useCase.addRadio(_radioInputWrapperDomainSketchMapper.map(radioData)).map {
         _radioDomainModelPresentationMapper.map(it)
       }.onEach {
-        _state.value = AddRadioState.Success(it)
+        _state.postValue(_state.value!!.copy(addedRadio = it, isLoading = false))
       }.catch { cause ->
         if (cause !is HearItException) throw cause
 
@@ -71,6 +71,6 @@ class AddRadioViewModel @Inject constructor(
   }
 
   private fun setErrorState(errorReference: ErrorReference) {
-    _state.postValue(AddRadioState.Error(errorReference))
+    _state.postValue(_state.value!!.copy(error = errorReference, isLoading = false))
   }
 }

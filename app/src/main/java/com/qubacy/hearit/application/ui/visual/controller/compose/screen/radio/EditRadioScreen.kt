@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -39,7 +40,7 @@ fun EditRadioScreen(
   lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
   viewModel: EditRadioViewModel = hiltViewModel()
 ) {
-  val state by viewModel.state.observeAsState()
+  val state by viewModel.state.observeAsState() as State<EditRadioState>
 
   val context = LocalContext.current
 
@@ -50,10 +51,10 @@ fun EditRadioScreen(
     errorWidget = errorWidget,
     onSaved = onSaved,
     modifier = modifier,
-    radioToEdit = (state as? EditRadioState.Loaded)?.radio,
-    isLoading = state is EditRadioState.Loading,
-    savedRadio = (state as? EditRadioState.Success)?.radio,
-    error = (state as? EditRadioState.Error)?.error
+    radioToEdit = state.loadedRadio,
+    isLoading = state.isLoading,
+    savedRadio = state.savedRadio,
+    error = state.error
   )
 
   SetupRadioObserver(lifecycleOwner, viewModel)
@@ -119,8 +120,8 @@ fun EditRadioScreen() {
   val resources = LocalContext.current.resources
   val resourceId = R.drawable.space
   val coverUri = resources.getUriFromResource(resourceId)
-  val state = EditRadioState.Loaded(
-    RadioPresentation(
+  val state = EditRadioState(
+    savedRadio = RadioPresentation(
       0,
       "test title",
       "test description",
@@ -135,6 +136,6 @@ fun EditRadioScreen() {
     onPickImageClicked = {  },
     errorWidget = {_, _, _ -> },
     onSaved = {  },
-    radioToEdit = state.radio
+    radioToEdit = state.savedRadio
   )
 }

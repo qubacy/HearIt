@@ -1,6 +1,7 @@
 package com.qubacy.hearit.application.ui.state.holder.home
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.MutableLiveData
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
@@ -8,6 +9,7 @@ import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
 import com.qubacy.hearit.application.ui.state.state.HomeState
+import com.qubacy.hearit.application.ui.state.state.PlayerState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -133,8 +135,44 @@ class HomeViewModelTest {
     Assert.assertEquals(expectedState, gottenState)
   }
 
+  @Test
+  fun setCurrentRadioTest() {
+    val stateReference = getState(_instance)
+
+    val radioId = 0L
+    val radioPresentation = RadioPresentation(radioId, "", url = "")
+
+    val initState = HomeState(radioList = listOf(radioPresentation))
+
+    val expectedInitState = initState.copy(
+      playerState = PlayerState(
+        currentRadio = radioPresentation,
+        isRadioPlaying = true
+      ),
+      isLoading = true
+    )
+    val expectedFinalState = expectedInitState.copy(isLoading = false)
+
+    stateReference.value = initState
+
+    _instance.setCurrentRadio(radioId)
+
+    val gottenInitState = _instance.state.value
+
+    Assert.assertEquals(expectedInitState, gottenInitState)
+
+    // todo: finish the test after providing a VM - Service interconnection..
+
+
+  }
+
   private fun getGetRadioListJobFieldReflection(): Field {
     return HomeViewModel::class.java.getDeclaredField("_getRadioListJob")
       .apply { isAccessible = true }
+  }
+
+  private fun getState(instance: HomeViewModel): MutableLiveData<HomeState> {
+    return HomeViewModel::class.java.getDeclaredField("_state")
+      .apply { isAccessible = true }.get(instance) as MutableLiveData<HomeState>
   }
 }

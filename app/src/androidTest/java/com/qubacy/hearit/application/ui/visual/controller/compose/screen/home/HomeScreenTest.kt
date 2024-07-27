@@ -6,7 +6,9 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
@@ -56,6 +58,7 @@ class HomeScreenTest {
           { null },
           {},
           {},
+          {},
           { _, _, _ -> },
           isLoading = true
         )
@@ -76,6 +79,7 @@ class HomeScreenTest {
       HearItTheme {
         HomeScreen(
           { null },
+          {},
           {},
           {},
           { _, _, _ -> },
@@ -105,6 +109,7 @@ class HomeScreenTest {
           { null },
           {},
           {},
+          {},
           { _, _, _ -> Text(text = expectedErrorText)},
           error = error
         )
@@ -123,6 +128,7 @@ class HomeScreenTest {
         HomeScreen(
           { null },
           {},
+          {},
           onAddRadioClicked = { callFlag = true },
           { _, _, _ -> },
           isLoading = false
@@ -138,7 +144,7 @@ class HomeScreenTest {
   }
 
   @Test
-  fun onRadioClickedCalledTest() {
+  fun onRadioLongPressedCalledTest() {
     val radioPresentation = RadioPresentation(0, "Test radio item", url = "http://url.com")
     val radioList = listOf(radioPresentation)
 
@@ -152,6 +158,7 @@ class HomeScreenTest {
       HearItTheme {
         HomeScreen(
           { null },
+          {},
           onRadioLongPressed = { callFlag = true },
           { },
           { _, _, _ -> },
@@ -160,7 +167,38 @@ class HomeScreenTest {
       }
     }
 
-    composeTestRule.onNode(hasContentDescription(radioListItemDescription)).performClick()
+    composeTestRule.onNode(hasContentDescription(radioListItemDescription))
+      .performTouchInput { longClick() }
+
+    Assert.assertTrue(callFlag)
+  }
+
+  @Test
+  fun onRadioPickedCalledTest() {
+    val radioPresentation = RadioPresentation(0, "Test radio item", url = "http://url.com")
+    val radioList = listOf(radioPresentation)
+
+    val radioListItemDescription = _context
+      .getString(R.string.home_screen_radio_list_item_description_template)
+      .format(radioPresentation.id)
+
+    var callFlag = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          onRadioPicked = { callFlag = true },
+          { },
+          { },
+          { _, _, _ -> },
+          radioList = radioList
+        )
+      }
+    }
+
+    composeTestRule.onNode(hasContentDescription(radioListItemDescription))
+      .performClick()
 
     Assert.assertTrue(callFlag)
   }

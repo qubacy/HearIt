@@ -76,8 +76,8 @@ class AddRadioViewModelTest {
     val radioDomainModel = RadioDomainModel(0, "", url = "")
     val radioPresentation = RadioPresentation(0, "", url = "")
 
-    val expectedInitState = AddRadioState.Loading
-    val expectedFinalState = AddRadioState.Success(radioPresentation)
+    val expectedInitState = AddRadioState(isLoading = true)
+    val expectedFinalState = AddRadioState(addedRadio = radioPresentation)
 
     Mockito.`when`(_radioInputValidatorMock.validate(any())).thenReturn(true)
     Mockito.`when`(_radioInputWrapperDomainSketchMapperMock.map(any())).thenReturn(radioDomainSketch)
@@ -109,7 +109,7 @@ class AddRadioViewModelTest {
     val radioInputWrapper = RadioInputWrapper("", url = "")
     val errorReference = ErrorReference(0)
 
-    val expectedState = AddRadioState.Error(errorReference)
+    val expectedState = AddRadioState(error = errorReference)
 
     Mockito.`when`(_useCaseMock.addRadio(any())).thenReturn(
       flow {

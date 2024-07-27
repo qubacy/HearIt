@@ -5,11 +5,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qubacy.hearit.application._common.error.ErrorEnum
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
 import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.state.HomeState
+import com.qubacy.hearit.application.ui.state.state.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -79,5 +81,26 @@ class HomeViewModel @Inject constructor(
         _state.postValue(_state.value!!.copy(error = cause.errorReference, isLoading = false))
       }.collect()
     }
+  }
+
+  /**
+   * It's supposed that the radio with the provided [id] is already loaded;
+   */
+  fun setCurrentRadio(id: Long) {
+    val radioPresentation = _state.value!!.radioList?.find { it.id == id }
+
+    if (radioPresentation == null) {
+      _state.value = _state.value!!.copy(error = ErrorEnum.RADIO_NOT_FOUND.reference)
+
+      return
+    }
+
+    val playerState = _state.value!!.playerState?.copy(currentRadio = radioPresentation)
+      ?: PlayerState(currentRadio = radioPresentation, isRadioPlaying = true)
+
+    // todo: think twice about the loading flag:
+    _state.value = _state.value!!.copy(playerState = playerState, isLoading = true)
+
+    // todo: notifying the radio player service..
   }
 }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="error_message_radio_input_validation_error">Provided input data is incorrect!</string>
+    <string name="error_message_radio_not_found">Radio not found!</string>
 </resources>

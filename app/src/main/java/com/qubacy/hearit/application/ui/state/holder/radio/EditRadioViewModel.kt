@@ -41,7 +41,7 @@ class EditRadioViewModel @Inject constructor(
     const val RADIO_ID_KEY_NAME = "radioId"
   }
 
-  private var _state: MutableLiveData<EditRadioState> = MutableLiveData(EditRadioState.Idle)
+  private var _state: MutableLiveData<EditRadioState> = MutableLiveData(EditRadioState())
   val state: LiveData<EditRadioState> get() = _state
 
   private var _getRadioJob: Job? = null
@@ -83,13 +83,13 @@ class EditRadioViewModel @Inject constructor(
   private fun startGettingRadio(): Job {
     val radioId: Long = _savedStateHandle[RADIO_ID_KEY_NAME]!!
 
-    _state.value = EditRadioState.Loading
+    _state.value = _state.value!!.copy(isLoading = true)
 
     return viewModelScope.launch(_dispatcher) {
       _useCase.getRadio(radioId).map {
         _radioDomainModelPresentationMapper.map(it)
       }.onEach {
-        _state.value = EditRadioState.Loaded(it)
+        _state.postValue(_state.value!!.copy(loadedRadio = it, isLoading = false))
       }.catch { cause ->
         if (cause !is HearItException) throw cause
 
@@ -102,14 +102,14 @@ class EditRadioViewModel @Inject constructor(
    * Meant to be called in the Loaded state;
    */
   fun saveRadio(radioData: RadioInputWrapper) {
-    val stateSnapshot = _state.value
+    val stateSnapshot = _state.value!!
 
-    if (stateSnapshot !is EditRadioState.Loaded) return
+    if (stateSnapshot.loadedRadio == null) return
     if (!_radioInputValidator.validate(radioData))
       return setErrorState(ErrorEnum.RADIO_INPUT_VALIDATION_ERROR.reference)
 
-    _state.value = EditRadioState.Loading
-    _saveRadioJob = startSavingRadio(stateSnapshot.radio.id, radioData)
+    _state.value = _state.value!!.copy(isLoading = true)
+    _saveRadioJob = startSavingRadio(stateSnapshot.loadedRadio.id, radioData)
   }
 
   private fun startSavingRadio(radioId: Long, radioData: RadioInputWrapper): Job {
@@ -117,7 +117,7 @@ class EditRadioViewModel @Inject constructor(
       _useCase.saveRadio(radioId, _radioInputWrapperDomainSketchMapper.map(radioData)).map {
         _radioDomainModelPresentationMapper.map(it)
       }.onEach {
-        _state.value = EditRadioState.Success(it)
+        _state.postValue(_state.value!!.copy(savedRadio = it, isLoading = false))
       }.catch { cause ->
         if (cause !is HearItException) throw cause
 
@@ -127,6 +127,6 @@ class EditRadioViewModel @Inject constructor(
   }
 
   private fun setErrorState(errorReference: ErrorReference) {
-    _state.postValue(EditRadioState.Error(errorReference))
+    _state.postValue(_state.value!!.copy(error = errorReference, isLoading = false))
   }
 }

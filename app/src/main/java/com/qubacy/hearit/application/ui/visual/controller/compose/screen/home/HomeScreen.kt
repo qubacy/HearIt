@@ -66,6 +66,7 @@ fun HomeScreen(
 
   HomeScreen(
     retrieveAddedRadioId = retrieveSavedRadioId,
+    onRadioPicked = { viewModel.setCurrentRadio(it) },
     onRadioLongPressed = onRadioLongPressed,
     onAddRadioClicked = onAddRadioClicked,
     errorWidget = errorWidget,
@@ -97,6 +98,7 @@ fun SetupRadioListObserver(lifecycleOwner: LifecycleOwner, viewModel: HomeViewMo
 @Composable
 fun HomeScreen(
   retrieveAddedRadioId: () -> Long?,
+  onRadioPicked: (id: Long) -> Unit,
   onRadioLongPressed: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
   errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope) -> Unit,
@@ -152,11 +154,7 @@ fun HomeScreen(
           RadioListItem(
             item,
             { onRadioLongPressed(item.id) },
-            {
-              // todo: implement.. should open a player and change a radio station..
-              //  notes:
-              //  1) a current radio station should be set in the state;
-            },
+            { onRadioPicked(item.id) },
             modifier = Modifier.semantics {
               contentDescription = radioListItemDescriptionTemplate.format(item.id)
             }
@@ -250,6 +248,7 @@ fun HomeScreen() {
   HearItTheme {
     HomeScreen(
       retrieveAddedRadioId = { 0 },
+      onRadioPicked = {  },
       onRadioLongPressed = {  },
       onAddRadioClicked = {  },
       errorWidget = { _, _, _ -> },
