@@ -41,6 +41,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -147,20 +148,6 @@ fun HomeScreen(
     topBar = { HomeAppBar(isLoading) },
     snackbarHost = {
       SnackbarHost(hostState = snackbarHostState)
-    },
-    floatingActionButton = {
-      FloatingActionButton(
-        modifier = Modifier
-          .semantics {
-            contentDescription = fabDescription
-          },
-        onClick = onAddRadioClicked
-      ) {
-        Icon(
-          imageVector = Icons.Rounded.Add,
-          contentDescription = "Add radio button"
-        )
-      }
     }
   ) { contentPadding ->
     ConstraintLayout(
@@ -171,6 +158,8 @@ fun HomeScreen(
       val isPlayerVisible = currentRadioPresentation != null
       var finalCurrentRadioPresentation by remember { mutableStateOf(currentRadioPresentation) }
       var isPlayerExpanded by remember { mutableStateOf(false) }
+      
+      val normalGap = dimensionResource(id = R.dimen.gap_normal)
 
       val (listRef, fabRef, playerWrapperRef, playerScrimRef) = createRefs()
 
@@ -223,6 +212,29 @@ fun HomeScreen(
         finalCurrentRadioPresentation = currentRadioPresentation
       }
 
+      FloatingActionButton(
+        modifier = Modifier
+          .constrainAs(fabRef) {
+            end.linkTo(parent.end, normalGap)
+
+            if (!isPlayerVisible || isPlayerExpanded) {
+
+                bottom.linkTo(parent.bottom, normalGap)
+            } else {
+              bottom.linkTo(playerWrapperRef.top, normalGap)
+            }
+          }
+          .semantics {
+            contentDescription = fabDescription
+          },
+        onClick = onAddRadioClicked
+      ) {
+        Icon(
+          imageVector = Icons.Rounded.Add,
+          contentDescription = "Add radio button"
+        )
+      }
+
       if (isPlayerVisible || finalCurrentRadioPresentation != null) {
         val visibleCurrentRadioPresentation = currentRadioPresentation ?: finalCurrentRadioPresentation!!
 
@@ -243,13 +255,12 @@ fun HomeScreen(
             .clickable {
               isPlayerExpanded = false
             }
-        ) {
-
-        }
+        ) {}
 
         RadioPlayer(
           radioPresentation = visibleCurrentRadioPresentation,
           isPlaying = isRadioPlaying,
+          isExpanded = isPlayerExpanded,
           modifier = Modifier
             .let {
               if (!isPlayerExpanded) return@let it.wrapContentHeight()
@@ -267,8 +278,10 @@ fun HomeScreen(
               width = Dimension.matchParent
               if (isPlayerExpanded) height = Dimension.fillToConstraints
             }
-            .clickable {
-              isPlayerExpanded = true
+            .let {
+              if (!isPlayerExpanded) return@let it.clickable { isPlayerExpanded = true }
+
+              it
             }
         )
       }

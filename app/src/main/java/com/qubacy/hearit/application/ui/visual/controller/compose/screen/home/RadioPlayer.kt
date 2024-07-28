@@ -8,20 +8,24 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.rememberAsyncImagePainter
@@ -32,6 +36,7 @@ import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 fun RadioPlayer(
   radioPresentation: RadioPresentation,
   isPlaying: Boolean,
+  isExpanded: Boolean,
   modifier: Modifier = Modifier
 ) {
   val coverPainter =
@@ -40,7 +45,9 @@ fun RadioPlayer(
 
   RadioPlayer(
     title = radioPresentation.title,
+    description = radioPresentation.description,
     isPlaying = isPlaying,
+    isExpanded = isExpanded,
     coverPainter = coverPainter,
     modifier = modifier,
   )
@@ -50,7 +57,9 @@ fun RadioPlayer(
 @Composable
 fun RadioPlayer(
   title: String,
+  description: String?,
   isPlaying: Boolean,
+  isExpanded: Boolean,
   coverPainter: Painter,
   modifier: Modifier = Modifier
 ) {
@@ -72,16 +81,26 @@ fun RadioPlayer(
 
     val playButtonIcon = AnimatedImageVector.animatedVectorResource(R.drawable.play_animated)
 
-    val (coverRef, titleRef, prevButtonRef, playButtonRef, nextButtonRef) = createRefs()
+    val (coverRef, titleRef, descriptionRef, prevButtonRef, playButtonRef, nextButtonRef) = createRefs()
 
     Image(
       painter = coverPainter,
       contentDescription = coverContentDescription,
+      contentScale = if (isExpanded) ContentScale.Crop else ContentScale.Fit,
       modifier = Modifier
+        .clip(AbsoluteRoundedCornerShape(8.dp))
+        .background(Color.Blue) // todo: delete;
         .constrainAs(coverRef) {
-          start.linkTo(parent.start)
           top.linkTo(parent.top)
-          bottom.linkTo(parent.bottom)
+
+          if (!isExpanded) {
+            start.linkTo(parent.start)
+            bottom.linkTo(parent.bottom)
+          } else {
+            bottom.linkTo(titleRef.top)
+
+            width = Dimension.matchParent
+          }
 
           height = Dimension.fillToConstraints
         }
@@ -90,12 +109,28 @@ fun RadioPlayer(
     Text(
       text = title,
       modifier = Modifier.constrainAs(titleRef) {
-        top.linkTo(parent.top)
-        bottom.linkTo(parent.bottom)
-        start.linkTo(coverRef.end, normalGap)
-        end.linkTo(prevButtonRef.start)
+        if (!isExpanded) {
+          top.linkTo(parent.top)
+          bottom.linkTo(parent.bottom)
+          start.linkTo(coverRef.end, normalGap)
+          end.linkTo(prevButtonRef.start)
+        } else {
+          top.linkTo(coverRef.bottom, normalGap)
+          bottom.linkTo(if (description != null) descriptionRef.top else playButtonRef.top)
+          start.linkTo(parent.start)
+        }
       }
     )
+
+    if (isExpanded && description != null) {
+      Text(
+        text = description,
+        modifier = Modifier.constrainAs(descriptionRef) {
+          top.linkTo(titleRef.bottom, normalGap)
+          start.linkTo(parent.start)
+        }
+      )
+    }
 
     IconButton(
       onClick = { /*TODO*/ },
@@ -104,9 +139,14 @@ fun RadioPlayer(
           contentDescription = prevButtonContentDescription
         }
         .constrainAs(prevButtonRef) {
-          top.linkTo(parent.top)
-          bottom.linkTo(parent.bottom)
-          end.linkTo(playButtonRef.start, normalGap)
+          if (!isExpanded) {
+            top.linkTo(parent.top)
+            bottom.linkTo(parent.bottom)
+            end.linkTo(playButtonRef.start, normalGap)
+          } else {
+            top.linkTo(playButtonRef.top)
+            end.linkTo(playButtonRef.start)
+          }
         }
     ) {
       Icon(
@@ -122,9 +162,16 @@ fun RadioPlayer(
           contentDescription = playButtonContentDescription
         }
         .constrainAs(playButtonRef) {
-          top.linkTo(parent.top)
-          bottom.linkTo(parent.bottom)
-          end.linkTo(nextButtonRef.start, normalGap)
+          if (!isExpanded) {
+            top.linkTo(parent.top)
+            bottom.linkTo(parent.bottom)
+            end.linkTo(nextButtonRef.start, normalGap)
+          } else {
+            top.linkTo(if (description != null) descriptionRef.bottom else titleRef.bottom, normalGap)
+            bottom.linkTo(parent.bottom)
+
+            centerHorizontallyTo(parent)
+          }
         }
     ) {
       Icon(
@@ -140,9 +187,14 @@ fun RadioPlayer(
           contentDescription = nextButtonContentDescription
         }
         .constrainAs(nextButtonRef) {
-          top.linkTo(parent.top)
-          bottom.linkTo(parent.bottom)
-          end.linkTo(parent.end)
+          if (!isExpanded) {
+            top.linkTo(parent.top)
+            bottom.linkTo(parent.bottom)
+            end.linkTo(parent.end)
+          } else {
+            top.linkTo(playButtonRef.top)
+            start.linkTo(playButtonRef.end)
+          }
         }
     ) {
       Icon(
@@ -158,7 +210,9 @@ fun RadioPlayer(
 fun RadioPlayer() {
   RadioPlayer(
     "test title",
+    null,
     false,
+    true,
     painterResource(id = R.drawable.radio_cover_placeholder),
     modifier = Modifier.fillMaxWidth()
   )
