@@ -1,7 +1,10 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.content.Context
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -167,7 +171,7 @@ fun HomeScreen(
       val isPlayerVisible = currentRadioPresentation != null
       var finalCurrentRadioPresentation by remember { mutableStateOf(currentRadioPresentation) }
 
-      val (listRef, fabRef, playerWrapperRef) = createRefs()
+      val (listRef, fabRef, playerWrapperRef, playerScrimRef) = createRefs()
 
       LazyColumn(
         modifier = Modifier
@@ -217,6 +221,28 @@ fun HomeScreen(
 
       if (isPlayerVisible || finalCurrentRadioPresentation != null) {
         val visibleCurrentRadioPresentation = currentRadioPresentation ?: finalCurrentRadioPresentation!!
+        var isPlayerExpanded by remember { mutableStateOf(false) }
+
+        val scrimAnimatedColor by animateColorAsState(
+          targetValue = if (!isPlayerExpanded) Color.Transparent else MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)
+        )
+
+        Box(
+          modifier = Modifier
+            .background(scrimAnimatedColor)
+            .constrainAs(playerScrimRef) {
+              top.linkTo(if (!isPlayerExpanded) parent.bottom else parent.top)
+              bottom.linkTo(parent.bottom)
+
+              width = Dimension.matchParent
+              height = Dimension.fillToConstraints
+            }
+            .clickable {
+              isPlayerExpanded = false
+            }
+        ) {
+
+        }
 
         RadioPlayer(
           radioPresentation = visibleCurrentRadioPresentation,
@@ -231,6 +257,9 @@ fun HomeScreen(
               bottom.linkTo(parent.bottom)
 
               width = Dimension.matchParent
+            }
+            .clickable {
+              isPlayerExpanded = true
             }
         )
       }
