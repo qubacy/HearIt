@@ -1,10 +1,11 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.content.Context
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,10 +28,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -38,6 +42,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -139,9 +146,10 @@ fun HomeScreen(
     },
     floatingActionButton = {
       FloatingActionButton(
-        modifier = Modifier.semantics { 
-          contentDescription = fabDescription
-        },
+        modifier = Modifier
+          .semantics {
+            contentDescription = fabDescription
+          },
         onClick = onAddRadioClicked
       ) {
         Icon(
@@ -151,14 +159,31 @@ fun HomeScreen(
       }
     }
   ) { contentPadding ->
-    Column(modifier = Modifier.padding(contentPadding)) {
+    ConstraintLayout(
+      modifier = Modifier
+        .fillMaxSize()
+        .padding(contentPadding)
+    ) {
+      val isPlayerVisible = currentRadioPresentation != null
+      var finalCurrentRadioPresentation by remember { mutableStateOf(currentRadioPresentation) }
+
+      val (listRef, fabRef, playerWrapperRef) = createRefs()
+
       LazyColumn(
         modifier = Modifier
           .semantics {
             contentDescription = radioListDescription
           }
-          .fillMaxWidth()
-          .fillMaxHeight(1f)
+          .constrainAs(listRef) {
+            top.linkTo(parent.top)
+            bottom.linkTo(
+              if (isPlayerVisible || finalCurrentRadioPresentation != null) playerWrapperRef.top
+              else parent.bottom
+            )
+
+            height = Dimension.fillToConstraints
+            width = Dimension.matchParent
+          }
       ) {
         itemsIndexed(radioList, key = { _: Int, item: RadioPresentation ->
           item.id
@@ -176,16 +201,37 @@ fun HomeScreen(
         }
       }
 
-      if (currentRadioPresentation != null) {
+      val playerAnimatedOffset by animateOffsetAsState(
+        targetValue = Offset(0f, if (isPlayerVisible) 0f else 1f)
+      ) {
+        println("playerAnimatedOffset: currentRadioPresentation = $currentRadioPresentation;")
+
+        finalCurrentRadioPresentation = currentRadioPresentation
+      }
+
+      if (finalCurrentRadioPresentation != null && currentRadioPresentation != null
+       && finalCurrentRadioPresentation != currentRadioPresentation
+      ) {
+        finalCurrentRadioPresentation = currentRadioPresentation
+      }
+
+      if (isPlayerVisible || finalCurrentRadioPresentation != null) {
+        val visibleCurrentRadioPresentation = currentRadioPresentation ?: finalCurrentRadioPresentation!!
+
         RadioPlayer(
-          radioPresentation = currentRadioPresentation,
+          radioPresentation = visibleCurrentRadioPresentation,
           isPlaying = isRadioPlaying,
           modifier = Modifier
+            .wrapContentHeight()
             .semantics {
               contentDescription = "" // todo: set an actual value;
             }
-            .fillMaxWidth()
-            .wrapContentHeight()
+            .offset(0.dp, playerAnimatedOffset.y.dp)
+            .constrainAs(playerWrapperRef) {
+              bottom.linkTo(parent.bottom)
+
+              width = Dimension.matchParent
+            }
         )
       }
     }
@@ -257,15 +303,21 @@ fun HomeScreen() {
     )
   }
 
+  var curRadio: RadioPresentation? by remember {
+    mutableStateOf(null)
+  }
+
   HearItTheme {
     HomeScreen(
       retrieveAddedRadioId = { 0 },
-      onRadioPicked = {  },
-      onRadioLongPressed = {  },
+      onRadioPicked = { id -> curRadio = radioList.find { it.id == id } },
+      onRadioLongPressed = { curRadio = null },
       onAddRadioClicked = {  },
       onErrorDismissed = {  },
       errorWidget = { _, _, _, _ -> },
-      radioList = radioList
+      radioList = radioList,
+      currentRadioPresentation = curRadio,
+      isRadioPlaying = false
     )
   }
 }
