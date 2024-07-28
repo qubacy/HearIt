@@ -60,7 +60,7 @@ fun RadioPlayer(
   ConstraintLayout(
     modifier = modifier.then(
       Modifier
-        .wrapContentHeight()
+        //.wrapContentHeight()
         .background(MaterialTheme.colorScheme.surface)
         .padding(vertical = paddingVertical, horizontal = normalGap)
     )

@@ -170,8 +170,11 @@ fun HomeScreen(
     ) {
       val isPlayerVisible = currentRadioPresentation != null
       var finalCurrentRadioPresentation by remember { mutableStateOf(currentRadioPresentation) }
+      var isPlayerExpanded by remember { mutableStateOf(false) }
 
       val (listRef, fabRef, playerWrapperRef, playerScrimRef) = createRefs()
+
+      val guidelineVertical50Ref = createGuidelineFromTop(0.5f)
 
       LazyColumn(
         modifier = Modifier
@@ -181,7 +184,8 @@ fun HomeScreen(
           .constrainAs(listRef) {
             top.linkTo(parent.top)
             bottom.linkTo(
-              if (isPlayerVisible || finalCurrentRadioPresentation != null) playerWrapperRef.top
+              if ((isPlayerVisible || finalCurrentRadioPresentation != null) && !isPlayerExpanded)
+                playerWrapperRef.top
               else parent.bottom
             )
 
@@ -221,7 +225,6 @@ fun HomeScreen(
 
       if (isPlayerVisible || finalCurrentRadioPresentation != null) {
         val visibleCurrentRadioPresentation = currentRadioPresentation ?: finalCurrentRadioPresentation!!
-        var isPlayerExpanded by remember { mutableStateOf(false) }
 
         val scrimAnimatedColor by animateColorAsState(
           targetValue = if (!isPlayerExpanded) Color.Transparent else MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)
@@ -248,15 +251,21 @@ fun HomeScreen(
           radioPresentation = visibleCurrentRadioPresentation,
           isPlaying = isRadioPlaying,
           modifier = Modifier
-            .wrapContentHeight()
+            .let {
+              if (!isPlayerExpanded) return@let it.wrapContentHeight()
+
+              it
+            }
             .semantics {
               contentDescription = "" // todo: set an actual value;
             }
             .offset(0.dp, playerAnimatedOffset.y.dp)
             .constrainAs(playerWrapperRef) {
+              if (isPlayerExpanded) top.linkTo(guidelineVertical50Ref)
               bottom.linkTo(parent.bottom)
 
               width = Dimension.matchParent
+              if (isPlayerExpanded) height = Dimension.fillToConstraints
             }
             .clickable {
               isPlayerExpanded = true
