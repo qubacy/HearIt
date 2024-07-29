@@ -64,6 +64,9 @@ class HomeScreenTest {
           {},
           {},
           {},
+          {},
+          {},
+          {},
           { _, _, _, _ -> },
           isLoading = true
         )
@@ -84,6 +87,9 @@ class HomeScreenTest {
       HearItTheme {
         HomeScreen(
           { null },
+          {},
+          {},
+          {},
           {},
           {},
           {},
@@ -121,6 +127,9 @@ class HomeScreenTest {
           {},
           {},
           {},
+          {},
+          {},
+          {},
           { _, _, _, _ -> Text(text = expectedErrorText)},
           error = error
         )
@@ -141,6 +150,9 @@ class HomeScreenTest {
           {},
           {},
           onAddRadioClicked = { callFlag = true },
+          {},
+          {},
+          {},
           {},
           {},
           {},
@@ -178,6 +190,9 @@ class HomeScreenTest {
           {},
           {},
           {},
+          {},
+          {},
+          {},
           { _, _, _, _ -> },
           radioList = radioList
         )
@@ -206,6 +221,9 @@ class HomeScreenTest {
         HomeScreen(
           { null },
           onRadioPicked = { callFlag = true },
+          {},
+          {},
+          {},
           {},
           {},
           {},
@@ -240,6 +258,9 @@ class HomeScreenTest {
           onErrorDismissed = { callFlag = true },
           {},
           {},
+          {},
+          {},
+          {},
           { _, _, _, handler -> Text(
             text = clickableText, modifier = Modifier.clickable { handler() }
           )},
@@ -267,6 +288,9 @@ class HomeScreenTest {
           {},
           {},
           onPlayerClicked = { callFlag = true },
+          {},
+          {},
+          {},
           {},
           { _, _, _, _ -> },
           isLoading = false,
@@ -297,6 +321,9 @@ class HomeScreenTest {
           {},
           {},
           onPlayerBackgroundClicked = { callFlag = true },
+          {},
+          {},
+          {},
           { _, _, _, _ -> },
           isLoading = false,
           currentRadioPresentation = radioPresentation,

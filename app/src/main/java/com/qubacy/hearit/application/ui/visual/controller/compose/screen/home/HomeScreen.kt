@@ -90,6 +90,9 @@ fun HomeScreen(
     onErrorDismissed = { viewModel.consumeCurrentError() },
     onPlayerClicked = { isPlayerExpanded = true },
     onPlayerBackgroundClicked = { isPlayerExpanded = false },
+    onPrevButtonClicked = { /* todo: implement.. */ },
+    onPlayButtonClicked = { /* todo: implement.. */ },
+    onNextButtonClicked = { /* todo: implement.. */ },
     errorWidget = errorWidget,
     modifier = modifier,
     isLoading = state.isLoading,
@@ -126,6 +129,9 @@ fun HomeScreen(
   onErrorDismissed: () -> Unit,
   onPlayerClicked: () -> Unit,
   onPlayerBackgroundClicked: () -> Unit,
+  onPrevButtonClicked: () -> Unit,
+  onPlayButtonClicked: () -> Unit,
+  onNextButtonClicked: () -> Unit,
   errorWidget: @Composable (
     ErrorReference,
     SnackbarHostState,
@@ -276,6 +282,9 @@ fun HomeScreen(
           radioPresentation = visibleCurrentRadioPresentation,
           isPlaying = isRadioPlaying,
           isExpanded = isPlayerExpanded,
+          onPrevButtonClicked = onPrevButtonClicked,
+          onPlayButtonClicked = onPlayButtonClicked,
+          onNextButtonClicked = onNextButtonClicked,
           modifier = Modifier
             .let {
               if (!isPlayerExpanded) return@let it.wrapContentHeight()
@@ -394,6 +403,9 @@ fun HomeScreen() {
       onErrorDismissed = {  },
       onPlayerClicked = {  },
       onPlayerBackgroundClicked = {  },
+      onPrevButtonClicked = {  },
+      onPlayButtonClicked = {  },
+      onNextButtonClicked = {  },
       errorWidget = { _, _, _, _ -> },
       radioList = radioList,
       currentRadioPresentation = curRadio,

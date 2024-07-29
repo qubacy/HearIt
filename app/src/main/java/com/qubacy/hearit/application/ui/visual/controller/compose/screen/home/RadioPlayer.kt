@@ -14,9 +14,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
@@ -37,6 +40,9 @@ fun RadioPlayer(
   radioPresentation: RadioPresentation,
   isPlaying: Boolean,
   isExpanded: Boolean,
+  onPrevButtonClicked: () -> Unit,
+  onPlayButtonClicked: () -> Unit,
+  onNextButtonClicked: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   val coverPainter =
@@ -49,6 +55,9 @@ fun RadioPlayer(
     isPlaying = isPlaying,
     isExpanded = isExpanded,
     coverPainter = coverPainter,
+    onPrevButtonClicked = onPrevButtonClicked,
+    onPlayButtonClicked = onPlayButtonClicked,
+    onNextButtonClicked = onNextButtonClicked,
     modifier = modifier,
   )
 }
@@ -61,6 +70,9 @@ fun RadioPlayer(
   isPlaying: Boolean,
   isExpanded: Boolean,
   coverPainter: Painter,
+  onPrevButtonClicked: () -> Unit,
+  onPlayButtonClicked: () -> Unit,
+  onNextButtonClicked: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   val normalGap = dimensionResource(id = R.dimen.gap_normal)
@@ -89,7 +101,6 @@ fun RadioPlayer(
       contentScale = if (isExpanded) ContentScale.Crop else ContentScale.Fit,
       modifier = Modifier
         .clip(AbsoluteRoundedCornerShape(8.dp))
-        .background(Color.Blue) // todo: delete;
         .constrainAs(coverRef) {
           top.linkTo(parent.top)
 
@@ -133,7 +144,7 @@ fun RadioPlayer(
     }
 
     IconButton(
-      onClick = { /*TODO*/ },
+      onClick = onPrevButtonClicked,
       modifier = Modifier
         .semantics {
           contentDescription = prevButtonContentDescription
@@ -156,7 +167,7 @@ fun RadioPlayer(
     }
 
     IconButton(
-      onClick = { /*TODO*/ },
+      onClick = onPlayButtonClicked,
       modifier = Modifier
         .semantics {
           contentDescription = playButtonContentDescription
@@ -167,7 +178,10 @@ fun RadioPlayer(
             bottom.linkTo(parent.bottom)
             end.linkTo(nextButtonRef.start, normalGap)
           } else {
-            top.linkTo(if (description != null) descriptionRef.bottom else titleRef.bottom, normalGap)
+            top.linkTo(
+              if (description != null) descriptionRef.bottom else titleRef.bottom,
+              normalGap
+            )
             bottom.linkTo(parent.bottom)
 
             centerHorizontallyTo(parent)
@@ -181,7 +195,7 @@ fun RadioPlayer(
     }
 
     IconButton(
-      onClick = { /*TODO*/ },
+      onClick = onNextButtonClicked,
       modifier = Modifier
         .semantics {
           contentDescription = nextButtonContentDescription
@@ -208,12 +222,17 @@ fun RadioPlayer(
 @Preview
 @Composable
 fun RadioPlayer() {
+  var isPlaying by remember { mutableStateOf(false) }
+
   RadioPlayer(
     "test title",
     null,
+    isPlaying,
     false,
-    true,
     painterResource(id = R.drawable.radio_cover_placeholder),
+    {},
+    { isPlaying = !isPlaying },
+    {},
     modifier = Modifier.fillMaxWidth()
   )
 }
