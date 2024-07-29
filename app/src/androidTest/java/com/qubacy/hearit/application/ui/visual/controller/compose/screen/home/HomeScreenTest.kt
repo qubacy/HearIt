@@ -62,6 +62,8 @@ class HomeScreenTest {
           {},
           {},
           {},
+          {},
+          {},
           { _, _, _, _ -> },
           isLoading = true
         )
@@ -82,6 +84,8 @@ class HomeScreenTest {
       HearItTheme {
         HomeScreen(
           { null },
+          {},
+          {},
           {},
           {},
           {},
@@ -115,6 +119,8 @@ class HomeScreenTest {
           {},
           {},
           {},
+          {},
+          {},
           { _, _, _, _ -> Text(text = expectedErrorText)},
           error = error
         )
@@ -135,6 +141,8 @@ class HomeScreenTest {
           {},
           {},
           onAddRadioClicked = { callFlag = true },
+          {},
+          {},
           {},
           { _, _, _, _ -> },
           isLoading = false
@@ -168,6 +176,8 @@ class HomeScreenTest {
           onRadioLongPressed = { callFlag = true },
           {},
           {},
+          {},
+          {},
           { _, _, _, _ -> },
           radioList = radioList
         )
@@ -199,6 +209,8 @@ class HomeScreenTest {
           {},
           {},
           {},
+          {},
+          {},
           { _, _, _, _ -> },
           radioList = radioList
         )
@@ -226,6 +238,8 @@ class HomeScreenTest {
           {},
           {},
           onErrorDismissed = { callFlag = true },
+          {},
+          {},
           { _, _, _, handler -> Text(
             text = clickableText, modifier = Modifier.clickable { handler() }
           )},
@@ -235,6 +249,65 @@ class HomeScreenTest {
     }
 
     composeTestRule.onNode(hasText(clickableText)).performClick()
+
+    Assert.assertTrue(callFlag)
+  }
+
+  @Test
+  fun onPlayerClickedCalledOnPlayerClickedTest() {
+    val radioPresentation = RadioPresentation(0, "Test radio item", url = "http://url.com")
+    var callFlag = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          {},
+          {},
+          {},
+          {},
+          onPlayerClicked = { callFlag = true },
+          {},
+          { _, _, _, _ -> },
+          isLoading = false,
+          currentRadioPresentation = radioPresentation
+        )
+      }
+    }
+
+    composeTestRule.onNode(
+      hasContentDescription(_context.getString(R.string.home_screen_radio_player_description))
+    ).performClick()
+
+    Assert.assertTrue(callFlag)
+  }
+
+  @Test
+  fun onPlayerBackgroundClickedCalledOnPlayerClickedTest() {
+    val radioPresentation = RadioPresentation(0, "Test radio item", url = "http://url.com")
+    var callFlag = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        HomeScreen(
+          { null },
+          {},
+          {},
+          {},
+          {},
+          {},
+          onPlayerBackgroundClicked = { callFlag = true },
+          { _, _, _, _ -> },
+          isLoading = false,
+          currentRadioPresentation = radioPresentation,
+          isPlayerExpanded = true
+        )
+      }
+    }
+
+    composeTestRule.onNode(
+      hasContentDescription(_context.getString(R.string.home_screen_radio_player_background_description))
+    ).performClick()
 
     Assert.assertTrue(callFlag)
   }

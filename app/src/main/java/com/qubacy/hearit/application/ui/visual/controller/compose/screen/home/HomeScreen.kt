@@ -1,6 +1,5 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
-import android.content.Context
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
@@ -81,17 +80,22 @@ fun HomeScreen(
 ) {
   val state: HomeState by (viewModel.state.observeAsState() as State<HomeState>)
 
+  var isPlayerExpanded by remember { mutableStateOf(false) }
+
   HomeScreen(
     retrieveAddedRadioId = retrieveSavedRadioId,
     onRadioPicked = { viewModel.setCurrentRadio(it) },
     onRadioLongPressed = onRadioLongPressed,
     onAddRadioClicked = onAddRadioClicked,
     onErrorDismissed = { viewModel.consumeCurrentError() },
+    onPlayerClicked = { isPlayerExpanded = true },
+    onPlayerBackgroundClicked = { isPlayerExpanded = false },
     errorWidget = errorWidget,
     modifier = modifier,
     isLoading = state.isLoading,
     error = state.error,
-    radioList = state.radioList ?: listOf()
+    radioList = state.radioList ?: listOf(),
+    isPlayerExpanded = isPlayerExpanded
   )
 
   SetupRadioListObserver(lifecycleOwner, viewModel)
@@ -120,6 +124,8 @@ fun HomeScreen(
   onRadioLongPressed: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
   onErrorDismissed: () -> Unit,
+  onPlayerClicked: () -> Unit,
+  onPlayerBackgroundClicked: () -> Unit,
   errorWidget: @Composable (
     ErrorReference,
     SnackbarHostState,
@@ -132,12 +138,17 @@ fun HomeScreen(
   error: ErrorReference? = null,
   radioList: List<RadioPresentation> = listOf(),
   currentRadioPresentation: RadioPresentation? = null,
-  isRadioPlaying: Boolean = false
+  isRadioPlaying: Boolean = false,
+  isPlayerExpanded: Boolean = false
 ) {
   val fabDescription = stringResource(id = R.string.home_screen_fab_description)
   val radioListDescription = stringResource(id = R.string.home_screen_radio_list_description)
   val radioListItemDescriptionTemplate = stringResource(
     id = R.string.home_screen_radio_list_item_description_template
+  )
+  val radioPlayerDescription = stringResource(id = R.string.home_screen_radio_player_description)
+  val radioPlayerBackgroundDescription = stringResource(
+    id = R.string.home_screen_radio_player_background_description
   )
   
   Scaffold(
@@ -151,8 +162,7 @@ fun HomeScreen(
     ) {
       val isPlayerVisible = currentRadioPresentation != null
       var finalCurrentRadioPresentation by remember { mutableStateOf(currentRadioPresentation) }
-      var isPlayerExpanded by remember { mutableStateOf(false) }
-      
+
       val normalGap = dimensionResource(id = R.dimen.gap_normal)
 
       val (listRef, fabRef, playerWrapperRef, playerScrimRef, snackbarRef) = createRefs()
@@ -192,36 +202,13 @@ fun HomeScreen(
         }
       }
 
-      val playerAnimatedOffset by animateOffsetAsState(
-        targetValue = Offset(0f, if (isPlayerVisible) 0f else 1f)
-      ) {
-        println("playerAnimatedOffset: currentRadioPresentation = $currentRadioPresentation;")
-
-        finalCurrentRadioPresentation = currentRadioPresentation
-      }
-
-      if (finalCurrentRadioPresentation != null && currentRadioPresentation != null
-       && finalCurrentRadioPresentation != currentRadioPresentation
-      ) {
-        finalCurrentRadioPresentation = currentRadioPresentation
-      }
-
-      val snackbarCoroutineScope = rememberCoroutineScope()
-      val snackbarHostState = remember { SnackbarHostState() }
-
-      SnackbarHost(
-        hostState = snackbarHostState,
+      SavedRadioSnackbar(
+        retrieveAddedRadioId(),
         modifier = Modifier.constrainAs(snackbarRef) {
           bottom.linkTo(fabRef.top)
           start.linkTo(parent.start)
         }
       )
-
-      retrieveAddedRadioId()?.let {
-        showSavedRadioSnackbar(snackbarHostState, LocalContext.current, snackbarCoroutineScope)
-      }
-
-      if (isPlayerVisible && isPlayerExpanded) snackbarHostState.currentSnackbarData?.dismiss()
 
       FloatingActionButton(
         modifier = Modifier
@@ -246,6 +233,20 @@ fun HomeScreen(
         )
       }
 
+      val playerAnimatedOffset by animateOffsetAsState(
+        targetValue = Offset(0f, if (isPlayerVisible) 0f else 1f)
+      ) {
+        println("playerAnimatedOffset: currentRadioPresentation = $currentRadioPresentation;")
+
+        finalCurrentRadioPresentation = currentRadioPresentation
+      }
+
+      if (finalCurrentRadioPresentation != null && currentRadioPresentation != null
+        && finalCurrentRadioPresentation != currentRadioPresentation
+      ) {
+        finalCurrentRadioPresentation = currentRadioPresentation
+      }
+
       if (isPlayerVisible || finalCurrentRadioPresentation != null) {
         val visibleCurrentRadioPresentation = currentRadioPresentation ?: finalCurrentRadioPresentation!!
 
@@ -257,6 +258,9 @@ fun HomeScreen(
 
         Box(
           modifier = Modifier
+            .semantics {
+              contentDescription = radioPlayerBackgroundDescription
+            }
             .background(scrimAnimatedColor)
             .constrainAs(playerScrimRef) {
               top.linkTo(if (!isPlayerExpanded) parent.bottom else parent.top)
@@ -265,9 +269,7 @@ fun HomeScreen(
               width = Dimension.matchParent
               height = Dimension.fillToConstraints
             }
-            .clickable {
-              isPlayerExpanded = false
-            }
+            .clickable { onPlayerBackgroundClicked() }
         ) {}
 
         RadioPlayer(
@@ -281,7 +283,7 @@ fun HomeScreen(
               it
             }
             .semantics {
-              contentDescription = "" // todo: set an actual value;
+              contentDescription = radioPlayerDescription
             }
             .offset(0.dp, playerAnimatedOffset.y.dp)
             .constrainAs(playerWrapperRef) {
@@ -292,7 +294,7 @@ fun HomeScreen(
               if (isPlayerExpanded) height = Dimension.fillToConstraints
             }
             .let {
-              if (!isPlayerExpanded) return@let it.clickable { isPlayerExpanded = true }
+              if (!isPlayerExpanded) return@let it.clickable { onPlayerClicked() }
 
               it
             }
@@ -343,15 +345,27 @@ fun HomeAppBar(
   }
 }
 
-private fun showSavedRadioSnackbar(
-  snackbarHostState: SnackbarHostState,
-  context: Context,
-  coroutineScope: CoroutineScope
+@Composable
+fun SavedRadioSnackbar(
+  radioId: Long?,
+  modifier: Modifier = Modifier
 ) {
-  coroutineScope.launch {
-    snackbarHostState.showSnackbar(
-      context.getString(R.string.home_screen_radio_added_snackbar_message)
-    )
+  val snackbarCoroutineScope = rememberCoroutineScope()
+  val snackbarHostState = remember { SnackbarHostState() }
+
+  SnackbarHost(
+    hostState = snackbarHostState,
+    modifier = modifier
+  )
+
+  radioId?.let {
+    val context = LocalContext.current
+
+    snackbarCoroutineScope.launch {
+      snackbarHostState.showSnackbar(
+        context.getString(R.string.home_screen_radio_added_snackbar_message)
+      )
+    }
   }
 }
 
@@ -378,10 +392,14 @@ fun HomeScreen() {
       onRadioLongPressed = { curRadio = null },
       onAddRadioClicked = {  },
       onErrorDismissed = {  },
+      onPlayerClicked = {  },
+      onPlayerBackgroundClicked = {  },
       errorWidget = { _, _, _, _ -> },
       radioList = radioList,
       currentRadioPresentation = curRadio,
-      isRadioPlaying = false
+      isRadioPlaying = false,
+      isPlayerExpanded = false,
+      isLoading = false
     )
   }
 }

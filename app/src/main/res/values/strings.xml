@@ -13,6 +13,8 @@
     <string name="home_screen_top_app_bar_title">Your radios</string>
     <string name="home_screen_loading_indicator_description">A loading indicator</string>
     <string name="home_screen_radio_list_description">A radio list</string>
+    <string name="home_screen_radio_player_description">A radio player</string>
+    <string name="home_screen_radio_player_background_description">A radio player background</string>
     <string name="home_screen_radio_list_item_description_template">Radio list item with id = %d</string>
     <string name="home_screen_radio_list_item_cover_content_description">A radio cover picture</string>
     <string name="home_screen_fab_description">Add a new radio button</string>
