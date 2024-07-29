@@ -134,9 +134,6 @@ fun HomeScreen(
   currentRadioPresentation: RadioPresentation? = null,
   isRadioPlaying: Boolean = false
 ) {
-  val snackbarHostState = remember { SnackbarHostState() }
-  val coroutineScope = rememberCoroutineScope()
-
   val fabDescription = stringResource(id = R.string.home_screen_fab_description)
   val radioListDescription = stringResource(id = R.string.home_screen_radio_list_description)
   val radioListItemDescriptionTemplate = stringResource(
@@ -145,10 +142,7 @@ fun HomeScreen(
   
   Scaffold(
     modifier = modifier,
-    topBar = { HomeAppBar(isLoading) },
-    snackbarHost = {
-      SnackbarHost(hostState = snackbarHostState)
-    }
+    topBar = { HomeAppBar(isLoading) }
   ) { contentPadding ->
     ConstraintLayout(
       modifier = Modifier
@@ -161,7 +155,7 @@ fun HomeScreen(
       
       val normalGap = dimensionResource(id = R.dimen.gap_normal)
 
-      val (listRef, fabRef, playerWrapperRef, playerScrimRef) = createRefs()
+      val (listRef, fabRef, playerWrapperRef, playerScrimRef, snackbarRef) = createRefs()
 
       val guidelineVertical50Ref = createGuidelineFromTop(0.5f)
 
@@ -212,6 +206,23 @@ fun HomeScreen(
         finalCurrentRadioPresentation = currentRadioPresentation
       }
 
+      val snackbarCoroutineScope = rememberCoroutineScope()
+      val snackbarHostState = remember { SnackbarHostState() }
+
+      SnackbarHost(
+        hostState = snackbarHostState,
+        modifier = Modifier.constrainAs(snackbarRef) {
+          bottom.linkTo(fabRef.top)
+          start.linkTo(parent.start)
+        }
+      )
+
+      retrieveAddedRadioId()?.let {
+        showSavedRadioSnackbar(snackbarHostState, LocalContext.current, snackbarCoroutineScope)
+      }
+
+      if (isPlayerVisible && isPlayerExpanded) snackbarHostState.currentSnackbarData?.dismiss()
+
       FloatingActionButton(
         modifier = Modifier
           .constrainAs(fabRef) {
@@ -219,7 +230,7 @@ fun HomeScreen(
 
             if (!isPlayerVisible || isPlayerExpanded) {
 
-                bottom.linkTo(parent.bottom, normalGap)
+              bottom.linkTo(parent.bottom, normalGap)
             } else {
               bottom.linkTo(playerWrapperRef.top, normalGap)
             }
@@ -239,7 +250,9 @@ fun HomeScreen(
         val visibleCurrentRadioPresentation = currentRadioPresentation ?: finalCurrentRadioPresentation!!
 
         val scrimAnimatedColor by animateColorAsState(
-          targetValue = if (!isPlayerExpanded) Color.Transparent else MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)
+          targetValue =
+            if (!isPlayerExpanded) Color.Transparent
+            else MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)
         )
 
         Box(
@@ -288,11 +301,11 @@ fun HomeScreen(
     }
   }
 
-  retrieveAddedRadioId()?.let {
-    showSavedRadioSnackbar(snackbarHostState, LocalContext.current, coroutineScope)
-  }
+  val errorSnackbarHostState = remember { SnackbarHostState() }
+  val errorCoroutineScope = rememberCoroutineScope()
+
   error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope, onErrorDismissed)
+    errorWidget(it, errorSnackbarHostState, errorCoroutineScope, onErrorDismissed)
   }
 }
 
