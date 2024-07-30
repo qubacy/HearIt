@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RadioLocalDatabaseSourceDao {
   @Query("SELECT * FROM ${RadioDatabaseEntity.TABLE_NAME}")
-  fun allRadios(): Flow<RadioDatabaseEntity>
+  fun allRadios(): Flow<List<RadioDatabaseEntity>>
 
   @Insert
   suspend fun insertRadio(radio: RadioDatabaseEntity): Long
