@@ -8,7 +8,6 @@ import com.qubacy.hearit.application._common.error.ErrorEnum
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain.usecase.radio.add._common.AddRadioUseCase
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
 import com.qubacy.hearit.application.ui.state.state.AddRadioState
@@ -17,10 +16,6 @@ import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.mapper._commo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +25,6 @@ class AddRadioViewModel @Inject constructor(
   private val _dispatcher: CoroutineDispatcher,
   private val _useCase: AddRadioUseCase,
   private val _radioInputValidator: RadioInputWrapperValidator,
-  private val _radioDomainModelPresentationMapper: RadioDomainModelRadioPresentationMapper,
   private val _radioInputWrapperDomainSketchMapper: RadioInputWrapperRadioDomainSketchMapper
 ) : ViewModel() {
   private var _state: MutableLiveData<AddRadioState> = MutableLiveData(AddRadioState())
@@ -58,15 +52,14 @@ class AddRadioViewModel @Inject constructor(
 
   private fun startAddingRadio(radioData: RadioInputWrapper): Job {
     return viewModelScope.launch(_dispatcher) {
-      _useCase.addRadio(_radioInputWrapperDomainSketchMapper.map(radioData)).map {
-        _radioDomainModelPresentationMapper.map(it)
-      }.onEach {
-        _state.postValue(_state.value!!.copy(addedRadio = it, isLoading = false))
-      }.catch { cause ->
-        if (cause !is HearItException) throw cause
+      try {
+        _useCase.addRadio(_radioInputWrapperDomainSketchMapper.map(radioData))
 
-        setErrorState(cause.errorReference)
-      }.collect()
+      } catch (e: Throwable) {
+        if (e !is HearItException) throw e
+
+        setErrorState(e.errorReference)
+      }
     }
   }
 

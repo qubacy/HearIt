@@ -3,8 +3,11 @@ package com.qubacy.hearit.application.domain.usecase.radio._common.sketch.mapper
 import com.qubacy.hearit.application.data.radio.model.RadioDataModel
 import com.qubacy.hearit.application.domain.usecase.radio._common.sketch.RadioDomainSketch
 import com.qubacy.hearit.application.domain.usecase.radio._common.sketch.mapper._common.RadioDomainSketchDataModelMapper
+import javax.inject.Inject
 
-class RadioDomainSketchDataModelMapperImpl : RadioDomainSketchDataModelMapper {
+class RadioDomainSketchDataModelMapperImpl @Inject constructor(
+
+) : RadioDomainSketchDataModelMapper {
     override fun map(
         radioId: Long?,
         radioDomainSketch: RadioDomainSketch

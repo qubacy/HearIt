@@ -114,15 +114,14 @@ class EditRadioViewModel @Inject constructor(
 
   private fun startSavingRadio(radioId: Long, radioData: RadioInputWrapper): Job {
     return viewModelScope.launch(_dispatcher) {
-      _useCase.saveRadio(radioId, _radioInputWrapperDomainSketchMapper.map(radioData)).map {
-        _radioDomainModelPresentationMapper.map(it)
-      }.onEach {
-        _state.postValue(_state.value!!.copy(savedRadio = it, isLoading = false))
-      }.catch { cause ->
-        if (cause !is HearItException) throw cause
+      try {
+        _useCase.saveRadio(radioId, _radioInputWrapperDomainSketchMapper.map(radioData))
 
-        setErrorState(cause.errorReference)
-      }.collect()
+      } catch (e: Throwable) {
+        if (e !is HearItException) throw e
+
+        setErrorState(e.errorReference)
+      }
     }
   }
 
