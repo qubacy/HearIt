@@ -5,11 +5,11 @@ import com.qubacy.hearit.application.data.radio.repository._common.source.local.
 import org.junit.Assert
 import org.junit.Test
 
-class RadioLocalModelDataModelMapperImplTest {
-  private val _instance = RadioLocalModelDataModelMapperImpl()
+class RadioDataModelLocalModelMapperImplTest {
+  private val _instance = RadioDataModelLocalModelMapperImpl()
 
   @Test
-  fun mapTest() {
+  fun mapLocalModelToDataModelTest() {
     data class TestCase(
       val radioLocalModel: RadioLocalModel,
       val expectedRadioDataModel: RadioDataModel
@@ -26,6 +26,27 @@ class RadioLocalModelDataModelMapperImplTest {
       val gottenRadioDataModel = _instance.map(testCase.radioLocalModel)
 
       Assert.assertEquals(testCase.expectedRadioDataModel, gottenRadioDataModel)
+    }
+  }
+
+  @Test
+  fun mapDataModelToLocalModelTest() {
+    data class TestCase(
+      val radioDataModel: RadioDataModel,
+      val expectedRadioLocalModel: RadioLocalModel
+    )
+
+    val testCases = listOf(
+      TestCase(
+        radioDataModel = RadioDataModel(0, "", null, null, ""),
+        expectedRadioLocalModel = RadioLocalModel(0, "", null, null, "")
+      ),
+    )
+
+    for (testCase in testCases) {
+      val gottenRadioLocalModel = _instance.map(testCase.radioDataModel)
+
+      Assert.assertEquals(testCase.expectedRadioLocalModel, gottenRadioLocalModel)
     }
   }
 }
