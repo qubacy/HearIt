@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.domain.usecase.radio.edit.impl
 
+import com.qubacy.hearit.application.data.radio.repository._common.RadioDataRepository
 import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
 import com.qubacy.hearit.application.domain.usecase.radio._common.sketch.RadioDomainSketch
 import com.qubacy.hearit.application.domain.usecase.radio._common.sketch.mapper._common.RadioDomainSketchDataModelMapper
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class EditRadioUseCaseImpl @Inject constructor(
-  // todo: provide a repository;
+  private val _repository: RadioDataRepository,
   private val _mapper: RadioDomainSketchDataModelMapper
 ) : EditRadioUseCase {
   override suspend fun getRadio(
@@ -24,7 +25,6 @@ class EditRadioUseCaseImpl @Inject constructor(
     radioId: Long,
     radio: RadioDomainSketch
   ) {
-    // todo: implement:
-
+    return _repository.updateRadio(_mapper.map(radioId, radio))
   }
 }

@@ -142,7 +142,7 @@ class EditRadioScreenTest {
           onSaved = { gottenRadioId = it },
           onErrorDismissed = {  },
           errorWidget = {_, _, _, _ -> },
-          savedRadio = radio
+          savedRadioId = expectedRadioId
         )
       }
     }

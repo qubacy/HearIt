@@ -71,9 +71,6 @@ fun AddRadioScreen(
 ) {
   if (savedRadioId != null) return onCreated(savedRadioId) // todo: is it ok?
 
-  val coroutineScope = rememberCoroutineScope()
-  val snackbarHostState = remember { SnackbarHostState() }
-
   RadioScreenContent(
     topAppBarData = RadioScreenTopAppBarData(
       stringResource(id = R.string.add_radio_screen_label),
@@ -83,13 +80,12 @@ fun AddRadioScreen(
     onPickImageClicked = onPickImageClicked,
     onSaveClicked = onCreateClicked,
     onCancelClicked = onBackClicked,
+    onErrorDismissed = onErrorDismissed,
+    errorWidget = errorWidget,
     modifier = modifier,
-    radioPresentation = null
+    radioPresentation = null,
+    error = error
   )
-
-  error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope, onErrorDismissed)
-  }
 }
 
 @Preview

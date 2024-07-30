@@ -25,12 +25,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,10 +53,12 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.qubacy.hearit.R
+import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
+import kotlinx.coroutines.CoroutineScope
 
 data class RadioScreenTopAppBarData(
     val title: String,
@@ -63,17 +68,33 @@ data class RadioScreenTopAppBarData(
 
 @Composable
 fun RadioScreenContent(
-  onPickImageClicked: ((Uri?) -> Unit) -> Unit,
-  onSaveClicked: (RadioInputWrapper) -> Unit,
-  onCancelClicked: () -> Unit,
+    onPickImageClicked: ((Uri?) -> Unit) -> Unit,
+    onSaveClicked: (RadioInputWrapper) -> Unit,
+    onCancelClicked: () -> Unit,
+    onErrorDismissed: () -> Unit,
 
-  modifier: Modifier = Modifier,
+    // todo: refactor this sh*t. it should be formed as a separate provider class:
+    errorWidget: @Composable (
+        ErrorReference,
+        SnackbarHostState,
+        CoroutineScope,
+        () -> Unit,
+        Modifier,
+        Boolean
+    ) -> Unit,
 
-  topAppBarData: RadioScreenTopAppBarData? = null,
-  radioPresentation: RadioPresentation? = null
+    modifier: Modifier = Modifier,
+
+    topAppBarData: RadioScreenTopAppBarData? = null,
+    radioPresentation: RadioPresentation? = null,
+    error: ErrorReference? = null
 ) {
+    val errorCoroutineScope = rememberCoroutineScope()
+    val errorSnackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
-        topBar = { topAppBarData?.let { RadioScreenTopAppBar(it) } }
+        topBar = { topAppBarData?.let { RadioScreenTopAppBar(it) } },
+        snackbarHost = { SnackbarHost(errorSnackbarHostState) }
     ) { paddingValues ->
         val normalGap = dimensionResource(id = R.dimen.gap_normal)
 
@@ -248,6 +269,10 @@ fun RadioScreenContent(
                     text = stringResource(id = R.string.radio_screen_content_cancel_button_text)
                 )
             }
+        }
+
+        error?.let {
+            errorWidget(it, errorSnackbarHostState, errorCoroutineScope, onErrorDismissed)
         }
     }
 }

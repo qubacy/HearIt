@@ -66,7 +66,7 @@ class ErrorWidgetTest {
           snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         ) {}
 
-        ErrorWidget(error, coroutineScope, snackbarHostState)
+        ErrorWidget(error, coroutineScope = coroutineScope, snackbarHostState = snackbarHostState)
       }
     }
 

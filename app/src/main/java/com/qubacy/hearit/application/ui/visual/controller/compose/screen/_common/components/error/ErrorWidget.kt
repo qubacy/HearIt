@@ -3,6 +3,7 @@ package com.qubacy.hearit.application.ui.visual.controller.compose.screen._commo
 import android.annotation.SuppressLint
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,8 +28,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun ErrorWidget(
     error: ErrorReference,
+    snackbarModifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    showSnackbarManually: Boolean = true,
     onCriticalDismissRequest: () -> Unit = {},
     onNotCriticalDismissRequest: () -> Unit = {}
 ) {
@@ -38,8 +42,10 @@ fun ErrorWidget(
 
     ErrorWidget(
         errorPresentation,
+        snackbarModifier,
         coroutineScope,
         snackbarHostState,
+        showSnackbarManually,
         onCriticalDismissRequest,
         onNotCriticalDismissRequest
     )
@@ -48,8 +54,10 @@ fun ErrorWidget(
 @Composable
 fun ErrorWidget(
     error: ErrorPresentation,
+    snackbarModifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    showSnackbarManually: Boolean = true,
     onCriticalDismissRequest: () -> Unit = { },
     onNotCriticalDismissRequest: () -> Unit = { }
 ) {
@@ -68,6 +76,13 @@ fun ErrorWidget(
         )
 
     } else {
+        if (showSnackbarManually) {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = snackbarModifier
+            )
+        }
+        
         LaunchedEffect(key1 = error) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
@@ -89,11 +104,7 @@ fun ErrorWidget() {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    val error = ErrorPresentation(0, "test error", true)
-    
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) {}
+    val error = ErrorPresentation(0, "test error", false)
 
-    ErrorWidget(error, coroutineScope, snackbarHostState)
+    ErrorWidget(error, coroutineScope = coroutineScope, snackbarHostState =  snackbarHostState)
 }

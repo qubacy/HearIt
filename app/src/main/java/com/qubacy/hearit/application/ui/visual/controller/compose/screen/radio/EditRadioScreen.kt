@@ -100,9 +100,6 @@ fun EditRadioScreen(
 ) {
   if (savedRadioId != null) return onSaved(savedRadioId) // todo: is it ok?
 
-  val coroutineScope = rememberCoroutineScope()
-  val snackbarHostState = remember { SnackbarHostState() }
-
   RadioScreenContent(
     topAppBarData = RadioScreenTopAppBarData(
       stringResource(id = R.string.edit_radio_screen_label),
@@ -116,8 +113,11 @@ fun EditRadioScreen(
     radioPresentation = radioToEdit
   )
 
+  val errorCoroutineScope = rememberCoroutineScope()
+  val errorSnackbarHostState = remember { SnackbarHostState() }
+
   error?.let {
-    errorWidget(it, snackbarHostState, coroutineScope, onErrorDismissed)
+    errorWidget(it, errorSnackbarHostState, errorCoroutineScope, onErrorDismissed)
   }
 }
 

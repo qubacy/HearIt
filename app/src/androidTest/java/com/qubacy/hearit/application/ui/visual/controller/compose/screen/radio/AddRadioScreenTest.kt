@@ -46,7 +46,7 @@ class AddRadioScreenTest {
           onPickImageClicked = {  },
           onErrorDismissed = {  },
           errorWidget = {_, _, _, _ -> },
-          savedRadio = radio
+          savedRadioId = expectedRadioId
         )
       }
     }
