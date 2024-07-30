@@ -1,7 +1,7 @@
-package com.qubacy.hearit.application.data.radio.repository.source.local._di.module
+package com.qubacy.hearit.application.data.radio.repository._common.source.local._di.module
 
-import com.qubacy.hearit.application.data.radio.repository.source.local._common.RadioLocalDatabaseSource
-import com.qubacy.hearit.application.data.radio.repository.source.local.impl.RadioLocalDatabaseSourceImpl
+import com.qubacy.hearit.application.data.radio.repository._common.source.local._common.RadioLocalDatabaseSource
+import com.qubacy.hearit.application.data.radio.repository._common.source.local.impl.RadioLocalDatabaseSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

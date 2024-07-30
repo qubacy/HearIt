@@ -1,6 +1,6 @@
-package com.qubacy.hearit.application.data.radio.repository.source.local._common
+package com.qubacy.hearit.application.data.radio.repository._common.source.local._common
 
-import com.qubacy.hearit.application.data.radio.repository.source.local._common.model.RadioLocalModel
+import com.qubacy.hearit.application.data.radio.repository._common.source.local._common.model.RadioLocalModel
 import kotlinx.coroutines.flow.Flow
 
 interface RadioLocalDatabaseSource {

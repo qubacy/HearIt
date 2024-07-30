@@ -2,8 +2,8 @@ package com.qubacy.hearit.application.data._common.repository.source.local.datab
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.qubacy.hearit.application.data.radio.repository.source.local._common.dao.RadioLocalDatabaseSourceDao
-import com.qubacy.hearit.application.data.radio.repository.source.local._common.dao.entity.RadioDatabaseEntity
+import com.qubacy.hearit.application.data.radio.repository._common.source.local._common.dao.RadioLocalDatabaseSourceDao
+import com.qubacy.hearit.application.data.radio.repository._common.source.local._common.dao.entity.RadioDatabaseEntity
 
 @Database(
   entities = [RadioDatabaseEntity::class],
