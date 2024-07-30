@@ -158,21 +158,22 @@ class EditRadioViewModelTest {
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun saveRadioTest() = runTest(_coroutineDispatcher) {
+    val radioId = 0L
+
     val radioDomainSketch = RadioDomainSketch("", url = "")
     val radioInputWrapper = RadioInputWrapper("", url = "")
 
-    val radioDomainModel = RadioDomainModel(0, "", url = "")
-    val radioPresentation = RadioPresentation(0, "", url = "")
+    val radioPresentation = RadioPresentation(radioId, "", url = "")
 
     val stateLiveData = getStateLiveData()
 
-    val expectedInitState = EditRadioState(isLoading = true)
-    val expectedFinalState = EditRadioState(savedRadio = radioPresentation)
+    val expectedInitState = EditRadioState(isLoading = true, loadedRadio = radioPresentation)
+    val expectedFinalState = EditRadioState(
+      isLoading = false, savedRadioId = radioId, loadedRadio = radioPresentation
+    )
 
     Mockito.`when`(_radioInputValidatorMock.validate(any())).thenReturn(true)
     Mockito.`when`(_radioInputWrapperDomainSketchMapperMock.map(any())).thenReturn(radioDomainSketch)
-    Mockito.`when`(_radioDomainModelPresentationMapperMock.map(any())).thenReturn(radioPresentation)
-    Mockito.`when`(_useCaseMock.saveRadio(Mockito.anyLong(), any())).thenReturn(flowOf(radioDomainModel))
 
     stateLiveData.value = EditRadioState(loadedRadio = radioPresentation)
 
@@ -186,7 +187,6 @@ class EditRadioViewModelTest {
 
     Mockito.verify(_radioInputValidatorMock).validate(any())
     Mockito.verify(_radioInputWrapperDomainSketchMapperMock).map(any())
-    Mockito.verify(_radioDomainModelPresentationMapperMock).map(any())
 
     Assert.assertEquals(expectedInitState, gottenInitState)
     Assert.assertEquals(expectedFinalState, gottenFinalState)
@@ -205,14 +205,14 @@ class EditRadioViewModelTest {
 
     val stateLiveData = getStateLiveData()
 
-    val expectedInitState = EditRadioState(isLoading = true)
-    val expectedFinalState = EditRadioState(error = errorReference)
+    val expectedInitState = EditRadioState(isLoading = true, loadedRadio = radioPresentation)
+    val expectedFinalState = EditRadioState(
+      isLoading = false, loadedRadio = radioPresentation, error = errorReference)
 
     Mockito.`when`(_radioInputValidatorMock.validate(any())).thenReturn(true)
     Mockito.`when`(_radioInputWrapperDomainSketchMapperMock.map(any())).thenReturn(radioDomainSketch)
-    Mockito.`when`(_useCaseMock.saveRadio(Mockito.anyLong(), any())).thenReturn(flow {
-      throw HearItException(errorReference)
-    })
+    Mockito.`when`(_useCaseMock.saveRadio(Mockito.anyLong(), any()))
+      .thenAnswer { throw HearItException(errorReference) }
 
     stateLiveData.value = EditRadioState(loadedRadio = radioPresentation)
 

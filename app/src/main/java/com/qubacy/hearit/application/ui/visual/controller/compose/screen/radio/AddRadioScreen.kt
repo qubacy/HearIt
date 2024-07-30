@@ -15,7 +15,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
-import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.AddRadioViewModel
 import com.qubacy.hearit.application.ui.state.state.AddRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.aspect.ImagePickerScreen
@@ -51,7 +50,7 @@ fun AddRadioScreen(
     errorWidget = errorWidget,
     modifier = modifier,
     isLoading = state.isLoading,
-    savedRadio = state.addedRadio,
+    savedRadioId = state.addedRadioId,
     error = state.error
   )
 }
@@ -67,10 +66,10 @@ fun AddRadioScreen(
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
-  savedRadio: RadioPresentation? = null,
+  savedRadioId: Long? = null,
   error: ErrorReference? = null
 ) {
-  if (savedRadio != null) return onCreated(savedRadio.id) // todo: is it ok?
+  if (savedRadioId != null) return onCreated(savedRadioId) // todo: is it ok?
 
   val coroutineScope = rememberCoroutineScope()
   val snackbarHostState = remember { SnackbarHostState() }

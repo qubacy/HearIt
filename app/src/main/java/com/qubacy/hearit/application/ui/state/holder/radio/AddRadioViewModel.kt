@@ -53,7 +53,9 @@ class AddRadioViewModel @Inject constructor(
   private fun startAddingRadio(radioData: RadioInputWrapper): Job {
     return viewModelScope.launch(_dispatcher) {
       try {
-        _useCase.addRadio(_radioInputWrapperDomainSketchMapper.map(radioData))
+        val radioId = _useCase.addRadio(_radioInputWrapperDomainSketchMapper.map(radioData))
+
+        _state.postValue(_state.value!!.copy(addedRadioId = radioId, isLoading = false))
 
       } catch (e: Throwable) {
         if (e !is HearItException) throw e

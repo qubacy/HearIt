@@ -6,6 +6,6 @@ import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 data class EditRadioState(
   val isLoading: Boolean = false,
   val loadedRadio: RadioPresentation? = null,
-  val savedRadio: RadioPresentation? = null,
+  val savedRadioId: Long? = null,
   val error: ErrorReference? = null
 )

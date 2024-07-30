@@ -59,7 +59,7 @@ fun EditRadioScreen(
     modifier = modifier,
     radioToEdit = state.loadedRadio,
     isLoading = state.isLoading,
-    savedRadio = state.savedRadio,
+    savedRadioId = state.savedRadioId,
     error = state.error
   )
 
@@ -95,10 +95,10 @@ fun EditRadioScreen(
   modifier: Modifier = Modifier,
   radioToEdit: RadioPresentation? = null,
   isLoading: Boolean = false,
-  savedRadio: RadioPresentation? = null,
+  savedRadioId: Long? = null,
   error: ErrorReference? = null
 ) {
-  if (savedRadio != null) return onSaved(savedRadio.id) // todo: is it ok?
+  if (savedRadioId != null) return onSaved(savedRadioId) // todo: is it ok?
 
   val coroutineScope = rememberCoroutineScope()
   val snackbarHostState = remember { SnackbarHostState() }
@@ -128,7 +128,7 @@ fun EditRadioScreen() {
   val resourceId = R.drawable.space
   val coverUri = resources.getUriFromResource(resourceId)
   val state = EditRadioState(
-    savedRadio = RadioPresentation(
+    loadedRadio = RadioPresentation(
       0,
       "test title",
       "test description",
@@ -144,6 +144,6 @@ fun EditRadioScreen() {
     onErrorDismissed = {  },
     errorWidget = {_, _, _, _ -> },
     onSaved = {  },
-    radioToEdit = state.savedRadio
+    radioToEdit = state.loadedRadio
   )
 }

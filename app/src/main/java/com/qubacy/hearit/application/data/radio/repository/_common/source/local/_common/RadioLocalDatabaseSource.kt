@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface RadioLocalDatabaseSource {
   fun getAllRadios(): Flow<RadioLocalModel>
-  suspend fun addRadio(radioLocalModel: RadioLocalModel)
+  suspend fun addRadio(radioLocalModel: RadioLocalModel): Long
   suspend fun updateRadio(radioLocalModel: RadioLocalModel)
 }

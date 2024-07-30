@@ -13,7 +13,7 @@ interface RadioLocalDatabaseSourceDao {
   fun allRadios(): Flow<RadioDatabaseEntity>
 
   @Insert
-  suspend fun insertRadio(radio: RadioDatabaseEntity)
+  suspend fun insertRadio(radio: RadioDatabaseEntity): Long
 
   @Update
   suspend fun updateRadio(radio: RadioDatabaseEntity)

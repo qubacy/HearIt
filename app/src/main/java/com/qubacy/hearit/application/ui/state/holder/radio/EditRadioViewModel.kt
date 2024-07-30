@@ -117,6 +117,8 @@ class EditRadioViewModel @Inject constructor(
       try {
         _useCase.saveRadio(radioId, _radioInputWrapperDomainSketchMapper.map(radioData))
 
+        _state.postValue(_state.value!!.copy(savedRadioId = radioId, isLoading = false))
+
       } catch (e: Throwable) {
         if (e !is HearItException) throw e
 

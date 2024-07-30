@@ -16,7 +16,7 @@ class RadioLocalDatabaseSourceImpl @Inject constructor(
     return _dao.allRadios().map { _mapper.map(it) }
   }
 
-  override suspend fun addRadio(radioLocalModel: RadioLocalModel) {
+  override suspend fun addRadio(radioLocalModel: RadioLocalModel): Long {
     return _dao.insertRadio(_mapper.map(radioLocalModel))
   }
 

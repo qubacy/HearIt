@@ -9,9 +9,11 @@ class AddRadioUseCaseImpl @Inject constructor(
   // todo: provide a repository;
   private val _mapper: RadioDomainSketchDataModelMapper
 ) : AddRadioUseCase {
-  override suspend fun addRadio(radio: RadioDomainSketch) {
+  override suspend fun addRadio(radio: RadioDomainSketch): Long {
     // todo: implement:
 
     //_mapper.map(null, radio)
+
+    return 0
   }
 }
