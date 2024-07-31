@@ -1,6 +1,7 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.content.Context
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -11,6 +12,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui.visual.controller.compose._common.SemanticsKeys
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import kotlinx.coroutines.test.runTest
@@ -60,7 +62,12 @@ class HomeScreenTest {
   }
 
   @Test
-  fun loadingIndicatorVisibleOnLoadingStateTest() {
+  fun loadingStateAffectsElementsTest() {
+    val isLoading = true
+    val radioId = 0L
+    val radioPresentation = RadioPresentation(radioId, "test title", url = "")
+    val radioPresentationList = listOf(radioPresentation)
+
     composeTestRule.setContent {
       HearItTheme {
         HomeScreen(
@@ -75,7 +82,9 @@ class HomeScreenTest {
           {},
           {},
           _errorWidgetProviderMock,
-          isLoading = true
+          isLoading = isLoading,
+          radioList = radioPresentationList,
+          currentRadioPresentation = radioPresentation
         )
       }
     }
@@ -83,6 +92,19 @@ class HomeScreenTest {
     composeTestRule.onNode(
       hasContentDescription(_context.getString(R.string.home_screen_loading_indicator_description))
     ).assertIsDisplayed()
+    composeTestRule.onNode(hasContentDescription(
+      _context.getString(R.string.home_screen_radio_list_item_description_template).format(radioId)
+    )).assertHasNoClickAction()
+
+    val playerNode = composeTestRule.onNode(hasContentDescription(
+      _context.getString(R.string.home_screen_radio_player_description)
+    ))
+
+    playerNode.assertHasNoClickAction()
+
+    val enabledValue = playerNode.fetchSemanticsNode().config[SemanticsKeys.enabledPropertyKey]
+
+    Assert.assertEquals(!isLoading, enabledValue)
   }
 
   @Test

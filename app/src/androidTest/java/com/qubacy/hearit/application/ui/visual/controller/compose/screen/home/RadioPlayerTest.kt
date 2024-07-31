@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
@@ -104,6 +104,37 @@ class RadioPlayerTest {
     composeTestRule.onNode(hasContentDescription(
       _context.getString(R.string.radio_player_next_button_description)
     )).assertIsDisplayed()
+  }
+
+  @Test
+  fun enabledStateChangesElementsTest() {
+    val isEnabled = false
+
+    composeTestRule.setContent {
+      HearItTheme {
+        RadioPlayer(
+          "",
+          null,
+          false,
+          false,
+          painterResource(id = R.drawable.radio_cover_placeholder),
+          {},
+          {},
+          {},
+          enabled = isEnabled
+        )
+      }
+    }
+
+    composeTestRule.onNode(hasContentDescription(
+      _context.getString(R.string.radio_player_prev_button_description))
+    ).assertIsNotEnabled()
+    composeTestRule.onNode(hasContentDescription(
+      _context.getString(R.string.radio_player_play_button_description))
+    ).assertIsNotEnabled()
+    composeTestRule.onNode(hasContentDescription(
+      _context.getString(R.string.radio_player_next_button_description))
+    ).assertIsNotEnabled()
   }
 
   @Test

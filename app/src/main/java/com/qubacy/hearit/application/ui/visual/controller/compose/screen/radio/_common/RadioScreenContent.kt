@@ -226,11 +226,12 @@ fun RadioScreenContent(
                         imageUri = uri
                     }
                 },
-                modifier = Modifier.constrainAs(imageButtonRef) {
-                    top.linkTo(imageIconRef.top)
-                    start.linkTo(imageHintRef.end)
-                    end.linkTo(parent.end)
-                },
+                modifier = Modifier
+                    .constrainAs(imageButtonRef) {
+                        top.linkTo(imageIconRef.top)
+                        start.linkTo(imageHintRef.end)
+                        end.linkTo(parent.end)
+                    },
                 enabled = !isLoading
             )
 
@@ -246,7 +247,8 @@ fun RadioScreenContent(
 
                     width = Dimension.matchParent
                     height = Dimension.fillToConstraints
-                }
+                },
+                enabled = !isLoading
             )
 
             Button(
@@ -396,8 +398,13 @@ fun RadioScreenImageButton(
 fun RadioScreenImagePreview(
     imageUri: Uri?,
     onCloseClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
+    val imageButtonDescription = stringResource(
+        id = R.string.radio_screen_content_image_input_preview_close_button_description
+    )
+
     AnimatedVisibility(
         visible = imageUri != null,
         modifier = modifier.then(
@@ -427,15 +434,17 @@ fun RadioScreenImagePreview(
 
             FilledTonalIconButton(
                 onClick = onCloseClicked,
+                enabled = enabled,
                 modifier = Modifier
+                    .semantics {
+                        contentDescription = imageButtonDescription
+                    }
                     .align(Alignment.TopEnd)
                     .offset(-buttonMargin, buttonMargin)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(
-                        id = R.string.radio_screen_content_image_input_preview_close_button_description
-                    )
+                    contentDescription = ""
                 )
             }
         }

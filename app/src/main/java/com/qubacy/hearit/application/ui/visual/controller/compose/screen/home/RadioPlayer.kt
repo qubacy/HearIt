@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,7 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.rememberAsyncImagePainter
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui.visual.controller.compose._common.SemanticsKeys.enabledPropertyKey
 
 @Composable
 fun RadioPlayer(
@@ -59,7 +61,9 @@ fun RadioPlayer(
     onPrevButtonClicked = onPrevButtonClicked,
     onPlayButtonClicked = onPlayButtonClicked,
     onNextButtonClicked = onNextButtonClicked,
-    modifier = modifier,
+    modifier = modifier.semantics {
+      set(enabledPropertyKey, enabled)
+    },
     enabled = enabled
   )
 }

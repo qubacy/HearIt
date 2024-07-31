@@ -224,7 +224,7 @@ fun HomeScreen(
           .semantics {
             contentDescription = fabDescription
           },
-        onClick = if (!isLoading) onAddRadioClicked else { -> Unit }
+        onClick = onAddRadioClicked // seems like FAB should always be enabled;
       ) {
         Icon(
           imageVector = Icons.Rounded.Add,
