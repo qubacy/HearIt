@@ -79,6 +79,7 @@ fun RadioScreenContent(
     modifier: Modifier = Modifier,
 
     topAppBarData: RadioScreenTopAppBarData? = null,
+    isLoading: Boolean = false,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     snackbarCoroutineScope: CoroutineScope = rememberCoroutineScope(),
     radioPresentation: RadioPresentation? = null,
@@ -147,7 +148,8 @@ fun RadioScreenContent(
                     }
                     .semantics {
                         contentDescription = titleInputDescription
-                    }
+                    },
+                enabled = !isLoading
             )
 
             RadioScreenTextInput(
@@ -165,7 +167,8 @@ fun RadioScreenContent(
                     }
                     .semantics {
                         contentDescription = descriptionInputDescription
-                    }
+                    },
+                enabled = !isLoading
             )
 
             RadioScreenTextInput(
@@ -183,7 +186,8 @@ fun RadioScreenContent(
                     }
                     .semantics {
                         contentDescription = urlInputDescription
-                    }
+                    },
+                enabled = !isLoading
             )
 
             val normalIconPadding = dimensionResource(id = R.dimen.icon_padding_normal)
@@ -226,7 +230,8 @@ fun RadioScreenContent(
                     top.linkTo(imageIconRef.top)
                     start.linkTo(imageHintRef.end)
                     end.linkTo(parent.end)
-                }
+                },
+                enabled = !isLoading
             )
 
             RadioScreenImagePreview(
@@ -248,7 +253,7 @@ fun RadioScreenContent(
                 enabled = radioPresentation?.let {
                     it.title != title || it.description != description
                     || it.cover != imageUri || it.url != url
-                } ?: true,
+                } ?: true && !isLoading,
                 onClick = {
                     onSaveClicked(RadioInputWrapper(title, description, imageUri, url))
                 },
@@ -264,6 +269,7 @@ fun RadioScreenContent(
 
             OutlinedButton(
                 onClick = onCancelClicked,
+                enabled = !isLoading,
                 modifier = Modifier.constrainAs(cancelButtonRef) {
                     bottom.linkTo(parent.bottom)
                     end.linkTo(saveButtonRef.start, normalGap)
@@ -327,12 +333,14 @@ fun RadioScreenTextInput(
     @DrawableRes iconDrawableRes: Int,
     @StringRes iconContentDescriptionRes: Int,
     @StringRes labelRes: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     val iconSize = dimensionResource(id = R.dimen.icon_size_normal)
 
     OutlinedTextField(
         value = value,
+        enabled = enabled,
         onValueChange = onValueChanged,
         leadingIcon = {
             RadioScreenIcon(
@@ -363,7 +371,8 @@ fun RadioScreenIcon(
 @Composable
 fun RadioScreenImageButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     val iconButtonDescription = stringResource(
         id = R.string.radio_screen_content_image_input_choose_button_description
@@ -371,6 +380,7 @@ fun RadioScreenImageButton(
 
     IconButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.then(Modifier.semantics {
             contentDescription = iconButtonDescription
         })

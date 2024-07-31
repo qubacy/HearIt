@@ -79,7 +79,8 @@ fun AddRadioScreen(
     errorWidgetProvider = errorWidgetProvider,
     modifier = modifier,
     radioPresentation = null,
-    error = error
+    error = error,
+    isLoading = isLoading
   )
 }
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -192,7 +193,8 @@ fun HomeScreen(
             { onRadioPicked(item.id) },
             modifier = Modifier.semantics {
               contentDescription = radioListItemDescriptionTemplate.format(item.id)
-            }
+            },
+            enabled = !isLoading
           )
 
           if (index != radioList.size - 1) HorizontalDivider()
@@ -222,7 +224,7 @@ fun HomeScreen(
           .semantics {
             contentDescription = fabDescription
           },
-        onClick = onAddRadioClicked
+        onClick = if (!isLoading) onAddRadioClicked else { -> Unit }
       ) {
         Icon(
           imageVector = Icons.Rounded.Add,
@@ -266,7 +268,7 @@ fun HomeScreen(
               width = Dimension.matchParent
               height = Dimension.fillToConstraints
             }
-            .clickable { onPlayerBackgroundClicked() }
+            .let { return@let if (!isLoading) it.clickable { onPlayerBackgroundClicked() } else it }
         ) {}
 
         RadioPlayer(
@@ -294,10 +296,11 @@ fun HomeScreen(
               if (isPlayerExpanded) height = Dimension.fillToConstraints
             }
             .let {
-              if (!isPlayerExpanded) return@let it.clickable { onPlayerClicked() }
+              if (!isPlayerExpanded && !isLoading) return@let it.clickable { onPlayerClicked() }
 
               it
-            }
+            },
+            enabled = !isLoading
         )
       }
 

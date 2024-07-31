@@ -43,7 +43,8 @@ fun RadioPlayer(
   onPrevButtonClicked: () -> Unit,
   onPlayButtonClicked: () -> Unit,
   onNextButtonClicked: () -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true
 ) {
   val coverPainter =
     radioPresentation.cover?.let { rememberAsyncImagePainter(it) } ?:
@@ -59,6 +60,7 @@ fun RadioPlayer(
     onPlayButtonClicked = onPlayButtonClicked,
     onNextButtonClicked = onNextButtonClicked,
     modifier = modifier,
+    enabled = enabled
   )
 }
 
@@ -73,7 +75,8 @@ fun RadioPlayer(
   onPrevButtonClicked: () -> Unit,
   onPlayButtonClicked: () -> Unit,
   onNextButtonClicked: () -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true
 ) {
   val normalGap = dimensionResource(id = R.dimen.gap_normal)
   val paddingVertical = dimensionResource(id = R.dimen.gep_small)
@@ -145,6 +148,7 @@ fun RadioPlayer(
 
     IconButton(
       onClick = onPrevButtonClicked,
+      enabled = enabled,
       modifier = Modifier
         .semantics {
           contentDescription = prevButtonContentDescription
@@ -168,6 +172,7 @@ fun RadioPlayer(
 
     IconButton(
       onClick = onPlayButtonClicked,
+      enabled = enabled,
       modifier = Modifier
         .semantics {
           contentDescription = playButtonContentDescription
@@ -196,6 +201,7 @@ fun RadioPlayer(
 
     IconButton(
       onClick = onNextButtonClicked,
+      enabled = enabled,
       modifier = Modifier
         .semantics {
           contentDescription = nextButtonContentDescription

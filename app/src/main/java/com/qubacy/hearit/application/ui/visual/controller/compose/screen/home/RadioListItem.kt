@@ -36,15 +36,22 @@ fun RadioListItem(
   radioPresentation: RadioPresentation,
   onRadioLongPressed: (Long) -> Unit,
   onRadioClicked: (Long) -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true
 ) {
   ConstraintLayout(
     modifier = modifier.then(
       Modifier
-        .combinedClickable(
-          onClick = { onRadioClicked(radioPresentation.id) },
-          onLongClick = { onRadioLongPressed(radioPresentation.id) }
-        )
+        .let {
+          if (enabled) {
+            return@let it.combinedClickable(
+              onClick = { onRadioClicked(radioPresentation.id) },
+              onLongClick = { onRadioLongPressed(radioPresentation.id) }
+            )
+          }
+
+          it
+        }
         .height(IntrinsicSize.Min)
         .padding(
           horizontal = dimensionResource(id = R.dimen.gap_normal),
