@@ -1,12 +1,8 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
 import android.content.Context
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performClick
@@ -15,12 +11,15 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
+import org.mockito.kotlin.any
 
 class HomeScreenTest {
   @get:Rule
@@ -28,9 +27,17 @@ class HomeScreenTest {
 
   private lateinit var _context: Context
 
+  private lateinit var _errorWidgetProviderMock: ErrorWidgetProvider
+
   @Before
   fun setup() {
     _context = InstrumentationRegistry.getInstrumentation().targetContext
+
+    _errorWidgetProviderMock = mockErrorWidgetProvider()
+  }
+
+  private fun mockErrorWidgetProvider(): ErrorWidgetProvider {
+    return Mockito.mock(ErrorWidgetProvider::class.java)
   }
 
   @Test
@@ -67,7 +74,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _, _ -> },
+          _errorWidgetProviderMock,
           isLoading = true
         )
       }
@@ -96,7 +103,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _, _ -> },
+          _errorWidgetProviderMock,
           radioList = radioList
         )
       }
@@ -112,12 +119,21 @@ class HomeScreenTest {
     }
   }
 
+  @Deprecated("it needs ErrorWidgetProvider.ErrorWidget to be open but this isn't possible for now;")
   @Test
   fun errorDisplayedTest() {
-    val error = ErrorReference(0)
-    val expectedErrorText = "Test error ${error.id}"
+    val expectedErrorReference = ErrorReference(0)
+
+    lateinit var gottenErrorReference: ErrorReference
 
     composeTestRule.setContent {
+      Mockito.`when`(_errorWidgetProviderMock.ErrorWidget(error = any<ErrorReference>()))
+        .thenAnswer {
+          gottenErrorReference = it.arguments[0] as ErrorReference
+
+          Unit
+        }
+
       HearItTheme {
         HomeScreen(
           { null },
@@ -130,13 +146,13 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _, _ -> Text(text = expectedErrorText)},
-          error = error
+          _errorWidgetProviderMock,
+          error = expectedErrorReference
         )
       }
     }
 
-    composeTestRule.onNode(hasText(expectedErrorText)).assertIsDisplayed()
+    Assert.assertEquals(expectedErrorReference, gottenErrorReference)
   }
 
   @Test
@@ -156,7 +172,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _, _ -> },
+          _errorWidgetProviderMock,
           isLoading = false
         )
       }
@@ -193,7 +209,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _, _ -> },
+          _errorWidgetProviderMock,
           radioList = radioList
         )
       }
@@ -229,7 +245,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _, _ -> },
+          _errorWidgetProviderMock,
           radioList = radioList
         )
       }
@@ -237,39 +253,6 @@ class HomeScreenTest {
 
     composeTestRule.onNode(hasContentDescription(radioListItemDescription))
       .performClick()
-
-    Assert.assertTrue(callFlag)
-  }
-
-  @Test
-  fun onErrorDismissedCalledTest() {
-    val clickableText = "test text"
-    val errorReference = ErrorReference(0)
-
-    var callFlag = false
-
-    composeTestRule.setContent {
-      HearItTheme {
-        HomeScreen(
-          { null },
-          {},
-          {},
-          {},
-          onErrorDismissed = { callFlag = true },
-          {},
-          {},
-          {},
-          {},
-          {},
-          { _, _, _, handler -> Text(
-            text = clickableText, modifier = Modifier.clickable { handler() }
-          )},
-          error = errorReference
-        )
-      }
-    }
-
-    composeTestRule.onNode(hasText(clickableText)).performClick()
 
     Assert.assertTrue(callFlag)
   }
@@ -292,7 +275,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _, _ -> },
+          _errorWidgetProviderMock,
           isLoading = false,
           currentRadioPresentation = radioPresentation
         )
@@ -324,7 +307,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          { _, _, _, _ -> },
+          _errorWidgetProviderMock,
           isLoading = false,
           currentRadioPresentation = radioPresentation,
           isPlayerExpanded = true

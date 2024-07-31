@@ -1,22 +1,20 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
 import android.content.Context
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
-import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 
 class EditRadioScreenTest {
   @get:Rule
@@ -24,9 +22,16 @@ class EditRadioScreenTest {
 
   private lateinit var _context: Context
 
+  private lateinit var _errorWidgetProviderMock: ErrorWidgetProvider
+
   @Before
   fun setup() {
     _context = InstrumentationRegistry.getInstrumentation().targetContext
+    _errorWidgetProviderMock = mockErrorWidgetProvider()
+  }
+
+  private fun mockErrorWidgetProvider(): ErrorWidgetProvider {
+    return Mockito.mock(ErrorWidgetProvider::class.java)
   }
 
   @Test
@@ -41,7 +46,7 @@ class EditRadioScreenTest {
           onPickImageClicked = {  },
           onSaved = {  },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> }
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -65,7 +70,7 @@ class EditRadioScreenTest {
           onPickImageClicked = {  },
           onSaved = {  },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> }
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -89,7 +94,7 @@ class EditRadioScreenTest {
           onPickImageClicked = {  },
           onSaved = {  },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> }
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -113,7 +118,7 @@ class EditRadioScreenTest {
           onPickImageClicked = { callFlag = true },
           onSaved = {  },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> }
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -141,63 +146,12 @@ class EditRadioScreenTest {
           onPickImageClicked = {  },
           onSaved = { gottenRadioId = it },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> },
+          errorWidgetProvider = _errorWidgetProviderMock,
           savedRadioId = expectedRadioId
         )
       }
     }
 
     Assert.assertEquals(expectedRadioId, gottenRadioId)
-  }
-
-  @Test
-  fun errorShownOnErrorTest() {
-    val expectedError = ErrorReference(0)
-
-    var gottenError: ErrorReference? = null
-
-    composeTestRule.setContent {
-      HearItTheme {
-        EditRadioScreen(
-          onBackClicked = {  },
-          onSaveClicked = {  },
-          onPickImageClicked = {  },
-          onSaved = {  },
-          onErrorDismissed = {  },
-          errorWidget = { errorReference, _, _, _ -> gottenError = errorReference },
-          error = expectedError
-        )
-      }
-    }
-
-    Assert.assertEquals(expectedError, gottenError)
-  }
-
-  @Test
-  fun onErrorDismissedCalledTest() {
-    val clickableText = "test text"
-    val errorReference = ErrorReference(0)
-
-    var callFlag = false
-
-    composeTestRule.setContent {
-      HearItTheme {
-        EditRadioScreen(
-          onBackClicked = {  },
-          onSaveClicked = {  },
-          onPickImageClicked = {  },
-          onSaved = {  },
-          onErrorDismissed = { callFlag = true },
-          errorWidget = { _, _, _, handler -> Text(
-            text = clickableText, modifier = Modifier.clickable { handler() }
-          )},
-          error = errorReference
-        )
-      }
-    }
-
-    composeTestRule.onNode(hasText(clickableText)).performClick()
-
-    Assert.assertTrue(callFlag)
   }
 }

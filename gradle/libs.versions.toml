@@ -14,7 +14,9 @@ kotlinxCoroutinesTest = "1.9.0-RC"
 lifecycleRuntimeKtx = "2.8.3"
 activityCompose = "1.8.0"
 composeBom = "2024.04.01"
+mockitoAndroid = "5.12.0"
 mockitoKotlin = "5.4.0"
+mockitoKotlinVersion = "5.12.0"
 navVersion = "2.7.7"
 roomRuntime = "2.6.1"
 runtimeLivedata = "1.6.8"
@@ -50,8 +52,10 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroid" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 androidx-animation-graphics-android = { group = "androidx.compose.animation", name = "animation-graphics-android", version.ref = "animationGraphicsAndroid" }
+mockito-kotlin-v5120 = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlinVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

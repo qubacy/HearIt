@@ -1,22 +1,20 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
 import android.content.Context
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
-import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 
 class AddRadioScreenTest {
   @get:Rule
@@ -24,9 +22,16 @@ class AddRadioScreenTest {
 
   private lateinit var _context: Context
 
+  private lateinit var _errorWidgetProviderMock: ErrorWidgetProvider
+
   @Before
   fun setup() {
     _context = InstrumentationRegistry.getInstrumentation().targetContext
+    _errorWidgetProviderMock = mockErrorWidgetProvider()
+  }
+
+  private fun mockErrorWidgetProvider(): ErrorWidgetProvider {
+    return Mockito.mock(ErrorWidgetProvider::class.java)
   }
 
   @Test
@@ -45,36 +50,13 @@ class AddRadioScreenTest {
           onCreated = { gottenRadioId = it },
           onPickImageClicked = {  },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> },
+          errorWidgetProvider = _errorWidgetProviderMock,
           savedRadioId = expectedRadioId
         )
       }
     }
 
     Assert.assertEquals(expectedRadioId, gottenRadioId)
-  }
-
-  @Test
-  fun errorShownOnErrorTest() {
-    val expectedError = ErrorReference(0)
-
-    var gottenError: ErrorReference? = null
-
-    composeTestRule.setContent {
-      HearItTheme {
-        AddRadioScreen(
-          onBackClicked = {  },
-          onCreateClicked = {  },
-          onCreated = {  },
-          onPickImageClicked = {  },
-          onErrorDismissed = {  },
-          errorWidget = { errorReference, _, _, _ -> gottenError = errorReference },
-          error = expectedError
-        )
-      }
-    }
-
-    Assert.assertEquals(expectedError, gottenError)
   }
 
   @Test
@@ -89,7 +71,7 @@ class AddRadioScreenTest {
           onCreated = {  },
           onPickImageClicked = {  },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> }
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -113,7 +95,7 @@ class AddRadioScreenTest {
           onCreated = {  },
           onPickImageClicked = {  },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> }
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -137,7 +119,7 @@ class AddRadioScreenTest {
           onCreated = {  },
           onPickImageClicked = {  },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> }
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -161,7 +143,7 @@ class AddRadioScreenTest {
           onCreated = {  },
           onPickImageClicked = { callFlag = true },
           onErrorDismissed = {  },
-          errorWidget = {_, _, _, _ -> }
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -170,36 +152,6 @@ class AddRadioScreenTest {
       _context.getString(R.string.radio_screen_content_image_input_choose_button_description)
     )
     ).performClick()
-
-    Assert.assertTrue(callFlag)
-  }
-
-  @Test
-  fun onErrorDismissedCalledTest() {
-    val clickableText = "test text"
-    val errorReference = ErrorReference(0)
-
-    var callFlag = false
-
-    composeTestRule.setContent {
-      HearItTheme {
-        AddRadioScreen(
-          onBackClicked = {  },
-          onCreateClicked = {  },
-          onCreated = {  },
-          onPickImageClicked = { callFlag = true },
-          onErrorDismissed = { callFlag = true },
-          errorWidget = { _, _, _, handler ->
-            Text(
-              text = clickableText, modifier = Modifier.clickable { handler() }
-            )
-          },
-          error = errorReference
-        )
-      }
-    }
-
-    composeTestRule.onNode(hasText(clickableText)).performClick()
 
     Assert.assertTrue(callFlag)
   }

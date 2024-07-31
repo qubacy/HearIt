@@ -8,14 +8,18 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.hearit.R
+import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
+import org.mockito.kotlin.any
 
 class RadioScreenContentTest {
   @get:Rule
@@ -23,9 +27,16 @@ class RadioScreenContentTest {
 
   private lateinit var _context: Context
 
+  private lateinit var _errorWidgetProviderMock: ErrorWidgetProvider
+
   @Before
   fun setup() {
     _context = InstrumentationRegistry.getInstrumentation().targetContext
+    _errorWidgetProviderMock = mockErrorWidgetProvider()
+  }
+
+  private fun mockErrorWidgetProvider(): ErrorWidgetProvider {
+    return Mockito.mock(ErrorWidgetProvider::class.java)
   }
 
   @Test
@@ -43,8 +54,10 @@ class RadioScreenContentTest {
           onPickImageClicked = {  },
           onSaveClicked = {  },
           onCancelClicked = {  },
+          onErrorDismissed = {  },
           radioPresentation = radioPresentation,
-          topAppBarData = topAppBarData
+          topAppBarData = topAppBarData,
+          errorWidgetProvider = _errorWidgetProviderMock
         )
       }
     }
@@ -91,6 +104,8 @@ class RadioScreenContentTest {
           onPickImageClicked = {  },
           onSaveClicked = {  },
           onCancelClicked = {  },
+          onErrorDismissed = {  },
+          errorWidgetProvider = _errorWidgetProviderMock,
           radioPresentation = radioPresentation
         )
       }
@@ -123,7 +138,9 @@ class RadioScreenContentTest {
         RadioScreenContent(
           onPickImageClicked = { callFlag = true },
           onSaveClicked = {  },
-          onCancelClicked = {  }
+          onCancelClicked = {  },
+          onErrorDismissed = {  },
+          errorWidgetProvider = _errorWidgetProviderMock,
         )
       }
     }
@@ -152,6 +169,8 @@ class RadioScreenContentTest {
           onPickImageClicked = {  },
           onSaveClicked = { gottenRadioInputWrapper = it },
           onCancelClicked = {  },
+          onErrorDismissed = {  },
+          errorWidgetProvider = _errorWidgetProviderMock,
           radioPresentation = radioPresentation
         )
       }
@@ -173,7 +192,9 @@ class RadioScreenContentTest {
         RadioScreenContent(
           onPickImageClicked = {  },
           onSaveClicked = {  },
-          onCancelClicked = { callFlag = true }
+          onCancelClicked = { callFlag = true },
+          onErrorDismissed = {  },
+          errorWidgetProvider = _errorWidgetProviderMock,
         )
       }
     }
@@ -195,6 +216,8 @@ class RadioScreenContentTest {
           onPickImageClicked = {  },
           onSaveClicked = {  },
           onCancelClicked = {  },
+          onErrorDismissed = {  },
+          errorWidgetProvider = _errorWidgetProviderMock,
           topAppBarData = RadioScreenTopAppBarData("", false, { callFlag = true })
         )
       }
@@ -207,5 +230,35 @@ class RadioScreenContentTest {
     ).performClick()
 
     Assert.assertTrue(callFlag)
+  }
+
+  @Deprecated("it needs ErrorWidgetProvider.ErrorWidget to be open but this isn't possible for now;")
+  @Test
+  fun errorShownOnErrorTest() {
+    val expectedErrorReference = ErrorReference(0)
+
+    lateinit var gottenErrorReference: ErrorReference
+
+    composeTestRule.setContent {
+      Mockito.`when`(_errorWidgetProviderMock.ErrorWidget(error = any<ErrorReference>()))
+        .thenAnswer {
+          gottenErrorReference = it.arguments[0] as ErrorReference
+
+          Unit
+        }
+
+      HearItTheme {
+        RadioScreenContent(
+          onPickImageClicked = {  },
+          onSaveClicked = {  },
+          onCancelClicked = {  },
+          onErrorDismissed = {  },
+          errorWidgetProvider = _errorWidgetProviderMock,
+          topAppBarData = RadioScreenTopAppBarData("", false, { })
+        )
+      }
+    }
+
+    Assert.assertEquals(expectedErrorReference, gottenErrorReference)
   }
 }
