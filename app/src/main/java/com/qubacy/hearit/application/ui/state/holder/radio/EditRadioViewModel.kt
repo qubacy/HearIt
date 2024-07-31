@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.ui.state.holder.radio
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -116,6 +117,8 @@ class EditRadioViewModel @Inject constructor(
     return viewModelScope.launch(_dispatcher) {
       try {
         _useCase.saveRadio(radioId, _radioInputWrapperDomainSketchMapper.map(radioData))
+
+        Log.d(TAG, "startSavingRadio(): savedRadioId = $radioId;")
 
         _state.postValue(_state.value!!.copy(savedRadioId = radioId, isLoading = false))
 

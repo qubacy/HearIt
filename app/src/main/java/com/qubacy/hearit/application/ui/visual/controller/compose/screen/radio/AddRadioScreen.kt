@@ -2,6 +2,7 @@ package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -61,7 +62,9 @@ fun AddRadioScreen(
   savedRadioId: Long? = null,
   error: ErrorReference? = null
 ) {
-  if (savedRadioId != null) return onCreated(savedRadioId) // todo: is it ok?
+  LaunchedEffect(key1 = savedRadioId) {
+    if (savedRadioId != null) return@LaunchedEffect onCreated(savedRadioId) // todo: is it ok?
+  }
 
   RadioScreenContent(
     topAppBarData = RadioScreenTopAppBarData(

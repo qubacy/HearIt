@@ -1,7 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common
 
 import android.net.Uri
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -60,6 +59,7 @@ import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
+import kotlinx.coroutines.CoroutineScope
 
 data class RadioScreenTopAppBarData(
     val title: String,
@@ -79,15 +79,14 @@ fun RadioScreenContent(
     modifier: Modifier = Modifier,
 
     topAppBarData: RadioScreenTopAppBarData? = null,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    snackbarCoroutineScope: CoroutineScope = rememberCoroutineScope(),
     radioPresentation: RadioPresentation? = null,
     error: ErrorReference? = null
 ) {
-    val errorCoroutineScope = rememberCoroutineScope()
-    val errorSnackbarHostState = remember { SnackbarHostState() }
-
     Scaffold(
         topBar = { topAppBarData?.let { RadioScreenTopAppBar(it) } },
-        snackbarHost = { SnackbarHost(errorSnackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         val normalGap = dimensionResource(id = R.dimen.gap_normal)
 
@@ -246,6 +245,10 @@ fun RadioScreenContent(
             )
 
             Button(
+                enabled = radioPresentation?.let {
+                    it.title != title || it.description != description
+                    || it.cover != imageUri || it.url != url
+                } ?: true,
                 onClick = {
                     onSaveClicked(RadioInputWrapper(title, description, imageUri, url))
                 },
@@ -275,8 +278,8 @@ fun RadioScreenContent(
         error?.let {
             errorWidgetProvider.ErrorWidget(
                 error = it,
-                snackbarHostState = errorSnackbarHostState,
-                coroutineScope = errorCoroutineScope,
+                snackbarHostState = snackbarHostState,
+                coroutineScope = snackbarCoroutineScope,
                 onNotCriticalDismissRequest = onErrorDismissed
             )
         }
