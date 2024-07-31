@@ -1,6 +1,7 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common
 
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -59,7 +60,6 @@ import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
-import kotlinx.coroutines.CoroutineScope
 
 data class RadioScreenTopAppBarData(
     val title: String,
@@ -98,10 +98,18 @@ fun RadioScreenContent(
                     .padding(normalGap)
                     .fillMaxSize())
         ) {
-            var title by remember { mutableStateOf(radioPresentation?.title ?: "") }
-            var description by remember { mutableStateOf(radioPresentation?.description) }
-            var url by remember { mutableStateOf(radioPresentation?.url ?: "") }
-            var imageUri: Uri? by remember { mutableStateOf(radioPresentation?.cover) }
+            var title by remember(key1 = radioPresentation?.title) {
+                mutableStateOf(radioPresentation?.title ?: "")
+            }
+            var description by remember(key1 = radioPresentation?.description) {
+                mutableStateOf(radioPresentation?.description)
+            }
+            var url by remember(key1 = radioPresentation?.url) {
+                mutableStateOf(radioPresentation?.url ?: "")
+            }
+            var imageUri: Uri? by remember(key1 = radioPresentation?.cover) {
+                mutableStateOf(radioPresentation?.cover)
+            }
 
             val titleInputDescription = stringResource(
                 id = R.string.radio_screen_content_title_input_description
@@ -163,7 +171,7 @@ fun RadioScreenContent(
 
             RadioScreenTextInput(
                 value = url,
-                onValueChanged = { description = it },
+                onValueChanged = { url = it },
                 R.drawable.link,
                 R.string.radio_screen_content_url_input_icon_description,
                 R.string.radio_screen_content_url_input_label,

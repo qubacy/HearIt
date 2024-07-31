@@ -9,6 +9,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RadioLocalDatabaseSourceDao {
+  @Query(
+    "SELECT * FROM ${RadioDatabaseEntity.TABLE_NAME} " +
+    "WHERE ${RadioDatabaseEntity.ID_PROP_NAME} = :id"
+  )
+  fun getRadio(id: Long): Flow<RadioDatabaseEntity>
+
   @Query("SELECT * FROM ${RadioDatabaseEntity.TABLE_NAME}")
   fun allRadios(): Flow<List<RadioDatabaseEntity>>
 

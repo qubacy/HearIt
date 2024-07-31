@@ -12,6 +12,14 @@ class RadioLocalDatabaseSourceImpl @Inject constructor(
   private val _dao: RadioLocalDatabaseSourceDao,
   private val _mapper: RadioDatabaseEntityLocalModelMapper
 ) : RadioLocalDatabaseSource {
+  companion object {
+    const val TAG = "RadioLocalDatabaseSourceImpl"
+  }
+
+  override fun getRadio(id: Long): Flow<RadioLocalModel> {
+    return _dao.getRadio(id).map { _mapper.map(it) }
+  }
+
   override fun getAllRadios(): Flow<List<RadioLocalModel>> {
     return _dao.allRadios().map { list -> list.map { _mapper.map(it) } }
   }

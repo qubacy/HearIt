@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = RadioDatabaseEntity.TABLE_NAME)
 data class RadioDatabaseEntity(
-  @PrimaryKey(autoGenerate = true) val id: Long?,
+  @PrimaryKey(autoGenerate = true)
+  @ColumnInfo(name = ID_PROP_NAME) val id: Long?,
   val title: String,
   val description: String?,
   @ColumnInfo(name = "cover_uri") val coverUri: String?,
@@ -14,5 +15,7 @@ data class RadioDatabaseEntity(
 ) {
   companion object {
     const val TABLE_NAME = "Radio"
+
+    const val ID_PROP_NAME = "id"
   }
 }

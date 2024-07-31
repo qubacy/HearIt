@@ -104,7 +104,8 @@ fun EditRadioScreen(
       isLoading,
       onBackClicked
     ),
-    radioPresentation = radioToEdit
+    radioPresentation = radioToEdit,
+    error = error
   )
 }
 
