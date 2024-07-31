@@ -57,6 +57,7 @@ import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.resources.util.getUriFromResource
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import kotlinx.coroutines.CoroutineScope
 
@@ -73,15 +74,7 @@ fun RadioScreenContent(
     onCancelClicked: () -> Unit,
     onErrorDismissed: () -> Unit,
 
-    // todo: refactor this sh*t. it should be formed as a separate provider class:
-    errorWidget: @Composable (
-        ErrorReference,
-        SnackbarHostState,
-        CoroutineScope,
-        () -> Unit,
-        Modifier,
-        Boolean
-    ) -> Unit,
+    errorWidgetProvider: ErrorWidgetProvider,
 
     modifier: Modifier = Modifier,
 
@@ -272,7 +265,12 @@ fun RadioScreenContent(
         }
 
         error?.let {
-            errorWidget(it, errorSnackbarHostState, errorCoroutineScope, onErrorDismissed)
+            errorWidgetProvider.ErrorWidget(
+                error = it,
+                snackbarHostState = errorSnackbarHostState,
+                coroutineScope = errorCoroutineScope,
+                onNotCriticalDismissRequest = onErrorDismissed
+            )
         }
     }
 }
@@ -430,12 +428,16 @@ fun RadioScreenContent() {
     val resourceId = R.drawable.space
     val coverUri = resources.getUriFromResource(resourceId)
 
+    val errorWidgetProvider = ErrorWidgetProvider()
+
     HearItTheme {
         RadioScreenContent(
-            topAppBarData = RadioScreenTopAppBarData("Test bar", false, {}),
             onPickImageClicked = {  },
             onSaveClicked = {  },
             onCancelClicked = {  },
+            onErrorDismissed = {  },
+            errorWidgetProvider = errorWidgetProvider,
+            topAppBarData = RadioScreenTopAppBarData("Test bar", false, {}),
             radioPresentation = RadioPresentation(
                 0,
                 "test title",

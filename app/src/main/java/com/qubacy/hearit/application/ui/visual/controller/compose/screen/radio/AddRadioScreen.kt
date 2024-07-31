@@ -1,13 +1,10 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
 import android.net.Uri
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -21,18 +18,13 @@ import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
-import kotlinx.coroutines.CoroutineScope
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 
 @Composable
 fun AddRadioScreen(
   onBackClicked: () -> Unit,
   onCreated: (Long) -> Unit,
-  errorWidget: @Composable (
-    ErrorReference,
-    SnackbarHostState,
-    CoroutineScope,
-    onDismissRequested: () -> Unit
-  ) -> Unit,
+  errorWidgetProvider: ErrorWidgetProvider,
 
   modifier: Modifier = Modifier,
   viewModel: AddRadioViewModel = hiltViewModel()
@@ -47,7 +39,7 @@ fun AddRadioScreen(
     onCreated = onCreated,
     onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
     onErrorDismissed = { viewModel.consumeCurrentError() },
-    errorWidget = errorWidget,
+    errorWidgetProvider = errorWidgetProvider,
     modifier = modifier,
     isLoading = state.isLoading,
     savedRadioId = state.addedRadioId,
@@ -62,7 +54,7 @@ fun AddRadioScreen(
   onCreated: (Long) -> Unit,
   onPickImageClicked: ((Uri?) -> Unit) -> Unit,
   onErrorDismissed: () -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, () -> Unit) -> Unit,
+  errorWidgetProvider: ErrorWidgetProvider,
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
@@ -81,7 +73,7 @@ fun AddRadioScreen(
     onSaveClicked = onCreateClicked,
     onCancelClicked = onBackClicked,
     onErrorDismissed = onErrorDismissed,
-    errorWidget = errorWidget,
+    errorWidgetProvider = errorWidgetProvider,
     modifier = modifier,
     radioPresentation = null,
     error = error
@@ -91,12 +83,14 @@ fun AddRadioScreen(
 @Preview
 @Composable
 fun AddRadioScreen() {
+  val errorWidgetProvider = ErrorWidgetProvider()
+
   AddRadioScreen(
     {},
     {},
     {},
     {},
     {},
-    {_, _, _, _ ->}
+    errorWidgetProvider = errorWidgetProvider
   )
 }

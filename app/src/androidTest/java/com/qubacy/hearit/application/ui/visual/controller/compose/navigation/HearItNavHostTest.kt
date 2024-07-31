@@ -4,6 +4,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -22,7 +23,7 @@ class HearItNavHostTest {
 
       _testNavHostController.navigatorProvider.addNavigator(ComposeNavigator())
 
-      HearItNavHost(navController = _testNavHostController) { _, _, _, _ -> }
+      HearItNavHost(navController = _testNavHostController, errorWidgetProvider = ErrorWidgetProvider())
     }
   }
 

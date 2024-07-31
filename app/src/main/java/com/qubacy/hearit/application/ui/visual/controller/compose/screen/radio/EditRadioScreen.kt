@@ -1,13 +1,10 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio
 
 import android.net.Uri
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,18 +25,13 @@ import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
-import kotlinx.coroutines.CoroutineScope
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 
 @Composable
 fun EditRadioScreen(
   onBackClicked: () -> Unit,
   onSaved: (Long) -> Unit,
-  errorWidget: @Composable (
-    ErrorReference,
-    SnackbarHostState,
-    CoroutineScope,
-    onDismissRequested: () -> Unit
-  ) -> Unit,
+  errorWidgetProvider: ErrorWidgetProvider,
 
   modifier: Modifier = Modifier,
   lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
@@ -54,7 +46,7 @@ fun EditRadioScreen(
     onSaveClicked = { viewModel.saveRadio(it) },
     onPickImageClicked = { onPicked -> ImagePickerScreen.pickImage(context, onPicked) },
     onErrorDismissed = { viewModel.consumeCurrentError() },
-    errorWidget = errorWidget,
+    errorWidgetProvider = errorWidgetProvider,
     onSaved = onSaved,
     modifier = modifier,
     radioToEdit = state.loadedRadio,
@@ -88,7 +80,7 @@ fun EditRadioScreen(
   onSaveClicked: (RadioInputWrapper) -> Unit,
   onPickImageClicked: ((Uri?) -> Unit) -> Unit,
   onErrorDismissed: () -> Unit,
-  errorWidget: @Composable (ErrorReference, SnackbarHostState, CoroutineScope, () -> Unit) -> Unit,
+  errorWidgetProvider: ErrorWidgetProvider,
 
   onSaved: (Long) -> Unit,
 
@@ -101,24 +93,19 @@ fun EditRadioScreen(
   if (savedRadioId != null) return onSaved(savedRadioId) // todo: is it ok?
 
   RadioScreenContent(
+    onPickImageClicked = onPickImageClicked,
+    onSaveClicked = onSaveClicked,
+    onCancelClicked = onBackClicked,
+    onErrorDismissed = onErrorDismissed,
+    errorWidgetProvider = errorWidgetProvider,
+    modifier = modifier,
     topAppBarData = RadioScreenTopAppBarData(
       stringResource(id = R.string.edit_radio_screen_label),
       isLoading,
       onBackClicked
     ),
-    onPickImageClicked = onPickImageClicked,
-    onSaveClicked = onSaveClicked,
-    onCancelClicked = onBackClicked,
-    modifier = modifier,
     radioPresentation = radioToEdit
   )
-
-  val errorCoroutineScope = rememberCoroutineScope()
-  val errorSnackbarHostState = remember { SnackbarHostState() }
-
-  error?.let {
-    errorWidget(it, errorSnackbarHostState, errorCoroutineScope, onErrorDismissed)
-  }
 }
 
 @Preview
@@ -137,12 +124,14 @@ fun EditRadioScreen() {
     )
   )
 
+  val errorWidgetProvider = ErrorWidgetProvider()
+
   EditRadioScreen(
     onBackClicked = {  },
     onSaveClicked = {  },
     onPickImageClicked = {  },
     onErrorDismissed = {  },
-    errorWidget = {_, _, _, _ -> },
+    errorWidgetProvider = errorWidgetProvider,
     onSaved = {  },
     radioToEdit = state.loadedRadio
   )

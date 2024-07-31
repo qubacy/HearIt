@@ -58,8 +58,8 @@ import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.home.HomeViewModel
 import com.qubacy.hearit.application.ui.state.state.HomeState
+import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -67,12 +67,7 @@ fun HomeScreen(
   retrieveSavedRadioId: () -> Long?,
   onRadioLongPressed: (id: Long) -> Unit,
   onAddRadioClicked: () -> Unit,
-  errorWidget: @Composable (
-    ErrorReference,
-    SnackbarHostState,
-    CoroutineScope,
-    onDismissRequested: () -> Unit
-  ) -> Unit,
+  errorWidgetProvider: ErrorWidgetProvider,
 
   modifier: Modifier = Modifier,
   lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
@@ -93,7 +88,7 @@ fun HomeScreen(
     onPrevButtonClicked = { /* todo: implement.. */ },
     onPlayButtonClicked = { /* todo: implement.. */ },
     onNextButtonClicked = { /* todo: implement.. */ },
-    errorWidget = errorWidget,
+    errorWidgetProvider = errorWidgetProvider,
     modifier = modifier,
     isLoading = state.isLoading,
     error = state.error,
@@ -132,12 +127,7 @@ fun HomeScreen(
   onPrevButtonClicked: () -> Unit,
   onPlayButtonClicked: () -> Unit,
   onNextButtonClicked: () -> Unit,
-  errorWidget: @Composable (
-    ErrorReference,
-    SnackbarHostState,
-    CoroutineScope,
-    () -> Unit
-  ) -> Unit,
+  errorWidgetProvider: ErrorWidgetProvider,
 
   modifier: Modifier = Modifier,
   isLoading: Boolean = false,
@@ -171,7 +161,8 @@ fun HomeScreen(
 
       val normalGap = dimensionResource(id = R.dimen.gap_normal)
 
-      val (listRef, fabRef, playerWrapperRef, playerScrimRef, snackbarRef) = createRefs()
+      val (listRef, fabRef, playerWrapperRef, playerScrimRef, snackbarRef, errorSnackbarRef) =
+        createRefs()
 
       val guidelineVertical50Ref = createGuidelineFromTop(0.5f)
 
@@ -309,14 +300,21 @@ fun HomeScreen(
             }
         )
       }
+
+      error?.let {
+        errorWidgetProvider.ErrorWidget(
+          error = it,
+          showSnackbarManually = true,
+          onNotCriticalDismissRequest = onErrorDismissed,
+          snackbarModifier = Modifier.constrainAs(errorSnackbarRef) {
+            if (!isPlayerExpanded) bottom.linkTo(fabRef.top, normalGap)
+            else bottom.linkTo(playerWrapperRef.top, normalGap)
+
+            start.linkTo(parent.start)
+          }
+        )
+      }
     }
-  }
-
-  val errorSnackbarHostState = remember { SnackbarHostState() }
-  val errorCoroutineScope = rememberCoroutineScope()
-
-  error?.let {
-    errorWidget(it, errorSnackbarHostState, errorCoroutineScope, onErrorDismissed)
   }
 }
 
@@ -394,6 +392,8 @@ fun HomeScreen() {
     mutableStateOf(null)
   }
 
+  val errorWidgetProvider = ErrorWidgetProvider()
+
   HearItTheme {
     HomeScreen(
       retrieveAddedRadioId = { 0 },
@@ -406,7 +406,7 @@ fun HomeScreen() {
       onPrevButtonClicked = {  },
       onPlayButtonClicked = {  },
       onNextButtonClicked = {  },
-      errorWidget = { _, _, _, _ -> },
+      errorWidgetProvider = errorWidgetProvider,
       radioList = radioList,
       currentRadioPresentation = curRadio,
       isRadioPlaying = false,
