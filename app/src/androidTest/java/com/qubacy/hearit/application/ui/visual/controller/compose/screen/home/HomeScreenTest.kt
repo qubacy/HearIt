@@ -78,9 +78,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           _errorWidgetProviderMock,
           isLoading = isLoading,
           radioList = radioPresentationList,
@@ -122,9 +120,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           _errorWidgetProviderMock,
           radioList = radioList
         )
@@ -165,9 +161,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           _errorWidgetProviderMock,
           error = expectedErrorReference
         )
@@ -191,9 +185,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           _errorWidgetProviderMock,
           isLoading = false
         )
@@ -228,9 +220,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           _errorWidgetProviderMock,
           radioList = radioList
         )
@@ -264,9 +254,7 @@ class HomeScreenTest {
           {},
           {},
           {},
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           _errorWidgetProviderMock,
           radioList = radioList
         )
@@ -294,9 +282,7 @@ class HomeScreenTest {
           {},
           onPlayerClicked = { callFlag = true },
           {},
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           _errorWidgetProviderMock,
           isLoading = false,
           currentRadioPresentation = radioPresentation
@@ -326,9 +312,7 @@ class HomeScreenTest {
           {},
           {},
           onPlayerBackgroundClicked = { callFlag = true },
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           _errorWidgetProviderMock,
           isLoading = false,
           currentRadioPresentation = radioPresentation,

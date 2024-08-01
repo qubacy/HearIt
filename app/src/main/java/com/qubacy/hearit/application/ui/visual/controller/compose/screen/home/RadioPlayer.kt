@@ -37,14 +37,18 @@ import com.qubacy.hearit.R
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.visual.controller.compose._common.SemanticsKeys.enabledPropertyKey
 
+data class RadioPlayerCallback(
+  val onPrevButtonClicked: () -> Unit,
+  val onPlayButtonClicked: () -> Unit,
+  val onNextButtonClicked: () -> Unit,
+)
+
 @Composable
 fun RadioPlayer(
   radioPresentation: RadioPresentation,
   isPlaying: Boolean,
   isExpanded: Boolean,
-  onPrevButtonClicked: () -> Unit,
-  onPlayButtonClicked: () -> Unit,
-  onNextButtonClicked: () -> Unit,
+  callback: RadioPlayerCallback,
   modifier: Modifier = Modifier,
   enabled: Boolean = true
 ) {
@@ -58,9 +62,7 @@ fun RadioPlayer(
     isPlaying = isPlaying,
     isExpanded = isExpanded,
     coverPainter = coverPainter,
-    onPrevButtonClicked = onPrevButtonClicked,
-    onPlayButtonClicked = onPlayButtonClicked,
-    onNextButtonClicked = onNextButtonClicked,
+    callback = callback,
     modifier = modifier.semantics {
       set(enabledPropertyKey, enabled)
     },
@@ -76,9 +78,7 @@ fun RadioPlayer(
   isPlaying: Boolean,
   isExpanded: Boolean,
   coverPainter: Painter,
-  onPrevButtonClicked: () -> Unit,
-  onPlayButtonClicked: () -> Unit,
-  onNextButtonClicked: () -> Unit,
+  callback: RadioPlayerCallback,
   modifier: Modifier = Modifier,
   enabled: Boolean = true
 ) {
@@ -151,7 +151,7 @@ fun RadioPlayer(
     }
 
     IconButton(
-      onClick = onPrevButtonClicked,
+      onClick = callback.onPrevButtonClicked,
       enabled = enabled,
       modifier = Modifier
         .semantics {
@@ -175,7 +175,7 @@ fun RadioPlayer(
     }
 
     IconButton(
-      onClick = onPlayButtonClicked,
+      onClick = callback.onPlayButtonClicked,
       enabled = enabled,
       modifier = Modifier
         .semantics {
@@ -204,7 +204,7 @@ fun RadioPlayer(
     }
 
     IconButton(
-      onClick = onNextButtonClicked,
+      onClick = callback.onNextButtonClicked,
       enabled = enabled,
       modifier = Modifier
         .semantics {
@@ -240,9 +240,11 @@ fun RadioPlayer() {
     isPlaying,
     false,
     painterResource(id = R.drawable.radio_cover_placeholder),
-    {},
-    { isPlaying = !isPlaying },
-    {},
+    RadioPlayerCallback(
+      {},
+      { isPlaying = !isPlaying },
+      {},
+    ),
     modifier = Modifier.fillMaxWidth()
   )
 }

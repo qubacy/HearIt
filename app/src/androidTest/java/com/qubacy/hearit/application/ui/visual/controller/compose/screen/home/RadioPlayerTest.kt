@@ -46,9 +46,7 @@ class RadioPlayerTest {
           false,
           false,
           painterResource(id = R.drawable.radio_cover_placeholder),
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           modifier = Modifier.fillMaxWidth()
         )
       }
@@ -82,9 +80,7 @@ class RadioPlayerTest {
           false,
           true,
           painterResource(id = R.drawable.radio_cover_placeholder),
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           modifier = Modifier.fillMaxSize()
         )
       }
@@ -118,9 +114,7 @@ class RadioPlayerTest {
           false,
           false,
           painterResource(id = R.drawable.radio_cover_placeholder),
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           enabled = isEnabled
         )
       }
@@ -149,9 +143,7 @@ class RadioPlayerTest {
           false,
           false,
           painterResource(id = R.drawable.radio_cover_placeholder),
-          { callFlag = true },
-          {},
-          {},
+          RadioPlayerCallback({ callFlag = true }, {}, {}),
           modifier = Modifier.fillMaxWidth()
         )
       }
@@ -176,9 +168,7 @@ class RadioPlayerTest {
           false,
           false,
           painterResource(id = R.drawable.radio_cover_placeholder),
-          {},
-          { callFlag = true },
-          {},
+          RadioPlayerCallback({}, { callFlag = true }, {}),
           modifier = Modifier.fillMaxWidth()
         )
       }
@@ -203,9 +193,7 @@ class RadioPlayerTest {
           false,
           false,
           painterResource(id = R.drawable.radio_cover_placeholder),
-          {},
-          {},
-          { callFlag = true },
+          RadioPlayerCallback({}, {}, { callFlag = true }),
           modifier = Modifier.fillMaxWidth()
         )
       }
@@ -231,9 +219,7 @@ class RadioPlayerTest {
           false,
           true,
           painterResource(id = R.drawable.radio_cover_placeholder),
-          {},
-          {},
-          {},
+          RadioPlayerCallback({}, {}, {}),
           modifier = Modifier.fillMaxSize()
         )
       }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -86,9 +85,7 @@ fun HomeScreen(
     onErrorDismissed = { viewModel.consumeCurrentError() },
     onPlayerClicked = { isPlayerExpanded = true },
     onPlayerBackgroundClicked = { isPlayerExpanded = false },
-    onPrevButtonClicked = { /* todo: implement.. */ },
-    onPlayButtonClicked = { /* todo: implement.. */ },
-    onNextButtonClicked = { /* todo: implement.. */ },
+    radioPlayerCallback = RadioPlayerCallback({}, {}, {}), // todo: implement;
     errorWidgetProvider = errorWidgetProvider,
     modifier = modifier,
     isLoading = state.isLoading,
@@ -125,9 +122,7 @@ fun HomeScreen(
   onErrorDismissed: () -> Unit,
   onPlayerClicked: () -> Unit,
   onPlayerBackgroundClicked: () -> Unit,
-  onPrevButtonClicked: () -> Unit,
-  onPlayButtonClicked: () -> Unit,
-  onNextButtonClicked: () -> Unit,
+  radioPlayerCallback: RadioPlayerCallback,
   errorWidgetProvider: ErrorWidgetProvider,
 
   modifier: Modifier = Modifier,
@@ -275,9 +270,7 @@ fun HomeScreen(
           radioPresentation = visibleCurrentRadioPresentation,
           isPlaying = isRadioPlaying,
           isExpanded = isPlayerExpanded,
-          onPrevButtonClicked = onPrevButtonClicked,
-          onPlayButtonClicked = onPlayButtonClicked,
-          onNextButtonClicked = onNextButtonClicked,
+          callback = radioPlayerCallback,
           modifier = Modifier
             .let {
               if (!isPlayerExpanded) return@let it.wrapContentHeight()
@@ -406,9 +399,7 @@ fun HomeScreen() {
       onErrorDismissed = {  },
       onPlayerClicked = {  },
       onPlayerBackgroundClicked = {  },
-      onPrevButtonClicked = {  },
-      onPlayButtonClicked = {  },
-      onNextButtonClicked = {  },
+      radioPlayerCallback = RadioPlayerCallback({}, {}, {}),
       errorWidgetProvider = errorWidgetProvider,
       radioList = radioList,
       currentRadioPresentation = curRadio,
