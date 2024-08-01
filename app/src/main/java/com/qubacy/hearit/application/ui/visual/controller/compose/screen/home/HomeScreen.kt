@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -53,11 +54,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.media3.common.MediaItem
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.home.HomeViewModel
 import com.qubacy.hearit.application.ui.state.state.HomeState
+import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.PlayerActivity
+import com.qubacy.hearit.application.ui.visual.controller.activity._common.util.findActivity
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import kotlinx.coroutines.launch
@@ -76,6 +80,28 @@ fun HomeScreen(
   val state: HomeState by (viewModel.state.observeAsState() as State<HomeState>)
 
   var isPlayerExpanded by remember { mutableStateOf(false) }
+  val currentRadioPresentation = state.playerState?.currentRadio
+
+  val playerActivity = LocalContext.current.findActivity() as PlayerActivity
+
+  LaunchedEffect(key1 = currentRadioPresentation) {
+    if (currentRadioPresentation == null) return@LaunchedEffect
+
+    playerActivity.getPlayer().apply {
+      setMediaItem(MediaItem.fromUri(currentRadioPresentation.url))
+      prepare()
+    }
+  }
+
+  val playerState = state.playerState
+
+  LaunchedEffect(key1 = playerState?.isRadioPlaying) {
+    if (playerState == null) return@LaunchedEffect
+
+    val player = playerActivity.getPlayer()
+
+    if (playerState.isRadioPlaying) player.play() else player.stop()
+  }
 
   HomeScreen(
     retrieveAddedRadioId = retrieveSavedRadioId,
@@ -85,12 +111,22 @@ fun HomeScreen(
     onErrorDismissed = { viewModel.consumeCurrentError() },
     onPlayerClicked = { isPlayerExpanded = true },
     onPlayerBackgroundClicked = { isPlayerExpanded = false },
-    radioPlayerCallback = RadioPlayerCallback({}, {}, {}), // todo: implement;
+    radioPlayerCallback = RadioPlayerCallback({
+        viewModel.setPrevRadio()
+      }, {
+        if (state.playerState == null) return@RadioPlayerCallback
+
+        viewModel.changePlayingState()
+      }, {
+        viewModel.setNextRadio()
+      }),
     errorWidgetProvider = errorWidgetProvider,
     modifier = modifier,
     isLoading = state.isLoading,
     error = state.error,
     radioList = state.radioList ?: listOf(),
+    currentRadioPresentation = currentRadioPresentation,
+    isRadioPlaying = playerState?.isRadioPlaying ?: false,
     isPlayerExpanded = isPlayerExpanded
   )
 
@@ -230,8 +266,6 @@ fun HomeScreen(
       val playerAnimatedOffset by animateOffsetAsState(
         targetValue = Offset(0f, if (isPlayerVisible) 0f else 1f)
       ) {
-        println("playerAnimatedOffset: currentRadioPresentation = $currentRadioPresentation;")
-
         finalCurrentRadioPresentation = currentRadioPresentation
       }
 

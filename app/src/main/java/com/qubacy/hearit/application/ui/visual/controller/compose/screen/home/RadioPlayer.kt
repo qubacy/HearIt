@@ -198,7 +198,7 @@ fun RadioPlayer(
         }
     ) {
       Icon(
-        painter = rememberAnimatedVectorPainter(playButtonIcon, !isPlaying),
+        painter = rememberAnimatedVectorPainter(playButtonIcon, isPlaying),
         contentDescription = ""
       )
     }
@@ -232,7 +232,7 @@ fun RadioPlayer(
 @Preview
 @Composable
 fun RadioPlayer() {
-  var isPlaying by remember { mutableStateOf(false) }
+  var isPlaying by remember { mutableStateOf(true) }
 
   RadioPlayer(
     "test title",
