@@ -29,4 +29,8 @@ class RadioPlaybackService : MediaSessionService() {
   override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
     return _mediaSession
   }
+
+  override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
+    super.onUpdateNotification(session, startInForegroundRequired)
+  }
 }
