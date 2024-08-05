@@ -19,6 +19,6 @@ class PlayerDataStoreDataSourceImpl @Inject constructor(
   }
 
   override suspend fun updatePlayerInfo(playerInfo: PlayerInfoDataStoreModel) {
-    _dataStore.edit { preferencies -> _mapper.map(preferencies, playerInfo) }
+    _dataStore.edit { preferences -> _mapper.map(preferences, playerInfo) }
   }
 }
