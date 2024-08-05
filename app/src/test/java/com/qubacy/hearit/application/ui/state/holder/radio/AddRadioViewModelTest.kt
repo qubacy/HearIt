@@ -3,18 +3,14 @@ package com.qubacy.hearit.application.ui.state.holder.radio
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
-import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
 import com.qubacy.hearit.application.domain.usecase.radio._common.sketch.RadioDomainSketch
 import com.qubacy.hearit.application.domain.usecase.radio.add._common.AddRadioUseCase
-import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
-import com.qubacy.hearit.application.ui.state.state.AddRadioState
+import com.qubacy.hearit.application.ui.state.state.radio.AddRadioState
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.mapper._common.RadioInputWrapperRadioDomainSketchMapper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -57,8 +53,8 @@ class AddRadioViewModelTest {
     return Mockito.mock(RadioInputWrapperValidator::class.java)
   }
 
-  private fun mockRadioDomainModelPresentationMapper(): RadioDomainModelRadioPresentationMapper {
-    return Mockito.mock(RadioDomainModelRadioPresentationMapper::class.java)
+  private fun mockRadioDomainModelPresentationMapper(): RadioPresentationDomainModelMapper {
+    return Mockito.mock(RadioPresentationDomainModelMapper::class.java)
   }
 
   private fun mockRadioInputWrapperDomainSketchMapper(): RadioInputWrapperRadioDomainSketchMapper {

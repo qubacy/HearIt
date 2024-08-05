@@ -10,7 +10,7 @@ import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain.usecase.radio.add._common.AddRadioUseCase
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
-import com.qubacy.hearit.application.ui.state.state.AddRadioState
+import com.qubacy.hearit.application.ui.state.state.radio.AddRadioState
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.mapper._common.RadioInputWrapperRadioDomainSketchMapper
 import dagger.hilt.android.lifecycle.HiltViewModel

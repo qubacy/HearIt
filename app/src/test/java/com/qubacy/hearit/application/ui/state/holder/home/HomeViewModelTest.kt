@@ -4,12 +4,14 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
+import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRepository
 import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
 import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
-import com.qubacy.hearit.application.ui.state.state.HomeState
-import com.qubacy.hearit.application.ui.state.state.PlayerState
+import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
+import com.qubacy.hearit.application.ui.state.state.home.HomeState
+import com.qubacy.hearit.application.ui.state.state.home.player.PlayerState
+import com.qubacy.hearit.application.ui.state.state.home.player.mapper._common.PlayerStateInfoDataModelMapper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -30,25 +32,43 @@ class HomeViewModelTest {
 
   private val _coroutineDispatcher = StandardTestDispatcher()
 
+  private lateinit var _playerRepository: PlayerDataRepository
   private lateinit var _useCaseMock: HomeUseCase
-  private lateinit var _radioMapperMock: RadioDomainModelRadioPresentationMapper
+  private lateinit var _radioPresentationDomainModelMapperMock: RadioPresentationDomainModelMapper
+  private lateinit var _playerStateInfoDataModelMapperMock: PlayerStateInfoDataModelMapper
 
   private lateinit var _instance: HomeViewModel
 
   @Before
   fun setup() {
+    _playerRepository = mockPlayerDataRepository()
     _useCaseMock = mockUseCase()
-    _radioMapperMock = mockRadioMapper()
+    _radioPresentationDomainModelMapperMock = mockRadioPresentationDomainModelMapper()
+    _playerStateInfoDataModelMapperMock = mockPlayerStateInfoDataModelMapper()
 
-    _instance = HomeViewModel(_coroutineDispatcher, _useCaseMock, _radioMapperMock)
+    _instance = HomeViewModel(
+      _coroutineDispatcher,
+      _playerRepository,
+      _useCaseMock,
+      _radioPresentationDomainModelMapperMock,
+      _playerStateInfoDataModelMapperMock
+    )
+  }
+
+  private fun mockPlayerDataRepository(): PlayerDataRepository {
+    return Mockito.mock(PlayerDataRepository::class.java)
   }
 
   private fun mockUseCase(): HomeUseCase {
     return Mockito.mock(HomeUseCase::class.java)
   }
 
-  private fun mockRadioMapper(): RadioDomainModelRadioPresentationMapper {
-    return Mockito.mock(RadioDomainModelRadioPresentationMapper::class.java)
+  private fun mockRadioPresentationDomainModelMapper(): RadioPresentationDomainModelMapper {
+    return Mockito.mock(RadioPresentationDomainModelMapper::class.java)
+  }
+
+  private fun mockPlayerStateInfoDataModelMapper(): PlayerStateInfoDataModelMapper {
+    return Mockito.mock(PlayerStateInfoDataModelMapper::class.java)
   }
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -97,7 +117,7 @@ class HomeViewModelTest {
 
     val expectedState = HomeState(radioList = listOf(expectedRadioPresentation))
 
-    Mockito.`when`(_radioMapperMock.map(any())).thenReturn(expectedRadioPresentation)
+    Mockito.`when`(_radioPresentationDomainModelMapperMock.map(any())).thenReturn(expectedRadioPresentation)
     Mockito.`when`(_useCaseMock.getRadioList()).thenReturn(
       flowOf(listOf(radioDomainModel))
     )
@@ -105,7 +125,7 @@ class HomeViewModelTest {
     _instance.observeRadioList()
     advanceUntilIdle()
 
-    Mockito.verify(_radioMapperMock).map(any())
+    Mockito.verify(_radioPresentationDomainModelMapperMock).map(any())
 
     val gottenState = _instance.state.value
 
@@ -149,7 +169,7 @@ class HomeViewModelTest {
         currentRadio = radioPresentation,
         isRadioPlaying = true
       ),
-      isLoading = true
+      isLoading = false
     )
     val expectedFinalState = expectedInitState.copy(isLoading = false)
 

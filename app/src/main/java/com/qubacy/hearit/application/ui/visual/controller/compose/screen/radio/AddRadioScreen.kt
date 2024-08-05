@@ -14,7 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui.state.holder.radio.AddRadioViewModel
-import com.qubacy.hearit.application.ui.state.state.AddRadioState
+import com.qubacy.hearit.application.ui.state.state.radio.AddRadioState
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.aspect.ImagePickerScreen
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenContent
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen.radio._common.RadioScreenTopAppBarData

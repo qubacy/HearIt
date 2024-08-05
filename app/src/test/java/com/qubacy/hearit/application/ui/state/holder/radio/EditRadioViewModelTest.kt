@@ -9,11 +9,11 @@ import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
 import com.qubacy.hearit.application.domain.usecase.radio._common.sketch.RadioDomainSketch
 import com.qubacy.hearit.application.domain.usecase.radio.edit._common.EditRadioUseCase
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.mapper._common.RadioInputWrapperRadioDomainSketchMapper
-import com.qubacy.hearit.application.ui.state.state.EditRadioState
+import com.qubacy.hearit.application.ui.state.state.radio.EditRadioState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -36,7 +36,7 @@ class EditRadioViewModelTest {
   private lateinit var _savedStateHandleMock: SavedStateHandle
   private lateinit var _useCaseMock: EditRadioUseCase
   private lateinit var _radioInputValidatorMock: RadioInputWrapperValidator
-  private lateinit var _radioDomainModelPresentationMapperMock: RadioDomainModelRadioPresentationMapper
+  private lateinit var _radioDomainModelPresentationMapperMock: RadioPresentationDomainModelMapper
   private lateinit var _radioInputWrapperDomainSketchMapperMock: RadioInputWrapperRadioDomainSketchMapper
 
   private lateinit var _instance: EditRadioViewModel
@@ -68,8 +68,8 @@ class EditRadioViewModelTest {
     return Mockito.mock(RadioInputWrapperValidator::class.java)
   }
 
-  private fun mockRadioDomainModelPresentationMapper(): RadioDomainModelRadioPresentationMapper {
-    return Mockito.mock(RadioDomainModelRadioPresentationMapper::class.java)
+  private fun mockRadioDomainModelPresentationMapper(): RadioPresentationDomainModelMapper {
+    return Mockito.mock(RadioPresentationDomainModelMapper::class.java)
   }
 
   private fun mockRadioInputWrapperDomainSketchMapper(): RadioInputWrapperRadioDomainSketchMapper {

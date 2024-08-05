@@ -10,10 +10,10 @@ import com.qubacy.hearit.application._common.error.ErrorEnum
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain.usecase.radio.edit._common.EditRadioUseCase
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
-import com.qubacy.hearit.application.ui.state.state.EditRadioState
+import com.qubacy.hearit.application.ui.state.state.radio.EditRadioState
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.mapper._common.RadioInputWrapperRadioDomainSketchMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +33,7 @@ class EditRadioViewModel @Inject constructor(
   private val _dispatcher: CoroutineDispatcher,
   private val _useCase: EditRadioUseCase,
   private val _radioInputValidator: RadioInputWrapperValidator,
-  private val _radioDomainModelPresentationMapper: RadioDomainModelRadioPresentationMapper,
+  private val _radioDomainModelPresentationMapper: RadioPresentationDomainModelMapper,
   private val _radioInputWrapperDomainSketchMapper: RadioInputWrapperRadioDomainSketchMapper
 ) : ViewModel() {
   companion object {

@@ -59,7 +59,7 @@ import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.home.HomeViewModel
-import com.qubacy.hearit.application.ui.state.state.HomeState
+import com.qubacy.hearit.application.ui.state.state.home.HomeState
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.PlayerActivity
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.util.findActivity
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
@@ -137,8 +137,14 @@ fun HomeScreen(
 fun SetupRadioListObserver(lifecycleOwner: LifecycleOwner, viewModel: HomeViewModel) {
   DisposableEffect(key1 = lifecycleOwner) {
     val observer = LifecycleEventObserver { _, event ->
-      if (event == Lifecycle.Event.ON_START) viewModel.observeRadioList()
-      else if (event == Lifecycle.Event.ON_STOP) viewModel.stopObservingRadioList()
+      if (event == Lifecycle.Event.ON_START) {
+        viewModel.observeRadioList()
+        viewModel.observePlayerInfo()
+      }
+      else if (event == Lifecycle.Event.ON_STOP) {
+        viewModel.stopObservingRadioList()
+        viewModel.stopObservingPlayerInfo()
+      }
     }
 
     lifecycleOwner.lifecycle.addObserver(observer)

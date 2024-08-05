@@ -1,4 +1,4 @@
-package com.qubacy.hearit.application.ui.state.state
+package com.qubacy.hearit.application.ui.state.state.radio
 
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation

@@ -1,21 +1,21 @@
 package com.qubacy.hearit.application.ui.state.holder.home
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qubacy.hearit.application._common.error.ErrorEnum
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
+import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRepository
 import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioDomainModelRadioPresentationMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
-import com.qubacy.hearit.application.ui.state.state.HomeState
-import com.qubacy.hearit.application.ui.state.state.PlayerState
-import com.qubacy.hearit.application.ui.state.state.PlayerStatePreservable
+import com.qubacy.hearit.application.ui.state.state.home.HomeState
+import com.qubacy.hearit.application.ui.state.state.home.player.PlayerState
+import com.qubacy.hearit.application.ui.state.state.home.player.PlayerStatePreservable
+import com.qubacy.hearit.application.ui.state.state.home.player.mapper._common.PlayerStateInfoDataModelMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -28,11 +28,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-  private val _savedStateHandle: SavedStateHandle,
   @ViewModelDispatcherQualifier
   private val _dispatcher: CoroutineDispatcher,
+  private val _playerRepository: PlayerDataRepository,
   private val _useCase: HomeUseCase,
-  private val _radioMapper: RadioDomainModelRadioPresentationMapper
+  private val _radioPresentationDomainModelMapper: RadioPresentationDomainModelMapper,
+  private val _playerStateInfoDataModelMapper: PlayerStateInfoDataModelMapper
 ) : ViewModel() {
   companion object {
     const val TAG = "HomeViewModel"
@@ -45,12 +46,7 @@ class HomeViewModel @Inject constructor(
 
   private var _getCurrentRadioJob: Job? = null
   private var _getRadioListJob: Job? = null
-
-  init {
-    _savedStateHandle.get<PlayerStatePreservable?>(PLAYER_STATE_KEY)?.let {
-      _getCurrentRadioJob = resolvePlayerStatePreservable(it)
-    }
-  }
+  private var _getPlayerInfoJob: Job? = null
 
   fun observeRadioList() {
     if (_getRadioListJob != null) return
@@ -68,9 +64,26 @@ class HomeViewModel @Inject constructor(
     disposeGetRadioListJob()
   }
 
+  fun observePlayerInfo() {
+    if (_getPlayerInfoJob != null) return
+
+    _getPlayerInfoJob = startGettingPlayerInfo()
+  }
+
+  fun stopObservingPlayerInfo() {
+    if (_getPlayerInfoJob == null) return
+
+    disposeGetPlayerInfoJob()
+  }
+
   private fun disposeGetRadioListJob() {
     _getRadioListJob!!.cancel()
     _getRadioListJob = null
+  }
+
+  private fun disposeGetPlayerInfoJob() {
+    _getPlayerInfoJob!!.cancel()
+    _getPlayerInfoJob = null
   }
 
   private fun disposeGetCurrentRadioJob() {
@@ -83,11 +96,8 @@ class HomeViewModel @Inject constructor(
 
   override fun onCleared() {
     stopObservingRadioList()
+    stopObservingPlayerInfo()
     disposeGetCurrentRadioJob()
-
-    _state.value?.playerState?.let {
-      _savedStateHandle[PLAYER_STATE_KEY] = it.toPlayerStatePreservable()
-    }
 
     super.onCleared()
   }
@@ -97,7 +107,7 @@ class HomeViewModel @Inject constructor(
 
     return viewModelScope.launch(_dispatcher) {
       _useCase.getRadioList().map { list ->
-        list.map { _radioMapper.map(it) }
+        list.map { _radioPresentationDomainModelMapper.map(it) }
       }.onEach {
         // todo: possible bug:
         _state.postValue(_state.value!!.copy(radioList = it, isLoading = false))
@@ -109,6 +119,21 @@ class HomeViewModel @Inject constructor(
     }
   }
 
+  private fun startGettingPlayerInfo(): Job {
+    return viewModelScope.launch(_dispatcher) {
+      _playerRepository.getPlayerInfo().map {
+        _playerStateInfoDataModelMapper.map(it)
+      }.onEach {
+        _state.postValue(_state.value!!.copy(playerState = it))
+      }.catch { cause ->
+        if (cause !is HearItException) throw cause
+
+        setErrorState(cause.errorReference)
+      }.collect()
+    }
+  }
+
+  @Deprecated("There's no need to preserve PlayerState anymore. Therefore, the method is no use;")
   private fun resolvePlayerStatePreservable(
     playerStatePreservable: PlayerStatePreservable
   ): Job? {
@@ -118,7 +143,7 @@ class HomeViewModel @Inject constructor(
 
     return viewModelScope.launch(_dispatcher) {
       _useCase.getRadio(playerStatePreservable.currentRadioId).map {
-        _radioMapper.map(it)
+        _radioPresentationDomainModelMapper.map(it)
       }.onEach {
         _state.postValue(_state.value!!.copy(
           playerState = PlayerState(currentRadio = it, playerStatePreservable.isRadioPlaying),
@@ -148,6 +173,10 @@ class HomeViewModel @Inject constructor(
       ?: PlayerState(currentRadio = radioPresentation, isRadioPlaying = true)
 
     _state.value = _state.value!!.copy(playerState = playerState)
+
+    viewModelScope.launch(_dispatcher) {
+      _playerRepository.updatePlayerInfo(_playerStateInfoDataModelMapper.map(playerState))
+    }
   }
 
   fun setPrevRadio() {

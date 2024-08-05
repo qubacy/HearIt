@@ -1,8 +1,7 @@
-package com.qubacy.hearit.application.ui.state.state
+package com.qubacy.hearit.application.ui.state.state.home.player
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 
 data class PlayerStatePreservable(
@@ -43,10 +42,3 @@ data class PlayerState(
     return PlayerStatePreservable(currentRadio?.id, isRadioPlaying)
   }
 }
-
-data class HomeState(
-  val isLoading: Boolean = false,
-  val radioList: List<RadioPresentation>? = null,
-  val playerState: PlayerState? = null,
-  val error: ErrorReference? = null
-)
