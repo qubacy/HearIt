@@ -37,11 +37,10 @@ class PlayerDataStoreDataSourceImplTest {
 
   @Test
   fun getPlayerInfoTest() = runTest(_dispatcher) {
-    val preferencesFlow = flowOf(Mockito.mock(Preferences::class.java))
     val expectedPlayerInfoDataStoreModel = PlayerInfoDataStoreModel()
 
     Mockito.`when`(_mapperMock.map(any())).thenReturn(expectedPlayerInfoDataStoreModel)
-    Mockito.`when`(_dataStoreMock.data).thenReturn(preferencesFlow)
+    Mockito.`when`(_dataStoreMock.data).thenReturn(flowOf(Mockito.mock(Preferences::class.java)))
 
     val playerInfoDataStoreDataSource = PlayerDataStoreDataSourceImpl(_dataStoreMock, _mapperMock)
 
