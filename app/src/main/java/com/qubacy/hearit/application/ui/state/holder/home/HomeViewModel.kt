@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -122,7 +123,11 @@ class HomeViewModel @Inject constructor(
   private fun startGettingPlayerInfo(): Job {
     return viewModelScope.launch(_dispatcher) {
       _playerRepository.getPlayerInfo().map {
-        _playerStateInfoDataModelMapper.map(it)
+        val radioDomainModel = it.curRadioId?.let { radioId -> _useCase.getRadio(radioId).first() }
+        val radioPresentation = radioDomainModel
+          ?.let { _radioPresentationDomainModelMapper.map(radioDomainModel) }
+
+        _playerStateInfoDataModelMapper.map(radioPresentation, it)
       }.onEach {
         _state.postValue(_state.value!!.copy(playerState = it))
       }.catch { cause ->

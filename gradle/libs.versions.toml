@@ -17,6 +17,7 @@ activityCompose = "1.8.0"
 composeBom = "2024.04.01"
 media3Exoplayer = "1.4.0"
 mockitoAndroid = "5.12.0"
+mockitoInline = "2.13.0"
 mockitoKotlin = "5.4.0"
 mockitoKotlinVersion = "5.12.0"
 navVersion = "2.7.7"
@@ -60,6 +61,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroid" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 androidx-animation-graphics-android = { group = "androidx.compose.animation", name = "animation-graphics-android", version.ref = "animationGraphicsAndroid" }
 mockito-kotlin-v5120 = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlinVersion" }

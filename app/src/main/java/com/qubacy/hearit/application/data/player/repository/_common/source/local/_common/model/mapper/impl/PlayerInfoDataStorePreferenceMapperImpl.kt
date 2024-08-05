@@ -4,8 +4,11 @@ import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import com.qubacy.hearit.application.data.player.repository._common.source.local._common.model.PlayerInfoDataStoreModel
 import com.qubacy.hearit.application.data.player.repository._common.source.local._common.model.mapper._common.PlayerInfoDataStorePreferenceMapper
+import javax.inject.Inject
 
-class PlayerInfoDataStorePreferenceMapperImpl : PlayerInfoDataStorePreferenceMapper {
+class PlayerInfoDataStorePreferenceMapperImpl @Inject constructor(
+
+) : PlayerInfoDataStorePreferenceMapper {
   override fun map(preferences: Preferences): PlayerInfoDataStoreModel {
     return preferences.let {
       PlayerInfoDataStoreModel(
