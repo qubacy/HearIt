@@ -1,7 +1,7 @@
-package com.qubacy.hearit.application.ui._common.presentation.mapper._di.module
+package com.qubacy.hearit.application.ui._common.presentation.mapper.domain._di.module
 
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
-import com.qubacy.hearit.application.ui._common.presentation.mapper.impl.RadioPresentationDomainModelMapperImpl
+import com.qubacy.hearit.application.ui._common.presentation.mapper.domain._common.RadioPresentationDomainModelMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper.domain.impl.RadioPresentationDomainModelMapperImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

@@ -2,6 +2,7 @@ package com.qubacy.hearit.application.domain._common.model.mapper.impl
 
 import com.qubacy.hearit.application.data.radio.model.RadioDataModel
 import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
+import com.qubacy.hearit.application.domain._common.model.mapper.data.impl.RadioDomainModelDataModelMapperImpl
 import org.junit.Assert
 import org.junit.Test
 import kotlin.reflect.KClass

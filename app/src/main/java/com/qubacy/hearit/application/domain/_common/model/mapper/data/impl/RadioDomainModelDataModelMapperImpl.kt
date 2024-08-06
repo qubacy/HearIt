@@ -1,8 +1,8 @@
-package com.qubacy.hearit.application.domain._common.model.mapper.impl
+package com.qubacy.hearit.application.domain._common.model.mapper.data.impl
 
 import com.qubacy.hearit.application.data.radio.model.RadioDataModel
 import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
-import com.qubacy.hearit.application.domain._common.model.mapper._common.RadioDomainModelDataModelMapper
+import com.qubacy.hearit.application.domain._common.model.mapper.data._common.RadioDomainModelDataModelMapper
 import javax.inject.Inject
 
 class RadioDomainModelDataModelMapperImpl @Inject constructor(

@@ -54,7 +54,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.media3.common.MediaItem
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
@@ -88,7 +87,9 @@ fun HomeScreen(
     if (currentRadioPresentation == null) return@LaunchedEffect
 
     playerActivity.getPlayer().apply {
-      setMediaItem(MediaItem.fromUri(currentRadioPresentation.url))
+      val mediaItem = viewModel.getRadioPresentationMediaItemMapper().map(currentRadioPresentation)
+
+      setMediaItem(mediaItem)
       prepare()
     }
   }

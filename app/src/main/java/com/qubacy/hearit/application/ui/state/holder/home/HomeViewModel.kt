@@ -10,7 +10,8 @@ import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRepository
 import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper.domain._common.RadioPresentationDomainModelMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper.media._common.RadioPresentationMediaItemMapper
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.state.home.HomeState
 import com.qubacy.hearit.application.ui.state.state.home.player.PlayerState
@@ -34,7 +35,8 @@ class HomeViewModel @Inject constructor(
   private val _playerRepository: PlayerDataRepository,
   private val _useCase: HomeUseCase,
   private val _radioPresentationDomainModelMapper: RadioPresentationDomainModelMapper,
-  private val _playerStateInfoDataModelMapper: PlayerStateInfoDataModelMapper
+  private val _playerStateInfoDataModelMapper: PlayerStateInfoDataModelMapper,
+  private val _radioPresentationMediaItemMapper: RadioPresentationMediaItemMapper
 ) : ViewModel() {
   companion object {
     const val TAG = "HomeViewModel"
@@ -230,6 +232,11 @@ class HomeViewModel @Inject constructor(
 
   fun consumeCurrentError() {
     _state.value = _state.value!!.copy(error = null)
+  }
+
+  // todo: rethink this. isn't it a bad approach?:
+  fun getRadioPresentationMediaItemMapper(): RadioPresentationMediaItemMapper {
+    return _radioPresentationMediaItemMapper
   }
 
   private fun setErrorState(errorReference: ErrorReference) {

@@ -5,7 +5,7 @@ import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application.domain.usecase.radio._common.sketch.RadioDomainSketch
 import com.qubacy.hearit.application.domain.usecase.radio.add._common.AddRadioUseCase
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper.domain._common.RadioPresentationDomainModelMapper
 import com.qubacy.hearit.application.ui.state.holder.radio.validator._common.RadioInputWrapperValidator
 import com.qubacy.hearit.application.ui.state.state.radio.AddRadioState
 import com.qubacy.hearit.application.ui.state.holder.radio.wrapper.RadioInputWrapper

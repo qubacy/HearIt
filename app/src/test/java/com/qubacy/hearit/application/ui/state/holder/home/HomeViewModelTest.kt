@@ -9,7 +9,8 @@ import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRe
 import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
 import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
-import com.qubacy.hearit.application.ui._common.presentation.mapper._common.RadioPresentationDomainModelMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper.domain._common.RadioPresentationDomainModelMapper
+import com.qubacy.hearit.application.ui._common.presentation.mapper.media._common.RadioPresentationMediaItemMapper
 import com.qubacy.hearit.application.ui.state.state.home.HomeState
 import com.qubacy.hearit.application.ui.state.state.home.player.PlayerState
 import com.qubacy.hearit.application.ui.state.state.home.player.mapper._common.PlayerStateInfoDataModelMapper
@@ -37,6 +38,7 @@ class HomeViewModelTest {
   private lateinit var _useCaseMock: HomeUseCase
   private lateinit var _radioPresentationDomainModelMapperMock: RadioPresentationDomainModelMapper
   private lateinit var _playerStateInfoDataModelMapperMock: PlayerStateInfoDataModelMapper
+  private lateinit var _radioPresentationMediaItemMapperMock: RadioPresentationMediaItemMapper
 
   private lateinit var _instance: HomeViewModel
 
@@ -46,13 +48,15 @@ class HomeViewModelTest {
     _useCaseMock = mockUseCase()
     _radioPresentationDomainModelMapperMock = mockRadioPresentationDomainModelMapper()
     _playerStateInfoDataModelMapperMock = mockPlayerStateInfoDataModelMapper()
+    _radioPresentationMediaItemMapperMock = mockRadioPresentationMediaItemMapper()
 
     _instance = HomeViewModel(
       _coroutineDispatcher,
       _playerRepository,
       _useCaseMock,
       _radioPresentationDomainModelMapperMock,
-      _playerStateInfoDataModelMapperMock
+      _playerStateInfoDataModelMapperMock,
+      _radioPresentationMediaItemMapperMock
     )
   }
 
@@ -70,6 +74,10 @@ class HomeViewModelTest {
 
   private fun mockPlayerStateInfoDataModelMapper(): PlayerStateInfoDataModelMapper {
     return Mockito.mock(PlayerStateInfoDataModelMapper::class.java)
+  }
+
+  private fun mockRadioPresentationMediaItemMapper(): RadioPresentationMediaItemMapper {
+    return Mockito.mock(RadioPresentationMediaItemMapper::class.java)
   }
 
   @OptIn(ExperimentalCoroutinesApi::class)
