@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
+import com.qubacy.hearit.application.data.player.model.PlayerInfoDataModel
 import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRepository
 import com.qubacy.hearit.application.domain._common.model.RadioDomainModel
 import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
@@ -92,17 +93,15 @@ class HomeViewModelTest {
 
   @Test
   fun stopObservingRadioListCallLeadsToDisposingGetRadioJobTest() {
-    val getRadioListJobFieldReflection = getGetRadioListJobFieldReflection()
-
     _instance.observeRadioList()
 
-    val gottenInitGetRadioListJob = getRadioListJobFieldReflection.get(_instance)
+    val gottenInitGetRadioListJob = getGetRadioListJobFieldReflection().get(_instance)
 
     Assert.assertNotNull(gottenInitGetRadioListJob)
 
     _instance.stopObservingRadioList()
 
-    val gottenFinalGetRadioListJob = getRadioListJobFieldReflection.get(_instance)
+    val gottenFinalGetRadioListJob = getGetRadioListJobFieldReflection().get(_instance)
 
     Assert.assertNull(gottenFinalGetRadioListJob)
   }
@@ -155,39 +154,113 @@ class HomeViewModelTest {
     Assert.assertEquals(expectedState, gottenState)
   }
 
+  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
-  fun setCurrentRadioTest() {
+  fun setCurrentRadioTest() = runTest(_coroutineDispatcher) {
     val stateReference = getState(_instance)
 
     val radioId = 0L
     val radioPresentation = RadioPresentation(radioId, "", url = "")
 
-    val initState = HomeState(radioList = listOf(radioPresentation))
+    val state = HomeState(radioList = listOf(radioPresentation))
 
-    val expectedInitState = initState.copy(
+    val expectedState = state.copy(
       playerState = PlayerState(
         currentRadio = radioPresentation,
         isRadioPlaying = true
       ),
       isLoading = false
     )
-    val expectedFinalState = expectedInitState.copy(isLoading = false)
 
-    stateReference.value = initState
+    stateReference.value = expectedState
+
+    Mockito.`when`(_playerStateInfoDataModelMapperMock.map(any()))
+      .thenReturn(Mockito.mock(PlayerInfoDataModel::class.java))
 
     _instance.setCurrentRadio(radioId)
+    advanceUntilIdle()
 
-    val gottenInitState = _instance.state.value
+    val gottenState = _instance.state.value
 
-    Assert.assertEquals(expectedInitState, gottenInitState)
+    Assert.assertEquals(expectedState, gottenState)
 
-    // todo: finish the test after providing a VM - Service interconnection..
+    Mockito.verify(_playerStateInfoDataModelMapperMock).map(any())
+    Mockito.verify(_playerRepository).updatePlayerInfo(any())
+  }
 
+  @OptIn(ExperimentalCoroutinesApi::class)
+  @Test
+  fun observePlayerInfoSucceedsTest() = runTest(_coroutineDispatcher) {
+    val playerInfoDataModel = PlayerInfoDataModel(0L, true)
+    val radioPresentation = RadioPresentation(0L, "", url = "")
 
+    val expectedPlayerState = PlayerState(
+      currentRadio = radioPresentation, isRadioPlaying = playerInfoDataModel.isPlaying
+    )
+
+    Mockito.`when`(_playerRepository.getPlayerInfo()).thenReturn(flowOf(playerInfoDataModel))
+    Mockito.`when`(_useCaseMock.getRadio(any())).thenReturn(
+      flowOf(Mockito.mock(RadioDomainModel::class.java))
+    )
+    Mockito.`when`(_radioPresentationDomainModelMapperMock.map(any())).thenReturn(radioPresentation)
+    Mockito.`when`(_playerStateInfoDataModelMapperMock.map(any(), any())).thenReturn(expectedPlayerState)
+
+    _instance.observePlayerInfo()
+    advanceUntilIdle()
+
+    val gottenPlayerState = getState(_instance).value!!.playerState
+
+    Mockito.verify(_playerRepository).getPlayerInfo()
+    Mockito.verify(_useCaseMock).getRadio(any())
+    Mockito.verify(_radioPresentationDomainModelMapperMock).map(any())
+    Mockito.verify(_playerStateInfoDataModelMapperMock).map(any(), any())
+
+    Assert.assertEquals(expectedPlayerState, gottenPlayerState)
+  }
+
+  @OptIn(ExperimentalCoroutinesApi::class)
+  @Test
+  fun observePlayerInfoThrowsExceptionTest() = runTest(_coroutineDispatcher) {
+    val errorReference = ErrorReference(0L)
+
+    val expectedState = HomeState(error = errorReference)
+
+    Mockito.`when`(_playerRepository.getPlayerInfo()).thenReturn(flow {
+      throw HearItException(errorReference)
+    })
+
+    _instance.observePlayerInfo()
+    advanceUntilIdle()
+
+    val gottenState = getState(_instance).value
+
+    Mockito.verify(_playerRepository).getPlayerInfo()
+
+    Assert.assertEquals(expectedState, gottenState)
+  }
+
+  @Test
+  fun stopObservingPlayerInfoTest() {
+    _instance.observePlayerInfo()
+
+    val initGetPlayerInfoJob = getPlayerInfoJobFieldReflection().get(_instance)
+
+    Assert.assertNotNull(initGetPlayerInfoJob)
+
+    _instance.stopObservingPlayerInfo()
+
+    val finalGetPlayerInfoJob = getPlayerInfoJobFieldReflection().get(_instance)
+
+    Assert.assertNull(finalGetPlayerInfoJob)
   }
 
   private fun getGetRadioListJobFieldReflection(): Field {
     return HomeViewModel::class.java.getDeclaredField("_getRadioListJob")
+      .apply { isAccessible = true }
+  }
+
+  private fun getPlayerInfoJobFieldReflection(): Field {
+    return HomeViewModel::class.java.getDeclaredField("_getPlayerInfoJob")
       .apply { isAccessible = true }
   }
 
