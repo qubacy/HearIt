@@ -1,9 +1,9 @@
 package com.qubacy.hearit.application.service
 
 import android.os.Handler
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
+import androidx.annotation.OptIn
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -12,6 +12,7 @@ import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRe
 import com.qubacy.hearit.application.domain.usecase.radio.get._common.GetRadioUseCase
 import com.qubacy.hearit.application.service._di.module.RadioPlaybackServiceCoroutineDispatcherQualifier
 import com.qubacy.hearit.application.service.media.item.mapper._common.MediaItemRadioDomainModelMapper
+import com.qubacy.hearit.application.service.notification.provider.RadioNotificationProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +45,7 @@ class RadioPlaybackService : MediaSessionService() {
 
     setupMediaSession()
     observePlayerState(_player!!)
+    setupNotificationProvider()
   }
 
   override fun onDestroy() {
@@ -62,10 +64,17 @@ class RadioPlaybackService : MediaSessionService() {
     return _mediaSession
   }
 
+  @OptIn(UnstableApi::class)
   override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
     super.onUpdateNotification(session, startInForegroundRequired)
   }
 
+  @OptIn(UnstableApi::class)
+  private fun setupNotificationProvider() {
+    setMediaNotificationProvider(RadioNotificationProvider())
+  }
+
+  @OptIn(UnstableApi::class)
   private fun setupMediaSession() {
     _player = ExoPlayer.Builder(this).build()
     _mediaSession = MediaSession.Builder(this, _player!!).build()
