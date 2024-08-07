@@ -1,40 +1,74 @@
 package com.qubacy.hearit.application.service.notification.provider
 
+import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
-import android.os.Bundle
+import android.content.Intent
+import android.widget.RemoteViews
+import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.session.CommandButton
-import androidx.media3.session.MediaNotification
-import androidx.media3.session.MediaSession
-import com.google.common.collect.ImmutableList
+import androidx.media3.common.MediaItem
+import com.qubacy.hearit.R
+import com.qubacy.hearit.application.service.notification._common.RadioNotificationActionEnum
 
-@UnstableApi
 class RadioNotificationProvider(
-  private val _context: Context
-) : MediaNotification.Provider {
-  companion object {
-    const val NOTIFICATION_ID = 1
-    const val CHANNEL_ID = "radioChannel"
-  }
+  private val _context: Context,
+) {
+  fun createNotification(
+    mediaItem: MediaItem,
+    channelId: String
+  ): Notification {
+    val notificationLayout = RemoteViews(
+      _context.packageName,
+      R.layout.notification_radio_playback
+    )
 
-  override fun createNotification(
-    mediaSession: MediaSession,
-    customLayout: ImmutableList<CommandButton>,
-    actionFactory: MediaNotification.ActionFactory,
-    onNotificationChangedCallback: MediaNotification.Provider.Callback,
-  ): MediaNotification {
-    val notification = NotificationCompat.Builder(_context, CHANNEL_ID)
+    setupNotificationContent(notificationLayout, mediaItem)
+    setupNotificationActions(notificationLayout)
+
+    val notification = NotificationCompat.Builder(_context, channelId)
+      .setSmallIcon(R.drawable.ic_launcher_foreground)
+      .setCustomContentView(notificationLayout)
+      .setStyle(NotificationCompat.DecoratedCustomViewStyle())
       .build()
 
-    return MediaNotification(NOTIFICATION_ID, notification)
+    return notification
   }
 
-  override fun handleCustomCommand(
-    session: MediaSession,
-    action: String,
-    extras: Bundle
-  ): Boolean {
-    TODO("Not yet implemented")
+  private fun setupNotificationContent(
+    notificationLayout: RemoteViews,
+    mediaItem: MediaItem
+  ) {
+    notificationLayout.setImageViewUri(
+      R.id.notification_radio_playback_cover,
+      mediaItem.mediaMetadata.artworkUri
+    )
+    notificationLayout.setTextViewText(
+      R.id.notification_radio_playback_title,
+      mediaItem.mediaMetadata.title!!
+    )
+    notificationLayout.setTextViewText(
+      R.id.notification_radio_playback_description,
+      mediaItem.mediaMetadata.description ?: ""
+    )
+  }
+
+  private fun setupNotificationActions(notificationLayout: RemoteViews) {
+    val prevIntent = Intent(RadioNotificationActionEnum.PREV.action)
+    val playPauseIntent = Intent(RadioNotificationActionEnum.PLAY_PAUSE.action)
+    val nextIntent = Intent(RadioNotificationActionEnum.NEXT.action)
+
+    notificationLayout.setOnClickPendingIntent(
+      R.id.notification_radio_playback_prev_button,
+      PendingIntent.getBroadcast(_context, 0, prevIntent, PendingIntent.FLAG_IMMUTABLE)
+    )
+    notificationLayout.setOnClickPendingIntent(
+      R.id.notification_radio_playback_play_pause_button,
+      PendingIntent.getBroadcast(_context, 0, playPauseIntent, PendingIntent.FLAG_IMMUTABLE)
+    )
+    notificationLayout.setOnClickPendingIntent(
+      R.id.notification_radio_playback_next_button,
+      PendingIntent.getBroadcast(_context, 0, nextIntent, PendingIntent.FLAG_IMMUTABLE)
+    )
   }
 }

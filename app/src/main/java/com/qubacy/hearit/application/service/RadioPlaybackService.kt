@@ -1,7 +1,12 @@
 package com.qubacy.hearit.application.service
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Handler
 import androidx.annotation.OptIn
+import androidx.core.app.NotificationChannelCompat
+import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
@@ -12,6 +17,7 @@ import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRe
 import com.qubacy.hearit.application.domain.usecase.radio.get._common.GetRadioUseCase
 import com.qubacy.hearit.application.service._di.module.RadioPlaybackServiceCoroutineDispatcherQualifier
 import com.qubacy.hearit.application.service.media.item.mapper._common.MediaItemRadioDomainModelMapper
+import com.qubacy.hearit.application.service.notification.manager.HearItNotificationManager
 import com.qubacy.hearit.application.service.notification.provider.RadioNotificationProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,6 +28,10 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class RadioPlaybackService : MediaSessionService() {
+  companion object {
+    const val NOTIFICATION_CHANNEL_ID = "radioChannel"
+  }
+
   @Inject
   lateinit var _playerRepository: PlayerDataRepository
   @Inject
@@ -33,19 +43,24 @@ class RadioPlaybackService : MediaSessionService() {
   @RadioPlaybackServiceCoroutineDispatcherQualifier
   lateinit var _coroutineDispatcher: CoroutineDispatcher
 
+  private lateinit var _notificationManager: HearItNotificationManager
+  private lateinit var _notificationChannel: NotificationChannel
+
   private var _coroutineScope: CoroutineScope? = null
 
   private var _player: ExoPlayer? = null
   private var _mediaSession: MediaSession? = null
+  private lateinit var _notificationProvider: RadioNotificationProvider
 
   override fun onCreate() {
     super.onCreate()
 
+    _notificationManager = HearItNotificationManager(this)
     _coroutineScope = CoroutineScope(_coroutineDispatcher)
 
     setupMediaSession()
     observePlayerState(_player!!)
-    setupNotificationProvider()
+    setupNotification(_notificationManager)
   }
 
   override fun onDestroy() {
@@ -70,8 +85,26 @@ class RadioPlaybackService : MediaSessionService() {
   }
 
   @OptIn(UnstableApi::class)
-  private fun setupNotificationProvider() {
-    setMediaNotificationProvider(RadioNotificationProvider())
+  private fun setupNotification(notificationManager: HearItNotificationManager) {
+    //setMediaNotificationProvider(RadioNotificationProvider(this))
+    _notificationProvider = RadioNotificationProvider(this)
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      _notificationChannel = NotificationChannel(
+        NOTIFICATION_CHANNEL_ID, "Radio channel", NotificationManager.IMPORTANCE_DEFAULT
+      )
+
+      notificationManager.createNotificationChannel(_notificationChannel)
+    }
+  }
+
+  private fun showNotification(mediaItem: MediaItem) {
+    val channelId =
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) _notificationChannel.id
+      else NotificationChannelCompat.DEFAULT_CHANNEL_ID
+    val notification = _notificationProvider.createNotification(mediaItem, channelId)
+
+    _notificationManager.notify(1, notification)
   }
 
   @OptIn(UnstableApi::class)
@@ -110,6 +143,8 @@ class RadioPlaybackService : MediaSessionService() {
   private suspend fun observeCurrentRadioChange(radioId: Long) {
     _getRadioUseCase.getRadio(radioId).collect { radioDomainModel ->
       val mediaItem = _mediaItemRadioDomainModelMapper.map(radioDomainModel)
+
+      showNotification(mediaItem)
 
       postRunnableOnMainThread {
         // todo: is it a good idea to reset the media item?:
