@@ -2,13 +2,13 @@ package com.qubacy.hearit.application.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
-import androidx.annotation.OptIn
+import android.util.Log
 import androidx.core.app.NotificationChannelCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -17,6 +17,8 @@ import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRe
 import com.qubacy.hearit.application.domain.usecase.radio.get._common.GetRadioUseCase
 import com.qubacy.hearit.application.service._di.module.RadioPlaybackServiceCoroutineDispatcherQualifier
 import com.qubacy.hearit.application.service.media.item.mapper._common.MediaItemRadioDomainModelMapper
+import com.qubacy.hearit.application.service.notification._common.RadioNotificationActionEnum
+import com.qubacy.hearit.application.service.notification.broadcast.RadioNotificationBroadcastReceiver
 import com.qubacy.hearit.application.service.notification.manager.HearItNotificationManager
 import com.qubacy.hearit.application.service.notification.provider.RadioNotificationProvider
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,8 +29,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RadioPlaybackService : MediaSessionService() {
+class RadioPlaybackService : MediaSessionService(), RadioNotificationBroadcastReceiver.Callback {
   companion object {
+    const val TAG = "RadioPlaybackService"
+
     const val NOTIFICATION_CHANNEL_ID = "radioChannel"
   }
 
@@ -43,6 +47,7 @@ class RadioPlaybackService : MediaSessionService() {
   @RadioPlaybackServiceCoroutineDispatcherQualifier
   lateinit var _coroutineDispatcher: CoroutineDispatcher
 
+  private lateinit var _broadcastReceiver: RadioNotificationBroadcastReceiver
   private lateinit var _notificationManager: HearItNotificationManager
   private lateinit var _notificationChannel: NotificationChannel
 
@@ -58,12 +63,15 @@ class RadioPlaybackService : MediaSessionService() {
     _notificationManager = HearItNotificationManager(this)
     _coroutineScope = CoroutineScope(_coroutineDispatcher)
 
+    setupBroadcastReceiver()
     setupMediaSession()
     observePlayerState(_player!!)
     setupNotification(_notificationManager)
   }
 
   override fun onDestroy() {
+    unregisterReceiver(_broadcastReceiver)
+
     _mediaSession?.run {
       player.release()
       release()
@@ -79,16 +87,23 @@ class RadioPlaybackService : MediaSessionService() {
     return _mediaSession
   }
 
-  @OptIn(UnstableApi::class)
   override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
     super.onUpdateNotification(session, startInForegroundRequired)
   }
 
-  @OptIn(UnstableApi::class)
-  private fun setupNotification(notificationManager: HearItNotificationManager) {
-    //setMediaNotificationProvider(RadioNotificationProvider(this))
-    _notificationProvider = RadioNotificationProvider(this)
+  private fun setupBroadcastReceiver() {
+    _broadcastReceiver = RadioNotificationBroadcastReceiver(this)
 
+    val intentFilter = IntentFilter().apply {
+      RadioNotificationActionEnum.entries.forEach {
+        addAction(it.action)
+      }
+    }
+
+    registerReceiver(_broadcastReceiver, intentFilter)
+  }
+
+  private fun setupNotification(notificationManager: HearItNotificationManager) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       _notificationChannel = NotificationChannel(
         NOTIFICATION_CHANNEL_ID, "Radio channel", NotificationManager.IMPORTANCE_DEFAULT
@@ -96,18 +111,22 @@ class RadioPlaybackService : MediaSessionService() {
 
       notificationManager.createNotificationChannel(_notificationChannel)
     }
-  }
 
-  private fun showNotification(mediaItem: MediaItem) {
     val channelId =
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) _notificationChannel.id
       else NotificationChannelCompat.DEFAULT_CHANNEL_ID
-    val notification = _notificationProvider.createNotification(mediaItem, channelId)
+
+    _notificationProvider = RadioNotificationProvider(this, channelId)
+  }
+
+  private fun showNotification(mediaItem: MediaItem) {
+    val notification = _notificationProvider.createNotification(
+      RadioNotificationProvider.State(mediaItem, _player!!.isPlaying)
+    )
 
     _notificationManager.notify(1, notification)
   }
 
-  @OptIn(UnstableApi::class)
   private fun setupMediaSession() {
     _player = ExoPlayer.Builder(this).build()
     _mediaSession = MediaSession.Builder(this, _player!!).build()
@@ -144,9 +163,9 @@ class RadioPlaybackService : MediaSessionService() {
     _getRadioUseCase.getRadio(radioId).collect { radioDomainModel ->
       val mediaItem = _mediaItemRadioDomainModelMapper.map(radioDomainModel)
 
-      showNotification(mediaItem)
-
       postRunnableOnMainThread {
+        showNotification(mediaItem)
+
         // todo: is it a good idea to reset the media item?:
         _player?.apply {
           setMediaItem(mediaItem)
@@ -158,5 +177,15 @@ class RadioPlaybackService : MediaSessionService() {
 
   private fun postRunnableOnMainThread(runnable: () -> Unit) {
     Handler(mainLooper).post(runnable)
+  }
+
+  override fun onNotificationActionGotten(action: String) {
+    when (action) {
+      RadioNotificationActionEnum.PREV.action -> _player!!.seekToPrevious()
+      RadioNotificationActionEnum.PLAY_PAUSE.action -> _player!!.apply {
+        if (isPlaying) pause() else play()
+      }
+      RadioNotificationActionEnum.NEXT.action -> _player!!.seekToNext()
+    }
   }
 }

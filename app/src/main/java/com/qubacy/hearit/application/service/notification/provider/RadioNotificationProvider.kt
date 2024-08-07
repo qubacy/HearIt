@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
-import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.media3.common.MediaItem
 import com.qubacy.hearit.R
@@ -13,32 +12,51 @@ import com.qubacy.hearit.application.service.notification._common.RadioNotificat
 
 class RadioNotificationProvider(
   private val _context: Context,
+  private val _channelId: String
 ) {
-  fun createNotification(
-    mediaItem: MediaItem,
-    channelId: String
-  ): Notification {
-    val notificationLayout = RemoteViews(
+  data class State(
+    val curMediaItem: MediaItem,
+    val isPlaying: Boolean
+  )
+
+  private lateinit var _notificationLayout: RemoteViews
+  private lateinit var _notificationBuilder: NotificationCompat.Builder
+
+  init {
+    initNotificationLayout()
+    initNotificationBuilder(_notificationLayout)
+  }
+
+  private fun initNotificationLayout() {
+    _notificationLayout = RemoteViews(
       _context.packageName,
       R.layout.notification_radio_playback
     )
+  }
 
-    setupNotificationContent(notificationLayout, mediaItem)
+  private fun initNotificationBuilder(notificationLayout: RemoteViews) {
     setupNotificationActions(notificationLayout)
 
-    val notification = NotificationCompat.Builder(_context, channelId)
+    _notificationBuilder = NotificationCompat.Builder(_context, _channelId)
       .setSmallIcon(R.drawable.ic_launcher_foreground)
       .setCustomContentView(notificationLayout)
       .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-      .build()
+  }
 
-    return notification
+  fun createNotification(
+    notificationState: State
+  ): Notification {
+    setupNotificationContent(_notificationLayout, notificationState)
+
+    return _notificationBuilder.build()
   }
 
   private fun setupNotificationContent(
     notificationLayout: RemoteViews,
-    mediaItem: MediaItem
+    notificationState: State
   ) {
+    val mediaItem = notificationState.curMediaItem
+
     notificationLayout.setImageViewUri(
       R.id.notification_radio_playback_cover,
       mediaItem.mediaMetadata.artworkUri
@@ -50,6 +68,11 @@ class RadioNotificationProvider(
     notificationLayout.setTextViewText(
       R.id.notification_radio_playback_description,
       mediaItem.mediaMetadata.description ?: ""
+    )
+    notificationLayout.set(
+      R.id.notification_radio_playback_play_pause_button,
+      if (notificationState.isPlaying) androidx.media3.session.R.drawable.media3_icon_play
+      else androidx.media3.session.R.drawable.media3_icon_pause
     )
   }
 
