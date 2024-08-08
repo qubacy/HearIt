@@ -161,6 +161,8 @@ class RadioPlaybackService : MediaSessionService(), RadioNotificationBroadcastRe
 
   private suspend fun observeCurrentRadioChange(radioId: Long) {
     _getRadioUseCase.getRadio(radioId).collect { radioDomainModel ->
+      Log.d(TAG, "observeCurrentRadioChange(): _getRadioUseCase.getRadio(): radioDomainModel = $radioDomainModel;")
+
       val mediaItem = _mediaItemRadioDomainModelMapper.map(radioDomainModel)
 
       postRunnableOnMainThread {
@@ -180,6 +182,8 @@ class RadioPlaybackService : MediaSessionService(), RadioNotificationBroadcastRe
   }
 
   override fun onNotificationActionGotten(action: String) {
+    // todo: reconsider this actions should affect the service directly (seekToPrevious should
+    //  be substituted with a cur. media item direct reset, etc.):
     when (action) {
       RadioNotificationActionEnum.PREV.action -> _player!!.seekToPrevious()
       RadioNotificationActionEnum.PLAY_PAUSE.action -> _player!!.apply {

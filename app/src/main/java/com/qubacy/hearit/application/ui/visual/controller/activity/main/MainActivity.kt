@@ -1,37 +1,46 @@
 package com.qubacy.hearit.application.ui.visual.controller.activity.main
 
-import android.content.ComponentName
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.media3.common.Player
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
-import com.google.common.util.concurrent.MoreExecutors
-import com.qubacy.hearit.application.service.RadioPlaybackService
+import androidx.lifecycle.lifecycleScope
+import com.qubacy.hearit.application._common.player.bus._common.PlayerStatePacketBus
+import com.qubacy.hearit.application._common.player.packet.PlayerStatePacket
+import com.qubacy.hearit.application._common.player.packet.PlayerStatePacketBody
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.CloseableActivity
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.ImagePickerActivity
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.PlayerActivity
 import com.qubacy.hearit.application.ui.visual.controller.compose.HearItApp
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, CloseableActivity {
+    companion object {
+        const val TAG = "MainActivity"
+    }
+
+    @Inject
+    lateinit var playerStatePacketBus: PlayerStatePacketBus
+
     private lateinit var _pickImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
     private var _pickImageCallback: ((Uri?) -> Unit)? = null
 
-    private lateinit var _radioPlayer: MediaController
+    private var _playerCallback: PlayerActivity.Callback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setupPickImageLauncher()
+        setupPlayerStatePacketBus()
 
         enableEdgeToEdge()
         setContent {
@@ -43,19 +52,19 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
 
     override fun onStart() {
         super.onStart()
-
-        val sessionToken = SessionToken(this,
-            ComponentName(this, RadioPlaybackService::class.java)
-        )
-        val mediaControllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
-
-        mediaControllerFuture.addListener({
-            _radioPlayer = mediaControllerFuture.get()
-        }, MoreExecutors.directExecutor())
+//
+//        val sessionToken = SessionToken(this,
+//            ComponentName(this, RadioPlaybackService::class.java)
+//        )
+//        val mediaControllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+//
+//        mediaControllerFuture.addListener({
+//            _radioPlayer = mediaControllerFuture.get()
+//        }, MoreExecutors.directExecutor())
     }
 
     override fun onStop() {
-        _radioPlayer.release()
+//        _radioPlayer.release()
 
         super.onStop()
     }
@@ -65,6 +74,16 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
             ActivityResultContracts.PickVisualMedia()
         ) { uri ->
             _pickImageCallback?.invoke(uri)
+        }
+    }
+
+    private fun setupPlayerStatePacketBus() {
+        lifecycleScope.launch {
+            playerStatePacketBus.playerStatePacket.collect {
+                if (it.senderId == this@MainActivity.hashCode().toString()) return@collect
+
+                _playerCallback?.onPlayerStatePacketGotten(it.body)
+            }
         }
     }
 
@@ -79,7 +98,19 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
         finishAndRemoveTask()
     }
 
-    override fun getPlayer(): Player {
-        return _radioPlayer
+    override fun setPlayerActivityCallback(callback: PlayerActivity.Callback) {
+        _playerCallback = callback
     }
+
+    override fun setPlayerState(playerStatePacketBody: PlayerStatePacketBody) {
+        Log.d(TAG, "setPlayerState(): playerStatePacketBody = $playerStatePacketBody;")
+
+        playerStatePacketBus.postPlayerStatePacket(
+            PlayerStatePacket(playerStatePacketBody, hashCode().toString())
+        )
+    }
+
+//    override fun getPlayer(): Player {
+//        return _radioPlayer
+//    }
 }

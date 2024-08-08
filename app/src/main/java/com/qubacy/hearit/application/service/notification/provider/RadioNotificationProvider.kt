@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.media3.common.MediaItem
@@ -14,6 +15,10 @@ class RadioNotificationProvider(
   private val _context: Context,
   private val _channelId: String
 ) {
+  companion object {
+    const val TAG = "RadioNotificationProvider"
+  }
+
   data class State(
     val curMediaItem: MediaItem,
     val isPlaying: Boolean
@@ -55,6 +60,8 @@ class RadioNotificationProvider(
     notificationLayout: RemoteViews,
     notificationState: State
   ) {
+    Log.d(TAG, "setupNotificationContent(): notificationState = $notificationState;")
+
     val mediaItem = notificationState.curMediaItem
 
     notificationLayout.setImageViewUri(
@@ -69,7 +76,7 @@ class RadioNotificationProvider(
       R.id.notification_radio_playback_description,
       mediaItem.mediaMetadata.description ?: ""
     )
-    notificationLayout.set(
+    notificationLayout.setImageViewResource(
       R.id.notification_radio_playback_play_pause_button,
       if (notificationState.isPlaying) androidx.media3.session.R.drawable.media3_icon_play
       else androidx.media3.session.R.drawable.media3_icon_pause

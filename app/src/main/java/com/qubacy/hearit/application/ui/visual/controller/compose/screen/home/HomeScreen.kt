@@ -56,9 +56,11 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.error.ErrorReference
+import com.qubacy.hearit.application._common.player.packet.PlayerStatePacketBody
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.holder.home.HomeViewModel
 import com.qubacy.hearit.application.ui.state.state.home.HomeState
+import com.qubacy.hearit.application.ui.state.state.home.player.PlayerState
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.PlayerActivity
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.util.findActivity
 import com.qubacy.hearit.application.ui.visual.controller.compose.screen._common.components.error.provider.ErrorWidgetProvider
@@ -77,32 +79,58 @@ fun HomeScreen(
   viewModel: HomeViewModel = hiltViewModel()
 ) {
   val state: HomeState by (viewModel.state.observeAsState() as State<HomeState>)
+  val playerState: PlayerState by (viewModel.playerState.observeAsState() as State<PlayerState>)
+  val playerStatePacketBodyToSend: PlayerStatePacketBody
+    by (viewModel.playerStatePacketBody.observeAsState() as State<PlayerStatePacketBody>)
 
   var isPlayerExpanded by remember { mutableStateOf(false) }
-  val currentRadioPresentation = state.playerState?.currentRadio
+  val currentRadioPresentation = playerState.currentRadio
 
   val playerActivity = LocalContext.current.findActivity() as PlayerActivity
 
-  LaunchedEffect(key1 = currentRadioPresentation) {
-    if (currentRadioPresentation == null) return@LaunchedEffect
+  //val player = playerActivity.getPlayer()
 
-    playerActivity.getPlayer().apply {
-      val mediaItem = viewModel.getRadioPresentationMediaItemMapper().map(currentRadioPresentation)
+  LaunchedEffect(key1 = Unit) {
+    playerActivity.setPlayerActivityCallback(object : PlayerActivity.Callback {
+      override fun onPlayerStatePacketGotten(playerStatePacketBody: PlayerStatePacketBody) {
+        viewModel.resolvePlayerStatePacketBody(playerStatePacketBody)
+      }
+    })
+  }
+  
+  LaunchedEffect(key1 = playerStatePacketBodyToSend) {
+    // todo: is it for real?:
+    if (playerStatePacketBodyToSend == null) return@LaunchedEffect
 
-      setMediaItem(mediaItem)
-      prepare()
-    }
+    playerActivity.setPlayerState(playerStatePacketBodyToSend)
   }
 
-  val playerState = state.playerState
+//  LaunchedEffect(key1 = currentRadioPresentation) {
+//    if (currentRadioPresentation == null) return@LaunchedEffect
+//
+//    player.apply {
+//      val mediaItem = viewModel.getRadioPresentationMediaItemMapper().map(currentRadioPresentation)
+//
+//      setMediaItem(mediaItem)
+//      prepare()
+//    }
+//  }
 
-  LaunchedEffect(key1 = playerState?.isRadioPlaying) {
-    if (playerState == null) return@LaunchedEffect
-
-    val player = playerActivity.getPlayer()
-
-    if (playerState.isRadioPlaying) player.play() else player.stop()
-  }
+//  LaunchedEffect(key1 = player) {
+//    player.addListener(object : Player.Listener {
+//      override fun onIsPlayingChanged(isPlaying: Boolean) {
+//        super.onIsPlayingChanged(isPlaying)
+//
+//        playerState = playerState.copy(isRadioPlaying = isPlaying)
+//      }
+//
+//      override fun onEvents(player: Player, events: Player.Events) {
+//        super.onEvents(player, events)
+//
+//
+//      }
+//    })
+//  }
 
   HomeScreen(
     retrieveAddedRadioId = retrieveSavedRadioId,
@@ -115,7 +143,7 @@ fun HomeScreen(
     radioPlayerCallback = RadioPlayerCallback({
         viewModel.setPrevRadio()
       }, {
-        if (state.playerState == null) return@RadioPlayerCallback
+        if (playerState.currentRadio == null) return@RadioPlayerCallback
 
         viewModel.changePlayingState()
       }, {
@@ -127,7 +155,7 @@ fun HomeScreen(
     error = state.error,
     radioList = state.radioList ?: listOf(),
     currentRadioPresentation = currentRadioPresentation,
-    isRadioPlaying = playerState?.isRadioPlaying ?: false,
+    isRadioPlaying = playerState.isRadioPlaying,
     isPlayerExpanded = isPlayerExpanded
   )
 
@@ -140,11 +168,11 @@ fun SetupRadioListObserver(lifecycleOwner: LifecycleOwner, viewModel: HomeViewMo
     val observer = LifecycleEventObserver { _, event ->
       if (event == Lifecycle.Event.ON_START) {
         viewModel.observeRadioList()
-        viewModel.observePlayerInfo()
+//        viewModel.observePlayerInfo()
       }
       else if (event == Lifecycle.Event.ON_STOP) {
         viewModel.stopObservingRadioList()
-        viewModel.stopObservingPlayerInfo()
+//        viewModel.stopObservingPlayerInfo()
       }
     }
 

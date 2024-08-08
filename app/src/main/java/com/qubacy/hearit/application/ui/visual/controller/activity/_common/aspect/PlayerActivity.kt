@@ -1,7 +1,14 @@
 package com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect
 
-import androidx.media3.common.Player
+import com.qubacy.hearit.application._common.player.packet.PlayerStatePacketBody
 
 interface PlayerActivity {
-  fun getPlayer(): Player
+  interface Callback {
+    fun onPlayerStatePacketGotten(playerStatePacketBody: PlayerStatePacketBody)
+  }
+
+  fun setPlayerActivityCallback(callback: Callback)
+  fun setPlayerState(playerStatePacketBody: PlayerStatePacketBody)
+
+//  fun getPlayer(): Player
 }

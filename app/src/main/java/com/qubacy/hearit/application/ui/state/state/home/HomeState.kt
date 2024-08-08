@@ -7,6 +7,6 @@ import com.qubacy.hearit.application.ui.state.state.home.player.PlayerState
 data class HomeState(
   val isLoading: Boolean = false,
   val radioList: List<RadioPresentation>? = null,
-  val playerState: PlayerState? = null,
+//  val playerState: PlayerState? = null,
   val error: ErrorReference? = null
 )

@@ -1,4 +1,4 @@
-package com.qubacy.hearit.application.ui.state.state.home.player.mapper._common
+package com.qubacy.hearit.application.ui.state.state.home.player.mapper.data._common
 
 import com.qubacy.hearit.application.data.player.model.PlayerInfoDataModel
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation

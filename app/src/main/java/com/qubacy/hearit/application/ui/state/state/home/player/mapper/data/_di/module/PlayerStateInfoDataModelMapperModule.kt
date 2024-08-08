@@ -1,7 +1,7 @@
-package com.qubacy.hearit.application.ui.state.state.home.player.mapper._di.module
+package com.qubacy.hearit.application.ui.state.state.home.player.mapper.data._di.module
 
-import com.qubacy.hearit.application.ui.state.state.home.player.mapper._common.PlayerStateInfoDataModelMapper
-import com.qubacy.hearit.application.ui.state.state.home.player.mapper.impl.PlayerStateInfoDataModelMapperImpl
+import com.qubacy.hearit.application.ui.state.state.home.player.mapper.data._common.PlayerStateInfoDataModelMapper
+import com.qubacy.hearit.application.ui.state.state.home.player.mapper.data.impl.PlayerStateInfoDataModelMapperImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

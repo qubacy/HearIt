@@ -1,9 +1,9 @@
-package com.qubacy.hearit.application.ui.state.state.home.player.mapper.impl
+package com.qubacy.hearit.application.ui.state.state.home.player.mapper.data.impl
 
 import com.qubacy.hearit.application.data.player.model.PlayerInfoDataModel
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui.state.state.home.player.PlayerState
-import com.qubacy.hearit.application.ui.state.state.home.player.mapper._common.PlayerStateInfoDataModelMapper
+import com.qubacy.hearit.application.ui.state.state.home.player.mapper.data._common.PlayerStateInfoDataModelMapper
 import javax.inject.Inject
 
 class PlayerStateInfoDataModelMapperImpl @Inject constructor() : PlayerStateInfoDataModelMapper {
