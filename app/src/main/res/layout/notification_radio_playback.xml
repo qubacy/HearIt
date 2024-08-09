@@ -42,13 +42,13 @@
 
     </LinearLayout>
 
-    <Button
+    <ImageView
         android:id="@+id/notification_radio_playback_prev_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center_vertical"
-        android:background="@drawable/media3_icon_previous"
-        android:backgroundTint="@color/on_surface_variant"/>
+        android:src="@drawable/media3_icon_previous"
+        android:tint="@color/on_surface_variant"/>
 
     <ImageView
         android:id="@+id/notification_radio_playback_play_pause_button"
@@ -58,12 +58,12 @@
         android:src="@drawable/media3_icon_play"
         android:tint="@color/on_surface_variant"/>
 
-    <Button
+    <ImageView
         android:id="@+id/notification_radio_playback_next_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center_vertical"
-        android:background="@drawable/media3_icon_next"
-        android:backgroundTint="@color/on_surface_variant"/>
+        android:src="@drawable/media3_icon_next"
+        android:tint="@color/on_surface_variant"/>
 
 </LinearLayout>

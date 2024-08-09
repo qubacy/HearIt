@@ -53,4 +53,6 @@
     <string name="edit_radio_screen_label">Edit radio</string>
 
     <string name="add_radio_screen_label">Add radio</string>
+
+    <string name="radio_notification_init_title">Choose the radio</string>
 </resources>

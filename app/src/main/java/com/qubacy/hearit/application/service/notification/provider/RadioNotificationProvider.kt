@@ -4,7 +4,12 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.PorterDuff
 import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.media3.common.MediaItem
@@ -21,7 +26,8 @@ class RadioNotificationProvider(
 
   data class State(
     val curMediaItem: MediaItem,
-    val isPlaying: Boolean
+    val isPlaying: Boolean,
+    val isEnabled: Boolean
   )
 
   private lateinit var _notificationLayout: RemoteViews
@@ -78,8 +84,20 @@ class RadioNotificationProvider(
     )
     notificationLayout.setImageViewResource(
       R.id.notification_radio_playback_play_pause_button,
-      if (notificationState.isPlaying) androidx.media3.session.R.drawable.media3_icon_play
-      else androidx.media3.session.R.drawable.media3_icon_pause
+      if (notificationState.isPlaying) androidx.media3.session.R.drawable.media3_icon_pause
+      else androidx.media3.session.R.drawable.media3_icon_play
+    )
+    notificationLayout.setViewVisibility(
+      R.id.notification_radio_playback_prev_button,
+      if (notificationState.isEnabled) View.VISIBLE else View.GONE
+    )
+    notificationLayout.setViewVisibility(
+      R.id.notification_radio_playback_play_pause_button,
+      if (notificationState.isEnabled) View.VISIBLE else View.GONE
+    )
+    notificationLayout.setViewVisibility(
+      R.id.notification_radio_playback_next_button,
+      if (notificationState.isEnabled) View.VISIBLE else View.GONE
     )
   }
 
