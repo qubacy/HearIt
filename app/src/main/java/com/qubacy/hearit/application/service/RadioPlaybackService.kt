@@ -9,6 +9,7 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.ServiceCompat
 import androidx.media3.common.MediaItem
@@ -17,6 +18,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.player.bus._common.PlayerStatePacketBus
+import com.qubacy.hearit.application._common.player.packet.PlayerStatePacket
 import com.qubacy.hearit.application._common.player.packet.PlayerStatePacketBody
 import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRepository
 import com.qubacy.hearit.application.domain.usecase.radio.get._common.GetRadioUseCase
@@ -31,6 +33,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -67,6 +72,7 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
   private var _mediaSession: MediaSession? = null
   private lateinit var _notificationProvider: RadioNotificationProvider
 
+  private var _radioList: List<MediaItem> = listOf()
   private lateinit var _curMediaItem: MediaItem
   private var _isPlaying: Boolean = false
   private var _isEnabled: Boolean = false
@@ -84,6 +90,7 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
     //observePlayerState(_player!!)
     setupNotification(_notificationManager)
     setupPlayerStatePacketBus()
+    observeRadioList()
 
     setupForegroundService()
   }
@@ -161,6 +168,16 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
       getRadioUseCase.getRadio(radioId).collect {
         changeCurRadio(mediaItemRadioDomainModelMapper.map(it))
       }
+    }
+  }
+
+  private fun observeRadioList() {
+    _coroutineScope!!.launch {
+      getRadioUseCase.getRadioList().map { list ->
+        list.map { mediaItemRadioDomainModelMapper.map(it) }
+      }.onEach {
+        _radioList = it
+      }.collect()
     }
   }
 
@@ -284,8 +301,6 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
   }
 
   override fun onNotificationActionGotten(action: String) {
-    // todo: reconsider this actions should affect the service directly (seekToPrevious should
-    //  be substituted with a cur. media item direct reset, etc.):
     when (action) {
       RadioNotificationActionEnum.PREV.action -> seekToPrevRadio()
       RadioNotificationActionEnum.PLAY_PAUSE.action -> changePlayingState()
@@ -294,14 +309,30 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
   }
 
   private fun seekToPrevRadio() {
-    // todo: implement (should change the cur. radio to the prev. one..;
-
-
+    seekToNeighborRadio(true)
   }
 
   private fun seekToNextRadio() {
-    // todo: implement (should change the cur. radio to the next. one..;
+    seekToNeighborRadio(false)
+  }
 
+  private fun seekToNeighborRadio(toPrev: Boolean) {
+    val curRadioIndex = _radioList.indexOf(_curMediaItem)
+    val prevRadioIndex =
+      if (toPrev) (curRadioIndex - 1).let { if (it < 0) _radioList.size - 1 else it }
+      else (curRadioIndex + 1).let { if (it >= _radioList.size) 0 else it }
 
+    changeCurRadio(_radioList[prevRadioIndex])
+
+    broadcastPlayerState(PlayerStatePacketBody(
+      radioId = _radioList[prevRadioIndex].mediaId.toLong(),
+      isPlaying = _isPlaying
+    ))
+  }
+
+  private fun broadcastPlayerState(playerStatePacketBody: PlayerStatePacketBody) {
+    playerStatePacketBus.postPlayerStatePacket(
+      PlayerStatePacket(playerStatePacketBody, hashCode().toString())
+    )
   }
 }

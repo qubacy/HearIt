@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface GetRadioUseCase {
   suspend fun getRadio(radioId: Long): Flow<RadioDomainModel>
+  suspend fun getRadioList(): Flow<List<RadioDomainModel>>
 }

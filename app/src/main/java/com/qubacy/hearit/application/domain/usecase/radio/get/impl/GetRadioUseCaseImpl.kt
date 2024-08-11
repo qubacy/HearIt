@@ -15,4 +15,8 @@ class GetRadioUseCaseImpl @Inject constructor(
   override suspend fun getRadio(radioId: Long): Flow<RadioDomainModel> {
     return _repository.getRadio(radioId).map { _domainModelDataModelMapper.map(it) }
   }
+
+  override suspend fun getRadioList(): Flow<List<RadioDomainModel>> {
+    return _repository.getAllRadios().map { list -> list.map { _domainModelDataModelMapper.map(it) } }
+  }
 }

@@ -12,6 +12,7 @@ class MediaItemRadioDomainModelMapperImpl @Inject constructor(
 ) : MediaItemRadioDomainModelMapper {
   override fun map(radioDomainModel: RadioDomainModel): MediaItem {
     return MediaItem.Builder()
+      .setMediaId(radioDomainModel.id.toString())
       .setUri(radioDomainModel.url)
       .setMediaMetadata(
         MediaMetadata.Builder()
