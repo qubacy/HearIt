@@ -157,7 +157,7 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
     playerStatePacketBody.let {
       if (it.radioId != null) observeCurRadio(it.radioId)
 
-      changePlayingState(playerStatePacketBody.isPlaying)
+      setPlayingState(playerStatePacketBody.isPlaying)
     }
   }
 
@@ -181,8 +181,20 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
     }
   }
 
-  private fun changePlayingState(isPlaying: Boolean? = null) {
-    _isPlaying = isPlaying ?: !_isPlaying
+  private fun changePlayingState() {
+    applyPlayingState(!_isPlaying)
+    broadcastPlayerState(PlayerStatePacketBody(
+      radioId = _curMediaItem.mediaId.toLong(),
+      isPlaying = _isPlaying
+    ))
+  }
+
+  private fun setPlayingState(isPlaying: Boolean) {
+    applyPlayingState(isPlaying)
+  }
+
+  private fun applyPlayingState(isPlaying: Boolean) {
+    _isPlaying = isPlaying
 
     postRunnableOnMainThread {
       _player!!.apply {
@@ -192,6 +204,22 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
 
     showNotification()
   }
+
+//  private fun changePlayingState(isPlaying: Boolean? = null) {
+//    _isPlaying = isPlaying ?: !_isPlaying
+//
+//    postRunnableOnMainThread {
+//      _player!!.apply {
+//        if (_isPlaying) play() else pause()
+//      }
+//    }
+//
+//    showNotification()
+//    broadcastPlayerState(PlayerStatePacketBody(
+//      radioId = _curMediaItem.mediaId.toLong(),
+//      isPlaying = _isPlaying
+//    ))
+//  }
 
   private fun changeCurRadio(mediaItem: MediaItem) {
     changePlayerMediaItem(mediaItem)

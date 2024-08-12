@@ -9,23 +9,18 @@ import com.qubacy.hearit.application._common.error.ErrorEnum
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application._common.player.packet.PlayerStatePacketBody
-import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRepository
 import com.qubacy.hearit.application.domain.usecase.home._common.HomeUseCase
 import com.qubacy.hearit.application.ui._common.presentation.RadioPresentation
 import com.qubacy.hearit.application.ui._common.presentation.mapper.domain._common.RadioPresentationDomainModelMapper
-import com.qubacy.hearit.application.ui._common.presentation.mapper.media._common.RadioPresentationMediaItemMapper
 import com.qubacy.hearit.application.ui.state.holder._common.dispatcher._di.ViewModelDispatcherQualifier
 import com.qubacy.hearit.application.ui.state.state.home.HomeState
 import com.qubacy.hearit.application.ui.state.state.home.player.PlayerState
-import com.qubacy.hearit.application.ui.state.state.home.player.PlayerStatePreservable
-import com.qubacy.hearit.application.ui.state.state.home.player.mapper.data._common.PlayerStateInfoDataModelMapper
 import com.qubacy.hearit.application.ui.state.state.home.player.mapper.player._common.PlayerStateStatePacketBodyMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -184,21 +179,8 @@ class HomeViewModel @Inject constructor(
 //    }
 //  }
 
-  /**
-   * It's supposed that the radio with the provided [id] is already loaded;
-   */
   fun setCurrentRadio(id: Long) {
-    val radioPresentation = _state.value!!.radioList?.find { it.id == id }
-
-    if (radioPresentation == null) {
-      _state.value = _state.value!!.copy(error = ErrorEnum.RADIO_NOT_FOUND.reference)
-
-      return
-    }
-
-    val playerState = _playerState.value!!.copy(currentRadio = radioPresentation)
-
-    updatePlayerState(playerState)
+    setPlayerState(id)?.let { broadcastPlayerState(it) }
 
 //    val playerState = _state.value!!.playerState?.copy(currentRadio = radioPresentation)
 //      ?: PlayerState(currentRadio = radioPresentation, isRadioPlaying = true)
@@ -210,16 +192,43 @@ class HomeViewModel @Inject constructor(
 //    }
   }
 
+  /**
+   * It's supposed that the radio with the provided [id] is already loaded;
+   */
+  private fun setPlayerState(
+    radioId: Long? = _playerState.value?.currentRadio?.id,
+    isPlaying: Boolean = _playerState.value?.isRadioPlaying ?: false
+  ): PlayerState? {
+    var radioPresentation: RadioPresentation? = _playerState.value?.currentRadio
+
+    if (radioId != null && radioId != _playerState.value?.currentRadio?.id) {
+      radioPresentation = _state.value!!.radioList?.find { it.id == radioId }
+
+      if (radioPresentation == null) {
+        _state.value = _state.value!!.copy(error = ErrorEnum.RADIO_NOT_FOUND.reference)
+
+        return null
+      }
+    } else if (radioId == null) {
+      radioPresentation = null
+    }
+
+    val playerState = _playerState.value!!.copy(
+      currentRadio = radioPresentation,
+      isRadioPlaying = isPlaying
+    )
+
+    _playerState.value = playerState
+
+    return playerState
+  }
+
   fun setPrevRadio() {
     setNeighborRadio(true)
   }
 
   fun changePlayingState() {
-    val playerState = _playerState.value!!.let {
-      it.copy(isRadioPlaying = !it.isRadioPlaying)
-    }
-
-    updatePlayerState(playerState)
+    setPlayerState(isPlaying = !_playerState.value!!.isRadioPlaying)?.let { broadcastPlayerState(it) }
 
 //    val stateSnapshot = _state.value!!
 //    val playerStateSnapshot = stateSnapshot.playerState!!
@@ -238,10 +247,10 @@ class HomeViewModel @Inject constructor(
     val playerState = _playerState.value!!
     val curRadioPresentation = playerState.currentRadio
 
-    var currentRadio: RadioPresentation? = null
+    var currentRadioId: Long? = null
 
     if (curRadioPresentation == null) {
-      currentRadio = radioList?.first()
+      currentRadioId = radioList?.first()?.id
     } else {
       radioList!!
 
@@ -250,16 +259,14 @@ class HomeViewModel @Inject constructor(
         if (isPrev) if (curRadioIndex == 0) radioList.size - 1 else curRadioIndex - 1
         else (curRadioIndex + 1) % radioList.size
 
-      currentRadio = radioList[neighborRadioIndex]
+      currentRadioId = radioList[neighborRadioIndex].id
     }
 
-    updatePlayerState(playerState.copy(currentRadio = currentRadio))
+    setPlayerState(radioId = currentRadioId)?.let { broadcastPlayerState(it) }
   }
 
   fun resolvePlayerStatePacketBody(playerStatePacketBody: PlayerStatePacketBody) {
-    // todo: implement..
-
-
+    setPlayerState(playerStatePacketBody.radioId, playerStatePacketBody.isPlaying)
   }
 
   fun consumeCurrentError() {
@@ -275,8 +282,7 @@ class HomeViewModel @Inject constructor(
     _state.postValue(_state.value!!.copy(error = errorReference, isLoading = false))
   }
 
-  private fun updatePlayerState(playerState: PlayerState) {
-    _playerState.value = playerState
+  private fun broadcastPlayerState(playerState: PlayerState) {
     _playerStatePacketBody.value = _playerStateStatePacketBodyMapper.map(playerState)
   }
 }
