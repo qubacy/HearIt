@@ -16,7 +16,9 @@ class PlayerStateStatePacketBodyMapperImpl @Inject constructor(
     return PlayerState(radioPresentation, playerStatePacketBody.isPlaying)
   }
 
-  override fun map(playerState: PlayerState): PlayerStatePacketBody {
-    return PlayerStatePacketBody(playerState.currentRadio?.id, playerState.isRadioPlaying)
+  override fun map(playerState: PlayerState, newRadioId: Long?): PlayerStatePacketBody {
+    val radioId = newRadioId ?: playerState.currentRadio?.id
+
+    return PlayerStatePacketBody(radioId, playerState.isRadioPlaying)
   }
 }

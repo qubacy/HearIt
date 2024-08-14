@@ -1,11 +1,11 @@
 package com.qubacy.hearit.application.ui.state.holder.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qubacy.hearit.application._common.error.ErrorEnum
 import com.qubacy.hearit.application._common.error.ErrorReference
 import com.qubacy.hearit.application._common.exception.HearItException
 import com.qubacy.hearit.application._common.player.packet.PlayerStatePacketBody
@@ -31,11 +31,8 @@ class HomeViewModel @Inject constructor(
   private val _savedStateHandle: SavedStateHandle,
   @ViewModelDispatcherQualifier
   private val _dispatcher: CoroutineDispatcher,
-  //private val _playerRepository: PlayerDataRepository,
   private val _useCase: HomeUseCase,
   private val _radioPresentationDomainModelMapper: RadioPresentationDomainModelMapper,
-  //private val _playerStateInfoDataModelMapper: PlayerStateInfoDataModelMapper,
-  //private val _radioPresentationMediaItemMapper: RadioPresentationMediaItemMapper,
   private val _playerStateStatePacketBodyMapper: PlayerStateStatePacketBodyMapper
 ) : ViewModel() {
   companion object {
@@ -51,25 +48,20 @@ class HomeViewModel @Inject constructor(
   private val _playerState: MutableLiveData<PlayerState> = MutableLiveData(PlayerState())
   val playerState: LiveData<PlayerState> get() = _playerState
 
-  private val _playerStatePacketBody: MutableLiveData<PlayerStatePacketBody>
-  val playerStatePacketBody: LiveData<PlayerStatePacketBody> get() = _playerStatePacketBody
+  private val _playerStatePacketBody: MutableLiveData<PlayerStatePacketBody?> = MutableLiveData(null)
+  val playerStatePacketBody: LiveData<PlayerStatePacketBody?> get() = _playerStatePacketBody
 
   private var _getCurrentRadioJob: Job? = null
   private var _getRadioListJob: Job? = null
-  //private var _getPlayerInfoJob: Job? = null
 
-  init {
-    _savedStateHandle.get<Boolean>(PLAYER_STATE_INIT_FLAG_KEY).let {
-      _playerStatePacketBody =
-        if (it != null) MutableLiveData()
-        else { MutableLiveData(_playerStateStatePacketBodyMapper.map(_playerState.value!!)) }
-    }
+  private fun observeCurRadio(radioId: Long) {
+    disposeGetCurrentRadioJob()
+
+    _getCurrentRadioJob = startGettingCurRadio(radioId)
   }
 
   fun observeRadioList() {
     if (_getRadioListJob != null) return
-
-    //Log.d(TAG, "observeRadioList();")
 
     _getRadioListJob = startGettingRadioList()
   }
@@ -77,32 +69,13 @@ class HomeViewModel @Inject constructor(
   fun stopObservingRadioList() {
     if (_getRadioListJob == null) return
 
-    //Log.d(TAG, "stopObservingRadioList();")
-
     disposeGetRadioListJob()
   }
-
-//  fun observePlayerInfo() {
-//    if (_getPlayerInfoJob != null) return
-//
-//    _getPlayerInfoJob = startGettingPlayerInfo()
-//  }
-
-//  fun stopObservingPlayerInfo() {
-//    if (_getPlayerInfoJob == null) return
-//
-//    disposeGetPlayerInfoJob()
-//  }
 
   private fun disposeGetRadioListJob() {
     _getRadioListJob!!.cancel()
     _getRadioListJob = null
   }
-
-//  private fun disposeGetPlayerInfoJob() {
-//    _getPlayerInfoJob!!.cancel()
-//    _getPlayerInfoJob = null
-//  }
 
   private fun disposeGetCurrentRadioJob() {
     _getCurrentRadioJob?.let {
@@ -118,6 +91,23 @@ class HomeViewModel @Inject constructor(
     disposeGetCurrentRadioJob()
 
     super.onCleared()
+  }
+
+  private fun startGettingCurRadio(radioId: Long): Job {
+    return viewModelScope.launch(_dispatcher) {
+      _useCase.getRadio(radioId).map {
+        _radioPresentationDomainModelMapper.map(it)
+      }.onEach {
+        Log.d(TAG, "startGettingCurRadio(): onEach(): curRadio = $it;")
+
+        _playerState.postValue(_playerState.value!!.let { prevState ->
+          prevState.copy(
+            currentRadio = it,
+            isRadioPlaying = prevState.isRadioPlaying
+          )
+        })
+      }.collect()
+    }
   }
 
   private fun startGettingRadioList(): Job {
@@ -137,59 +127,8 @@ class HomeViewModel @Inject constructor(
     }
   }
 
-//  private fun startGettingPlayerInfo(): Job {
-//    return viewModelScope.launch(_dispatcher) {
-//      _playerRepository.getPlayerInfo().map {
-//        val radioDomainModel = it.curRadioId?.let { radioId -> _useCase.getRadio(radioId).first() }
-//        val radioPresentation = radioDomainModel
-//          ?.let { _radioPresentationDomainModelMapper.map(radioDomainModel) }
-//
-//        _playerStateInfoDataModelMapper.map(radioPresentation, it)
-//      }.onEach {
-//        _state.postValue(_state.value!!.copy(playerState = it))
-//      }.catch { cause ->
-//        if (cause !is HearItException) throw cause
-//
-//        setErrorState(cause.errorReference)
-//      }.collect()
-//    }
-//  }
-
-//  @Deprecated("There's no need to preserve PlayerState anymore. Therefore, the method is no use;")
-//  private fun resolvePlayerStatePreservable(
-//    playerStatePreservable: PlayerStatePreservable
-//  ): Job? {
-//    if (playerStatePreservable.currentRadioId == null) return null
-//
-//    _state.value = _state.value!!.copy(isLoading = true)
-//
-//    return viewModelScope.launch(_dispatcher) {
-//      _useCase.getRadio(playerStatePreservable.currentRadioId).map {
-//        _radioPresentationDomainModelMapper.map(it)
-//      }.onEach {
-//        _state.postValue(_state.value!!.copy(
-//          playerState = PlayerState(currentRadio = it, playerStatePreservable.isRadioPlaying),
-//          isLoading = false
-//        ))
-//      }.catch { cause ->
-//        if (cause !is HearItException) throw cause
-//
-//        setErrorState(cause.errorReference)
-//      }.collect()
-//    }
-//  }
-
   fun setCurrentRadio(id: Long) {
-    setPlayerState(id)?.let { broadcastPlayerState(it) }
-
-//    val playerState = _state.value!!.playerState?.copy(currentRadio = radioPresentation)
-//      ?: PlayerState(currentRadio = radioPresentation, isRadioPlaying = true)
-//
-//    _state.value = _state.value!!.copy(playerState = playerState)
-//
-//    viewModelScope.launch(_dispatcher) {
-//      _playerRepository.updatePlayerInfo(_playerStateInfoDataModelMapper.map(playerState))
-//    }
+    setPlayerState(id).let { broadcastPlayerState(it, id) }
   }
 
   /**
@@ -198,23 +137,17 @@ class HomeViewModel @Inject constructor(
   private fun setPlayerState(
     radioId: Long? = _playerState.value?.currentRadio?.id,
     isPlaying: Boolean = _playerState.value?.isRadioPlaying ?: false
-  ): PlayerState? {
-    var radioPresentation: RadioPresentation? = _playerState.value?.currentRadio
+  ): PlayerState {
+    var curRadio: RadioPresentation? = _playerState.value?.currentRadio
 
-    if (radioId != null && radioId != _playerState.value?.currentRadio?.id) {
-      radioPresentation = _state.value!!.radioList?.find { it.id == radioId }
-
-      if (radioPresentation == null) {
-        _state.value = _state.value!!.copy(error = ErrorEnum.RADIO_NOT_FOUND.reference)
-
-        return null
-      }
+    if (radioId != null && radioId != curRadio?.id) {
+      observeCurRadio(radioId)
     } else if (radioId == null) {
-      radioPresentation = null
+      curRadio = null
     }
 
     val playerState = _playerState.value!!.copy(
-      currentRadio = radioPresentation,
+      currentRadio = curRadio,
       isRadioPlaying = isPlaying
     )
 
@@ -228,14 +161,8 @@ class HomeViewModel @Inject constructor(
   }
 
   fun changePlayingState() {
-    setPlayerState(isPlaying = !_playerState.value!!.isRadioPlaying)?.let { broadcastPlayerState(it) }
-
-//    val stateSnapshot = _state.value!!
-//    val playerStateSnapshot = stateSnapshot.playerState!!
-//
-//    _state.value = stateSnapshot.copy(
-//      playerState = playerStateSnapshot.copy(isRadioPlaying = !playerStateSnapshot.isRadioPlaying)
-//    )
+    setPlayerState(isPlaying = !_playerState.value!!.isRadioPlaying)
+      .let { broadcastPlayerState(it) }
   }
 
   fun setNextRadio() {
@@ -262,7 +189,7 @@ class HomeViewModel @Inject constructor(
       currentRadioId = radioList[neighborRadioIndex].id
     }
 
-    setPlayerState(radioId = currentRadioId)?.let { broadcastPlayerState(it) }
+    setPlayerState(radioId = currentRadioId).let { broadcastPlayerState(it, currentRadioId) }
   }
 
   fun resolvePlayerStatePacketBody(playerStatePacketBody: PlayerStatePacketBody) {
@@ -273,16 +200,11 @@ class HomeViewModel @Inject constructor(
     _state.value = _state.value!!.copy(error = null)
   }
 
-//  // todo: rethink this. isn't it a bad approach?:
-//  fun getRadioPresentationMediaItemMapper(): RadioPresentationMediaItemMapper {
-//    return _radioPresentationMediaItemMapper
-//  }
-
   private fun setErrorState(errorReference: ErrorReference) {
     _state.postValue(_state.value!!.copy(error = errorReference, isLoading = false))
   }
 
-  private fun broadcastPlayerState(playerState: PlayerState) {
-    _playerStatePacketBody.value = _playerStateStatePacketBodyMapper.map(playerState)
+  private fun broadcastPlayerState(playerState: PlayerState, newRadioId: Long? = null) {
+    _playerStatePacketBody.value = _playerStateStatePacketBodyMapper.map(playerState, newRadioId)
   }
 }

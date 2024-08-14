@@ -80,8 +80,9 @@ fun HomeScreen(
 ) {
   val state: HomeState by (viewModel.state.observeAsState() as State<HomeState>)
   val playerState: PlayerState by (viewModel.playerState.observeAsState() as State<PlayerState>)
-  val playerStatePacketBodyToSend: PlayerStatePacketBody
-    by (viewModel.playerStatePacketBody.observeAsState() as State<PlayerStatePacketBody>)
+  // todo: seems like a bad architectural decision:
+  val playerStatePacketBodyToSend: PlayerStatePacketBody?
+    by (viewModel.playerStatePacketBody.observeAsState())
 
   var isPlayerExpanded by remember { mutableStateOf(false) }
   val currentRadioPresentation = playerState.currentRadio
@@ -102,7 +103,7 @@ fun HomeScreen(
     // todo: is it for real?:
     if (playerStatePacketBodyToSend == null) return@LaunchedEffect
 
-    playerActivity.setPlayerState(playerStatePacketBodyToSend)
+    playerActivity.setPlayerState(playerStatePacketBodyToSend!!)
   }
 
 //  LaunchedEffect(key1 = currentRadioPresentation) {

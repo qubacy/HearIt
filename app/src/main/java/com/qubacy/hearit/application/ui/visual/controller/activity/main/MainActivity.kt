@@ -40,7 +40,6 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
         super.onCreate(savedInstanceState)
 
         setupPickImageLauncher()
-        setupPlayerStatePacketBus()
 
         enableEdgeToEdge()
         setContent {
@@ -48,25 +47,6 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
                 HearItApp()
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-//
-//        val sessionToken = SessionToken(this,
-//            ComponentName(this, RadioPlaybackService::class.java)
-//        )
-//        val mediaControllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
-//
-//        mediaControllerFuture.addListener({
-//            _radioPlayer = mediaControllerFuture.get()
-//        }, MoreExecutors.directExecutor())
-    }
-
-    override fun onStop() {
-//        _radioPlayer.release()
-
-        super.onStop()
     }
 
     private fun setupPickImageLauncher() {
@@ -82,7 +62,7 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
             playerStatePacketBus.playerStatePacket.collect {
                 if (it.senderId == this@MainActivity.hashCode().toString()) return@collect
 
-                _playerCallback?.onPlayerStatePacketGotten(it.body)
+                _playerCallback!!.onPlayerStatePacketGotten(it.body)
             }
         }
     }
@@ -100,17 +80,17 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
 
     override fun setPlayerActivityCallback(callback: PlayerActivity.Callback) {
         _playerCallback = callback
+
+        setupPlayerStatePacketBus()
     }
 
     override fun setPlayerState(playerStatePacketBody: PlayerStatePacketBody) {
         Log.d(TAG, "setPlayerState(): playerStatePacketBody = $playerStatePacketBody;")
 
-        playerStatePacketBus.postPlayerStatePacket(
-            PlayerStatePacket(playerStatePacketBody, hashCode().toString())
-        )
+        lifecycleScope.launch {
+            playerStatePacketBus.postPlayerStatePacket(
+                PlayerStatePacket(playerStatePacketBody, hashCode().toString())
+            )
+        }
     }
-
-//    override fun getPlayer(): Player {
-//        return _radioPlayer
-//    }
 }

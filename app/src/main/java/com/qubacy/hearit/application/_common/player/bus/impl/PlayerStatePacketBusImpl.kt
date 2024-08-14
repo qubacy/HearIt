@@ -2,15 +2,15 @@ package com.qubacy.hearit.application._common.player.bus.impl
 
 import com.qubacy.hearit.application._common.player.bus._common.PlayerStatePacketBus
 import com.qubacy.hearit.application._common.player.packet.PlayerStatePacket
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 class PlayerStatePacketBusImpl @Inject constructor() : PlayerStatePacketBus {
   private var _playerStatePacket = MutableStateFlow(PlayerStatePacket())
-  override val playerStatePacket: StateFlow<PlayerStatePacket> get() = _playerStatePacket
+  override val playerStatePacket: Flow<PlayerStatePacket> get() = _playerStatePacket
 
-  override fun postPlayerStatePacket(packet: PlayerStatePacket) {
-    _playerStatePacket.value = packet
+  override suspend fun postPlayerStatePacket(packet: PlayerStatePacket) {
+    _playerStatePacket.emit(packet)
   }
 }

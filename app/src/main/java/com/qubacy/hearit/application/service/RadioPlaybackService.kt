@@ -139,7 +139,7 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
   }
 
   private fun setupPlayerStatePacketBus() {
-    _coroutineScope!!.launch(coroutineDispatcher) {
+    _coroutineScope!!.launch {
       playerStatePacketBus.playerStatePacket.collect {
         if (it.senderId == hashCode().toString()) return@collect
 
@@ -359,8 +359,10 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
   }
 
   private fun broadcastPlayerState(playerStatePacketBody: PlayerStatePacketBody) {
-    playerStatePacketBus.postPlayerStatePacket(
-      PlayerStatePacket(playerStatePacketBody, hashCode().toString())
-    )
+    _coroutineScope!!.launch {
+      playerStatePacketBus.postPlayerStatePacket(
+        PlayerStatePacket(playerStatePacketBody, hashCode().toString())
+      )
+    }
   }
 }

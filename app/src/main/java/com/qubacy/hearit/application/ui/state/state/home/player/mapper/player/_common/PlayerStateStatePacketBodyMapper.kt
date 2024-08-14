@@ -9,5 +9,5 @@ interface PlayerStateStatePacketBodyMapper {
     radioPresentation: RadioPresentation,
     playerStatePacketBody: PlayerStatePacketBody
   ): PlayerState
-  fun map(playerState: PlayerState): PlayerStatePacketBody
+  fun map(playerState: PlayerState, newRadioId: Long? = null): PlayerStatePacketBody
 }
