@@ -20,7 +20,6 @@ import com.qubacy.hearit.R
 import com.qubacy.hearit.application._common.player.bus._common.PlayerStatePacketBus
 import com.qubacy.hearit.application._common.player.packet.PlayerStatePacket
 import com.qubacy.hearit.application._common.player.packet.PlayerStatePacketBody
-import com.qubacy.hearit.application.data.player.repository._common.PlayerDataRepository
 import com.qubacy.hearit.application.domain.usecase.radio.get._common.GetRadioUseCase
 import com.qubacy.hearit.application.service._di.module.RadioPlaybackServiceCoroutineDispatcherQualifier
 import com.qubacy.hearit.application.service.media.item.mapper._common.MediaItemRadioDomainModelMapper
@@ -51,8 +50,6 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
   @Inject
   lateinit var playerStatePacketBus: PlayerStatePacketBus
 
-  @Inject
-  lateinit var playerRepository: PlayerDataRepository
   @Inject
   lateinit var getRadioUseCase: GetRadioUseCase
   @Inject
@@ -87,7 +84,6 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
 
     setupBroadcastReceiver()
     setupMediaSession()
-    //observePlayerState(_player!!)
     setupNotification(_notificationManager)
     setupPlayerStatePacketBus()
     observeRadioList()
@@ -205,22 +201,6 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
     showNotification()
   }
 
-//  private fun changePlayingState(isPlaying: Boolean? = null) {
-//    _isPlaying = isPlaying ?: !_isPlaying
-//
-//    postRunnableOnMainThread {
-//      _player!!.apply {
-//        if (_isPlaying) play() else pause()
-//      }
-//    }
-//
-//    showNotification()
-//    broadcastPlayerState(PlayerStatePacketBody(
-//      radioId = _curMediaItem.mediaId.toLong(),
-//      isPlaying = _isPlaying
-//    ))
-//  }
-
   private fun changeCurRadio(mediaItem: MediaItem) {
     changePlayerMediaItem(mediaItem)
     showNotification()
@@ -281,48 +261,6 @@ class RadioPlaybackService : Service(), RadioNotificationBroadcastReceiver.Callb
     _player = ExoPlayer.Builder(this).build()
     _mediaSession = MediaSession.Builder(this, _player!!).build()
   }
-
-//  private fun observePlayerState(player: Player) {
-//    _coroutineScope!!.launch {
-//      _playerRepository.getPlayerInfo().collect {
-//        processPlayerState(it)
-//      }
-//    }
-//
-//    player.addListener(object : Player.Listener {
-//      override fun onIsPlayingChanged(isPlaying: Boolean) {
-//        super.onIsPlayingChanged(isPlaying)
-//
-//        // todo: implement..
-//
-//
-//      }
-//    })
-//  }
-
-//  private suspend fun processPlayerState(playerState: PlayerInfoDataModel) {
-//    playerState.curRadioId?.let { observeCurrentRadioChange(it) }
-//
-//    // todo: it's already handled by the Player:
-////    postRunnableOnMainThread {
-////      if (playerState.isPlaying) _player?.play() else _player?.stop()
-////    }
-//  }
-
-//  private suspend fun observeCurrentRadioChange(radioId: Long) {
-//    getRadioUseCase.getRadio(radioId).collect { radioDomainModel ->
-//      Log.d(TAG, "observeCurrentRadioChange(): _getRadioUseCase.getRadio(): radioDomainModel = $radioDomainModel;")
-//
-//      val mediaItem = mediaItemRadioDomainModelMapper.map(radioDomainModel)
-//
-//      postRunnableOnMainThread {
-//        showNotification(mediaItem)
-//
-//        // todo: is it a good idea to reset the media item?:
-//        changePlayerMediaItem(mediaItem)
-//      }
-//    }
-//  }
 
   private fun postRunnableOnMainThread(runnable: () -> Unit) {
     Handler(mainLooper).post(runnable)

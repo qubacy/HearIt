@@ -37,9 +37,6 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
   companion object {
     const val TAG = "HomeViewModel"
-
-//    const val PLAYER_STATE_KEY = "playerState"
-    const val PLAYER_STATE_INIT_FLAG_KEY = "playerStateInitFlag"
   }
 
   private val _state: MutableLiveData<HomeState> = MutableLiveData(HomeState())
@@ -87,7 +84,6 @@ class HomeViewModel @Inject constructor(
 
   override fun onCleared() {
     stopObservingRadioList()
-    //stopObservingPlayerInfo()
     disposeGetCurrentRadioJob()
 
     super.onCleared()
