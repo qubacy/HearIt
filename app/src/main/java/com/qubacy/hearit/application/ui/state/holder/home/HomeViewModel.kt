@@ -102,6 +102,10 @@ class HomeViewModel @Inject constructor(
             isRadioPlaying = prevState.isRadioPlaying
           )
         })
+      }.catch { cause ->
+        if (cause !is HearItException) throw cause
+
+        setErrorState(cause.errorReference)
       }.collect()
     }
   }
