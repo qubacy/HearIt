@@ -1,5 +1,6 @@
 package com.qubacy.hearit.application.ui.visual.controller.compose.screen.home
 
+import android.util.Log
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
@@ -25,7 +26,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,7 +88,6 @@ fun RadioPlayer(
   ConstraintLayout(
     modifier = modifier.then(
       Modifier
-        //.wrapContentHeight()
         .background(MaterialTheme.colorScheme.surface)
         .padding(vertical = paddingVertical, horizontal = normalGap)
     )
@@ -114,13 +113,15 @@ fun RadioPlayer(
           if (!isExpanded) {
             start.linkTo(parent.start)
             bottom.linkTo(parent.bottom)
+
+            width = Dimension.ratio("1:1")
+            height = Dimension.value(40.dp) // todo: temporal solution. otherwise, the title could disappear after the image is loaded;
           } else {
             bottom.linkTo(titleRef.top)
 
             width = Dimension.matchParent
+            height = Dimension.fillToConstraints
           }
-
-          height = Dimension.fillToConstraints
         }
     )
 
@@ -236,7 +237,7 @@ fun RadioPlayer() {
 
   RadioPlayer(
     "test title",
-    null,
+    "f2f",
     isPlaying,
     false,
     painterResource(id = R.drawable.radio_cover_placeholder),
