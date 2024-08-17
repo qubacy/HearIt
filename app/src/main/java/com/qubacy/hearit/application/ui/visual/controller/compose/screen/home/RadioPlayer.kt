@@ -89,7 +89,13 @@ fun RadioPlayer(
     modifier = modifier.then(
       Modifier
         .background(MaterialTheme.colorScheme.surface)
-        .padding(vertical = paddingVertical, horizontal = normalGap)
+        .let {
+          return@let if (!isExpanded) {
+            it.padding(vertical = paddingVertical, horizontal = normalGap)
+          } else {
+            it.padding(start = normalGap, top = normalGap, end = normalGap, bottom = paddingVertical)
+          }
+        }
     )
   ) {
     val coverContentDescription = stringResource(id = R.string.radio_player_cover_image_description)
