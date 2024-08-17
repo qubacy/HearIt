@@ -4,11 +4,17 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.PendingIntentCompat
+import androidx.core.graphics.decodeBitmap
 import androidx.media3.common.MediaItem
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application.service.notification._common.RadioNotificationActionEnum
@@ -86,13 +92,25 @@ class RadioNotificationProvider(
     val mediaItem = notificationState.curMediaItem
 
     mediaItem.mediaMetadata.run {
-      Log.d(TAG, "setupNotificationContent(): title = $title; description = $description; artworkUri = $artworkUri")
+      Log.d(
+        TAG,
+        "setupNotificationContent(): title = $title; description = $description; artworkUri = $artworkUri;"
+      )
     }
 
-    notificationLayout.setImageViewUri(
-      R.id.notification_radio_playback_cover,
-      mediaItem.mediaMetadata.artworkUri
-    )
+    if (mediaItem.mediaMetadata.artworkUri != null) {
+      val loadedCover = loadCover(mediaItem.mediaMetadata.artworkUri!!)
+
+      notificationLayout.setImageViewBitmap(
+        R.id.notification_radio_playback_cover,
+        loadedCover
+      )
+    } else {
+      notificationLayout.setImageViewResource(
+        R.id.notification_radio_playback_cover,
+        R.drawable.notification
+      )
+    }
     notificationLayout.setTextViewText(
       R.id.notification_radio_playback_title,
       mediaItem.mediaMetadata.title!!
@@ -118,6 +136,18 @@ class RadioNotificationProvider(
       R.id.notification_radio_playback_next_button,
       if (notificationState.isEnabled) View.VISIBLE else View.GONE
     )
+  }
+
+  // todo: mb it'd be better to form it as a suspend function 'coz of a bitmap loading process?:
+  private fun loadCover(coverUri: Uri): Bitmap {
+    return when {
+      Build.VERSION.SDK_INT < 28 -> {
+        MediaStore.Images.Media.getBitmap(_context.contentResolver, coverUri)
+      }
+      else -> {
+        ImageDecoder.decodeBitmap(ImageDecoder.createSource(_context.contentResolver, coverUri))
+      }
+    }
   }
 
   private fun setupNotificationActions(notificationLayout: RemoteViews) {
