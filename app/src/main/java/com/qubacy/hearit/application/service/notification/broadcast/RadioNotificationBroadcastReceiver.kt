@@ -14,6 +14,7 @@ class RadioNotificationBroadcastReceiver(
   override fun onReceive(context: Context?, intent: Intent?) {
     if (intent == null) return
 
+    // todo: looks like a bad decision (filter the actions!):
     _callback.onNotificationActionGotten(intent.action!!)
   }
 }

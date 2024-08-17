@@ -17,7 +17,7 @@ class MediaItemRadioDomainModelMapperImpl @Inject constructor(
       .setMediaMetadata(
         MediaMetadata.Builder()
           .setTitle(radioDomainModel.title)
-          .setSubtitle(radioDomainModel.description)
+          .setDescription(radioDomainModel.description)
           .setArtworkUri(radioDomainModel.cover?.let { _uriParser.parse(it) })
           .build()
       )

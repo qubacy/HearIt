@@ -85,6 +85,10 @@ class RadioNotificationProvider(
 
     val mediaItem = notificationState.curMediaItem
 
+    mediaItem.mediaMetadata.run {
+      Log.d(TAG, "setupNotificationContent(): title = $title; description = $description; artworkUri = $artworkUri")
+    }
+
     notificationLayout.setImageViewUri(
       R.id.notification_radio_playback_cover,
       mediaItem.mediaMetadata.artworkUri
