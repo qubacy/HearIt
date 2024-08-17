@@ -8,9 +8,11 @@ import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import androidx.core.app.PendingIntentCompat
 import androidx.media3.common.MediaItem
 import com.qubacy.hearit.R
 import com.qubacy.hearit.application.service.notification._common.RadioNotificationActionEnum
+import com.qubacy.hearit.application.ui.visual.controller.activity.main.MainActivity
 
 class RadioNotificationProvider(
   private val _context: Context,
@@ -18,6 +20,8 @@ class RadioNotificationProvider(
 ) {
   companion object {
     const val TAG = "RadioNotificationProvider"
+
+    const val OPEN_APP_REQUEST_CODE = 0
   }
 
   data class State(
@@ -44,8 +48,11 @@ class RadioNotificationProvider(
   private fun initNotificationBuilder(notificationLayout: RemoteViews) {
     setupNotificationActions(notificationLayout)
 
+    val openAppIntent = createOpenAppIntent()
+
     _notificationBuilder = NotificationCompat.Builder(_context, _channelId)
       .setSmallIcon(R.drawable.notification)
+      .setContentIntent(openAppIntent)
       .setCustomContentView(notificationLayout)
       .setStyle(NotificationCompat.DecoratedCustomViewStyle())
   }
@@ -56,6 +63,18 @@ class RadioNotificationProvider(
     setupNotificationContent(_notificationLayout, notificationState)
 
     return _notificationBuilder.build()
+  }
+
+  private fun createOpenAppIntent(): PendingIntent {
+    val intent = Intent(_context, MainActivity::class.java)
+
+    return PendingIntentCompat.getActivity(
+      _context,
+      OPEN_APP_REQUEST_CODE,
+      intent,
+      0,
+      false
+    )!!
   }
 
   private fun setupNotificationContent(
