@@ -84,6 +84,7 @@ fun HomeScreen(
   val playerStatePacketBodyToSend: PlayerStatePacketBody?
     by (viewModel.playerStatePacketBody.observeAsState())
 
+  var areCoversPermissionsDemanded by remember { mutableStateOf<Boolean?>(null) }
   var isPlayerExpanded by remember { mutableStateOf(false) }
   val currentRadioPresentation = playerState.currentRadio
 
@@ -94,7 +95,20 @@ fun HomeScreen(
       override fun onPlayerStatePacketGotten(playerStatePacketBody: PlayerStatePacketBody) {
         viewModel.resolvePlayerStatePacketBody(playerStatePacketBody)
       }
+
+      override fun onCoversPermissionsGranted() {
+        areCoversPermissionsDemanded = false
+      }
     })
+  }
+
+  if (areCoversPermissionsDemanded == null && state.radioList != null)
+    areCoversPermissionsDemanded = true
+
+  LaunchedEffect(key1 = areCoversPermissionsDemanded) {
+    if (areCoversPermissionsDemanded != true) return@LaunchedEffect
+
+    playerActivity.demandCoversPermissions(state.radioList!!.mapNotNull { it.cover })
   }
   
   LaunchedEffect(key1 = playerStatePacketBodyToSend) {
@@ -128,7 +142,8 @@ fun HomeScreen(
     radioList = state.radioList ?: listOf(),
     currentRadioPresentation = currentRadioPresentation,
     isRadioPlaying = playerState.isRadioPlaying,
-    isPlayerExpanded = isPlayerExpanded
+    isPlayerExpanded = isPlayerExpanded,
+    areCoversPrepared = areCoversPermissionsDemanded == false
   )
 
   SetupRadioListObserver(lifecycleOwner, viewModel)
@@ -172,7 +187,8 @@ fun HomeScreen(
   radioList: List<RadioPresentation> = listOf(),
   currentRadioPresentation: RadioPresentation? = null,
   isRadioPlaying: Boolean = false,
-  isPlayerExpanded: Boolean = false
+  isPlayerExpanded: Boolean = false,
+  areCoversPrepared: Boolean = false
 ) {
   val fabDescription = stringResource(id = R.string.home_screen_fab_description)
   val radioListDescription = stringResource(id = R.string.home_screen_radio_list_description)
@@ -203,37 +219,39 @@ fun HomeScreen(
 
       val guidelineVertical50Ref = createGuidelineFromTop(0.5f)
 
-      LazyColumn(
-        modifier = Modifier
-          .semantics {
-            contentDescription = radioListDescription
-          }
-          .constrainAs(listRef) {
-            top.linkTo(parent.top)
-            bottom.linkTo(
-              if ((isPlayerVisible || finalCurrentRadioPresentation != null) && !isPlayerExpanded)
-                playerWrapperRef.top
-              else parent.bottom
+      if (areCoversPrepared) {
+        LazyColumn(
+          modifier = Modifier
+            .semantics {
+              contentDescription = radioListDescription
+            }
+            .constrainAs(listRef) {
+              top.linkTo(parent.top)
+              bottom.linkTo(
+                if ((isPlayerVisible || finalCurrentRadioPresentation != null) && !isPlayerExpanded)
+                  playerWrapperRef.top
+                else parent.bottom
+              )
+
+              height = Dimension.fillToConstraints
+              width = Dimension.matchParent
+            }
+        ) {
+          itemsIndexed(radioList, key = { _: Int, item: RadioPresentation ->
+            item.id
+          }) { index, item ->
+            RadioListItem(
+              item,
+              { onRadioLongPressed(item.id) },
+              { onRadioPicked(item.id) },
+              modifier = Modifier.semantics {
+                contentDescription = radioListItemDescriptionTemplate.format(item.id)
+              },
+              enabled = !isLoading
             )
 
-            height = Dimension.fillToConstraints
-            width = Dimension.matchParent
+            if (index != radioList.size - 1) HorizontalDivider()
           }
-      ) {
-        itemsIndexed(radioList, key = { _: Int, item: RadioPresentation ->
-          item.id
-        }) { index, item ->
-          RadioListItem(
-            item,
-            { onRadioLongPressed(item.id) },
-            { onRadioPicked(item.id) },
-            modifier = Modifier.semantics {
-              contentDescription = radioListItemDescriptionTemplate.format(item.id)
-            },
-            enabled = !isLoading
-          )
-
-          if (index != radioList.size - 1) HorizontalDivider()
         }
       }
 

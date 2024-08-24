@@ -1,5 +1,7 @@
 package com.qubacy.hearit.application.ui.visual.controller.activity.main
 
+import android.content.ContentResolver
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -16,11 +18,15 @@ import com.qubacy.hearit.application._common.player.packet.PlayerStatePacketBody
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.CloseableActivity
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.ImagePickerActivity
 import com.qubacy.hearit.application.ui.visual.controller.activity._common.aspect.PlayerActivity
+import com.qubacy.hearit.application.ui.visual.controller.activity.main.contract.image.PickImageContract
 import com.qubacy.hearit.application.ui.visual.controller.compose.HearItApp
 import com.qubacy.hearit.application.ui.visual.resource.theme.HearItTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, CloseableActivity {
@@ -51,7 +57,7 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
 
     private fun setupPickImageLauncher() {
         _pickImageLauncher = registerForActivityResult(
-            ActivityResultContracts.PickVisualMedia()
+            PickImageContract()
         ) { uri ->
             _pickImageCallback?.invoke(uri)
         }
@@ -91,6 +97,23 @@ class MainActivity : ComponentActivity(), ImagePickerActivity, PlayerActivity, C
             playerStatePacketBus.postPlayerStatePacket(
                 PlayerStatePacket(playerStatePacketBody, hashCode().toString())
             )
+        }
+    }
+
+    override fun demandCoversPermissions(covers: List<Uri>) {
+        lifecycleScope.launch {
+            covers.forEach {
+                Log.d(TAG, "demandCoversPermissions(): coverUri = $it;")
+
+                contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+
+            withContext(Dispatchers.Main) {
+                _playerCallback!!.onCoversPermissionsGranted()
+            }
         }
     }
 }
